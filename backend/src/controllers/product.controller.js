@@ -1,5 +1,5 @@
-const productModel = require("../models/productModel");
-const APIFeatures = require("../utils/apiFeatures");
+const productModel = require("../models/product.model");
+const APIFeatures = require("../utils/apiFeaturs");
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -17,5 +17,21 @@ exports.getAllProducts = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.createProduct = async (req, res) => {
+  try {
+    const product = await productModel.create(req.body);
+
+    res.status(201).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
