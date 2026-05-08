@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'inter';
+  src: url('/fonts/Inter-VariableFont_opsz\,wght.ttf');
+}
+
+@theme {
+  /* Tailwind ki default font family ko override karein */
+  --font-inter: 'inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Global Styles */
+@layer base {
+  body {
+    @apply bg-[#ffffff] font-inter;
+    /* Agar aapne exact #ffff likha hai (jo ki shortcut hai #ffffff ka) */
+  }
+}
