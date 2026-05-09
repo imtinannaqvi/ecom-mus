@@ -110,10 +110,10 @@ const TopCategories = () => {
 
   return (
     <section className="w-full flex items-center justify-center flex-col p-4 md:p-10">
-      <Button text={"Top Categories"} />
+      <Button text={"TOP CATEGORIES"} />
       <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 mt-8 md:mt-10">
         {categories.map((elem) => (
-          <Link to={`/category/${elem.title.toLowerCase()}`} key={elem.id} className="relative h-60 md:h-80 rounded-lg overflow-hidden group">
+          <Link to={`/home/${elem.title}`} key={elem.id} className="relative h-60 md:h-80 rounded-lg overflow-hidden group">
             <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src={elem.img} alt={elem.title} />
             <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
               <p className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter" style={{ color: "transparent", WebkitTextStroke: "1px white" }}>

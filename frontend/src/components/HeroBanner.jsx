@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react"; // Ya lucide-react
+import { Link } from "react-router-dom";
 
 const categories = [
   { id: 1, title: "Caps", img: "/images/caps.jpg" },
@@ -32,10 +33,9 @@ function HeroBanner() {
 
   return (
     <section className="relative w-full mt-2 md:mt-5 h-[500px] md:h-[600px] overflow-hidden bg-black">
-      
       {/* SIDE BUTTONS - Z-index high for visibility */}
       <div className="absolute inset-y-0 left-2 md:left-5 flex items-center z-50">
-        <button 
+        <button
           onClick={() => setShowLayout(false)}
           className="p-2 md:p-4 rounded-full bg-black/40 backdrop-blur-sm border border-white/30 text-white hover:bg-white hover:text-black transition-all"
         >
@@ -44,7 +44,7 @@ function HeroBanner() {
       </div>
 
       <div className="absolute inset-y-0 right-2 md:right-5 flex items-center z-50">
-        <button 
+        <button
           onClick={() => setShowLayout(true)}
           className="p-2 md:p-4 rounded-full bg-black/40 backdrop-blur-sm border border-white/30 text-white hover:bg-white hover:text-black transition-all"
         >
@@ -64,20 +64,26 @@ function HeroBanner() {
               transition={{ duration: 0.6 }}
               className="absolute inset-0 w-full h-full"
             >
-              <img src="/images/banner.png" alt="Main" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 flex items-center justify-center md:justify-start px-6 md:px-24 bg-black/10">
+              <img
+                src="/images/banner.png"
+                alt="Main"
+                className="w-full h-full object-cover"
+              />
+              <Link className="absolute inset-0 flex items-center justify-center md:justify-start px-6 md:px-24 bg-black/10">
                 <div className="flex flex-col gap-4 md:gap-6 max-w-2xl text-center md:text-left items-center md:items-start">
                   <button className="bg-[#F48120] text-white font-bold py-1 px-4 md:py-2 md:px-6 w-fit rounded-sm uppercase tracking-widest text-[10px] md:text-xs">
                     EXPRESS YOURSELF
                   </button>
                   <h1 className="text-white md:text-black text-3xl md:text-6xl font-light leading-tight">
-                    Effortless <span className="font-bold">Glamour</span> for <br className="hidden md:block" /> Every <span className="font-bold">Occasion</span>
+                    Effortless <span className="font-bold">Glamour</span> for{" "}
+                    <br className="hidden md:block" /> Every{" "}
+                    <span className="font-bold">Occasion</span>
                   </h1>
                   <button className="bg-black text-white font-bold py-3 px-8 md:py-4 md:px-12 w-fit uppercase text-xs md:text-sm border border-white/20">
                     Shop Now
                   </button>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ) : (
             /* BANNER 2: SLANTED GRID (Fully Responsive) */
@@ -90,12 +96,12 @@ function HeroBanner() {
               className="absolute inset-0 flex flex-col md:flex-row w-full h-full bg-white overflow-hidden"
             >
               {categories.map((cat, index) => (
-                <div
+                <Link
+                  to={`/categories/${cat.title}`}
                   key={cat.id}
                   className="relative flex-1 h-full w-full overflow-hidden transition-all duration-500 hover:flex-[1.5] group cursor-pointer"
                   style={{
                     clipPath: getClipPath(index, categories.length, isMobile),
-                    // Mobile par margin top, desktop par margin left
                     marginTop: isMobile && index !== 0 ? "-8%" : "0",
                     marginLeft: !isMobile && index !== 0 ? "-5.8%" : "0",
                     zIndex: index,
@@ -106,20 +112,22 @@ function HeroBanner() {
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  
+
                   {/* Overlay and Text */}
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all flex items-end md:items-center justify-center pb-8 md:pb-0">
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all flex items-end md:items-end justify-center pb-8 ">
                     <h2
                       className="text-white text-2xl md:text-4xl font-black uppercase tracking-tighter"
                       style={{
                         color: "transparent",
-                        WebkitTextStroke: isMobile ? "0.8px white" : "1.2px white",
+                        WebkitTextStroke: isMobile
+                          ? "0.8px white"
+                          : "1.2px white",
                       }}
                     >
                       {cat.title}
                     </h2>
                   </div>
-                </div>
+                </Link>
               ))}
             </motion.div>
           )}
@@ -137,16 +145,20 @@ function HeroBanner() {
  */
 function getClipPath(index, total, isMobile) {
   const slant = 12; // Slant percentage
-  
+
   if (isMobile) {
     // Vertical Slant for Mobile
-    if (index === 0) return `polygon(0% 0%, 100% 0%, 100% ${100 - slant}%, 0% 100%)`;
-    if (index === total - 1) return `polygon(0% ${slant}%, 100% 0%, 100% 100%, 0% 100%)`;
+    if (index === 0)
+      return `polygon(0% 0%, 100% 0%, 100% ${100 - slant}%, 0% 100%)`;
+    if (index === total - 1)
+      return `polygon(0% ${slant}%, 100% 0%, 100% 100%, 0% 100%)`;
     return `polygon(0% ${slant}%, 100% 0%, 100% ${100 - slant}%, 0% 100%)`;
   } else {
     // Horizontal Slant for Desktop
-    if (index === 0) return `polygon(0% 0%, 100% 0%, ${100 - slant}% 100%, 0% 100%)`;
-    if (index === total - 1) return `polygon(${slant}% 0%, 100% 0%, 100% 100%, 0% 100%)`;
+    if (index === 0)
+      return `polygon(0% 0%, 100% 0%, ${100 - slant}% 100%, 0% 100%)`;
+    if (index === total - 1)
+      return `polygon(${slant}% 0%, 100% 0%, 100% 100%, 0% 100%)`;
     return `polygon(${slant}% 0%, 100% 0%, ${100 - slant}% 100%, 0% 100%)`;
   }
 }

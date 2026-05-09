@@ -26,17 +26,17 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please add at least one size"],
     },
     images: [
-  {
-    public_id: {
-      type: String,
-      required: false 
-    },
-    url: {
-      type: String,
-      required: true
-    }
-  }
-],
+      {
+        public_id: {
+          type: String,
+          required: false,
+        },
+        url: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     category: {
       type: String,
       required: [true, "Please specify a category"],
@@ -46,7 +46,6 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please enter product stock"],
       default: 1,
     },
-    
   },
   { timestamps: true },
 );

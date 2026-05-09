@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Link, useParams } from "react-router-dom";
+import {AppContext} from '../context/AppContextProvider'
 
 /* ── Inline Icons ── */
 const FilterIcon = () => (
@@ -10,6 +12,11 @@ const FilterIcon = () => (
     <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
+
+
+
+
+
 
 /* ── Data ── */
 const CATEGORIES = [
@@ -30,6 +37,12 @@ const ITEMS = Array.from({ length: 10 }, (_, i) => ({
 
 const CategoriesProduct = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const {categories} = useParams()
+const {products} = useContext(AppContext)
+
+const categoriesProduct = products.filter((item)=> item.subCategory === categories)
+console.log(categoriesProduct)
+
 
   return (
     <section className="bg-white min-h-screen">
@@ -37,9 +50,7 @@ const CategoriesProduct = () => {
 
       <div className="w-full px-4 md:px-6 pt-5">
         
-        {/* ── BANNER SECTION ── */}
-        {/* Mobile: Vertical Stack | Desktop: Parallelogram row */}
-        {/* ── BANNER SECTION ── */}
+     
 <div className="flex flex-col md:flex-row h-auto md:h-[450px] gap-2 md:gap-0 w-full overflow-hidden">
   {CATEGORIES.map((cat, index) => {
     // Desktop logic for parallelogram (only for md and up)
@@ -59,7 +70,7 @@ const CategoriesProduct = () => {
         <img
           src={cat.image}
           alt={cat.title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out  group-hover:scale-110"
         />
         
         {/* Overlay & Text */}
@@ -75,9 +86,9 @@ const CategoriesProduct = () => {
 
         {/* ── TOOLBAR ── */}
         <div className="mt-8">
-          <p className="text-[10px] text-gray-400 tracking-widest uppercase">home / hoodie</p>
+          <p className="text-[10px] text-gray-400 tracking-widest uppercase">home / {categories}</p>
           <div className="flex items-center justify-between mt-4">
-            <h2 className="text-lg font-bold">Hoodies <span className="text-gray-400 font-normal text-xs ml-2">8,612 items</span></h2>
+            <h2 className="text-lg font-bold">{categories} <span className="text-gray-400 font-normal text-xs ml-2">8,612 items</span></h2>
             <div className="flex items-center gap-4">
                <button className="hidden md:flex items-center gap-1 text-sm text-gray-600">Sort <IoIosArrowDown /></button>
                <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-xs font-bold">
@@ -89,14 +100,14 @@ const CategoriesProduct = () => {
 
         {/* ── PRODUCT GRID ── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mt-8 pb-20">
-          {ITEMS.map((item) => (
-            <div key={item.id} className="group">
-              <div className="aspect-[3/4] overflow-hidden bg-gray-100 rounded-lg">
-                <img src={item.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+          {categoriesProduct.map((item,idx) => (
+            <Link to={`/product/${item.id}`} key={idx} className="group">
+              <div className="aspect-[3/4] overflow-hidden bg-gray-600 rounded-lg">
+                <img src={item.images} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               </div>
-              <h3 className="mt-2 text-sm font-bold">{item.title}</h3>
+              <h3 className="mt-2 text-sm font-bold">{item.name}</h3>
               <p className="text-xs text-gray-500">${item.price}</p>
-            </div>
+            </Link>
           ))}
         </div>
 
