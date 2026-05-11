@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // Ya lucide-react
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AppContext } from "../context/AppContextProvider";
 
-const categories = [
-  { id: 1, title: "Caps", img: "/images/caps.jpg" },
-  { id: 2, title: "T-Shirts", img: "/images/t-shirts.jpg" },
-  { id: 3, title: "Hoodies", img: "/images/hoodies.jpg" },
-  { id: 4, title: "Pants", img: "/images/pants.jpg" },
-  { id: 5, title: "Lower", img: "/images/lower.jpg" },
-];
+// Categories are now dynamically filtered from AppContext based on the category prop
+// Previously: static array defined here - now fetched from context products
 
-function HeroBanner({category}) {
+function HeroBanner({ category }) {
+  const { products } = useContext(AppContext);
   const [showLayout, setShowLayout] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Screen size check for responsive clip-path
+  const categories = products
+    .filter((item) => item.category.toLowerCase() === category.toLowerCase())
+    .slice(0, 5);
+
+
+  // Detect screen size to adjust UI elements responsively for mobile vs desktop
   useEffect(() => {
     const checkRes = () => setIsMobile(window.innerWidth < 768);
     checkRes();
@@ -23,7 +25,7 @@ function HeroBanner({category}) {
     return () => window.removeEventListener("resize", checkRes);
   }, []);
 
-  // Auto Loop Logic
+  // Automatically toggle between different banner layouts every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setShowLayout((prev) => !prev);
@@ -33,7 +35,7 @@ function HeroBanner({category}) {
 
   return (
     <section className="relative w-full mt-2 md:mt-5 h-[500px] md:h-[600px] overflow-hidden bg-black">
-      {/* SIDE BUTTONS - Z-index high for visibility */}
+      {/* Navigation buttons with high z-index to appear above content */}
       <div className="absolute inset-y-0 left-2 md:left-5 flex items-center z-50">
         <button
           onClick={() => setShowLayout(false)}
@@ -55,7 +57,7 @@ function HeroBanner({category}) {
       <div className="relative w-full h-full">
         <AnimatePresence initial={false} mode="wait">
           {!showLayout ? (
-            /* BANNER 1: MAIN HERO */
+            /* Primary banner section displaying main promotional image */  
             <motion.div
               key="banner-main"
               initial={{ opacity: 0, x: 50 }}
@@ -86,7 +88,7 @@ function HeroBanner({category}) {
               </Link>
             </motion.div>
           ) : (
-            /* BANNER 2: SLANTED GRID (Fully Responsive) */
+            /* Secondary banner with slanted grid layout showing product categories */  
             <motion.div
               key="banner-slanted"
               initial={{ opacity: 0 }}
@@ -97,7 +99,7 @@ function HeroBanner({category}) {
             >
               {categories.map((cat, index) => (
                 <Link
-                  to={`/shop/${category}/${cat.title}`}
+                  to={`/shop/${category}/${cat.subCategory}`}
                   key={cat.id}
                   className="relative flex-1 h-full w-full overflow-hidden transition-all duration-500 hover:flex-[1.5] group cursor-pointer"
                   style={{
@@ -108,12 +110,12 @@ function HeroBanner({category}) {
                   }}
                 >
                   <img
-                    src={cat.img}
+                    src={cat.images}
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
 
-                  {/* Overlay and Text */}
+                  {/* Semi-transparent overlay with category text label */}
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all flex items-end md:items-end justify-center pb-8 ">
                     <h2
                       className="text-white text-2xl md:text-4xl font-black uppercase tracking-tighter"
@@ -124,7 +126,7 @@ function HeroBanner({category}) {
                           : "1.2px white",
                       }}
                     >
-                      {cat.title}
+                      {cat.subCategory}
                     </h2>
                   </div>
                 </Link>
@@ -138,10 +140,12 @@ function HeroBanner({category}) {
 }
 
 /**
- * Responsive ClipPath Logic
- * @param {number} index - Current item index
- * @param {number} total - Total items
- * @param {boolean} isMobile - Is screen mobile?
+ * Generates responsive clip-path values for slanted grid layout
+ * Creates different clipping patterns based on item position and device type
+ * @param {number} index - Current product index in the array
+ * @param {number} total - Total number of products in the grid
+ * @param {boolean} isMobile - Flag indicating if viewport is mobile-sized
+ * @returns {string} CSS clip-path polygon value
  */
 function getClipPath(index, total, isMobile) {
   const slant = 12; // Slant percentage

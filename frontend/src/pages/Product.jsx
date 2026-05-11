@@ -1,8 +1,9 @@
-import Button from "../components/Button";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CiHeart } from "react-icons/ci";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { AppContext } from "../context/AppContextProvider";
+import Button from "../components/Button";
 
 // 1. Reusable Product Card
 const ProductCard = ({ item, itemsToShow }) => (
@@ -16,7 +17,7 @@ const ProductCard = ({ item, itemsToShow }) => (
     </div>
     <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
       <img
-        src={item.img}
+        src={item.images || item.images?.[0]}
         alt={item.title}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
@@ -38,8 +39,8 @@ const ProductCard = ({ item, itemsToShow }) => (
   </Link>
 );
 
-// 2. Reusable Slider Section (Exported so you can use it)
-export const ProductSliderSection = ({ title, products }) => {
+// 2. Reusable Slider Section
+export const ProductSliderSection = ({ title, products = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(5);
 
@@ -54,11 +55,13 @@ export const ProductSliderSection = ({ title, products }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalItems = products.length;
+  const totalItems = products?.length || 0;
   const nextSlide = () =>
     currentIndex < totalItems - itemsToShow &&
     setCurrentIndex(currentIndex + 1);
   const prevSlide = () => currentIndex > 0 && setCurrentIndex(currentIndex - 1);
+
+  if (totalItems === 0) return null;
 
   return (
     <section className="w-full p-4 md:p-10">
@@ -69,13 +72,13 @@ export const ProductSliderSection = ({ title, products }) => {
         <div className="flex z-10 top-[35%] md:top-1/2 -translate-y-1/2 justify-between w-full absolute px-1 pointer-events-none">
           <button
             onClick={prevSlide}
-            className={`p-1.5 md:p-2 pointer-events-auto bg-white shadow-md text-black rounded-full transition ${currentIndex === 0 ? "opacity-0 invisible" : "opacity-100"}`}
+            className={`p-1.5 md:p-2 pointer-events-auto bg-white shadow-md rounded-full transition ${currentIndex === 0 ? "opacity-0" : "opacity-100"}`}
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={nextSlide}
-            className={`p-1.5 md:p-2 pointer-events-auto bg-white shadow-md text-black rounded-full transition ${currentIndex >= totalItems - itemsToShow ? "opacity-0 invisible" : "opacity-100"}`}
+            className={`p-1.5 md:p-2 pointer-events-auto bg-white shadow-md rounded-full transition ${currentIndex >= totalItems - itemsToShow ? "opacity-0" : "opacity-100"}`}
           >
             <ChevronRight size={20} />
           </button>
@@ -96,52 +99,52 @@ export const ProductSliderSection = ({ title, products }) => {
   );
 };
 
-// 3. Named Export for Single Product Page
-export const NewArrivals = () => {
-  return <ProductSliderSection title="NEW ARRIVALS" products={mockProducts} />;
+// 3. NEW ARRIVALS (Alag Export - Fixed)
+export const NewArrivals = ({ products }) => {
+  return <ProductSliderSection title="NEW ARRIVALS" products={products} />;
 };
 
-// 4. Categories Section
-const TopCategories = ({ category }) => {
-  console.log("filtring object for category", category);
-  const categories = [
-    { id: 1, title: "Hoodies", img: "/images/catImg/hoodie.jpg" },
-    { id: 2, title: "Caps", img: "/images/catImg/cap.jpg" },
-    { id: 3, title: "Bags", img: "/images/catImg/bag.jpg" },
-    { id: 4, title: "Pants", img: "/images/catImg/pant.jpg" },
-    { id: 5, title: "T-Shirt", img: "/images/catImg/t-shirt.jpg" },
-    { id: 6, title: "Bottoms", img: "/images/catImg/bottoms.jpg" },
-    { id: 7, title: "Belts", img: "/images/catImg/belts.jpg" },
-    { id: 8, title: "T-Shirts", img: "/images/catImg/t-shirts.jpg" },
-  ];
+// 4. TOP CATEGORIES
+const TopCategories = ({ category, products = [] }) => {
+  const uniqueSubCategories = [];
+  const seen = new Set();
+  products.forEach((item) => {
+    if (
+      item.category?.toLowerCase() === category?.toLowerCase() &&
+      !seen.has(item.subCategory)
+    ) {
+      seen.add(item.subCategory);
+      uniqueSubCategories.push(item);
+    }
+  });
 
   return (
     <section className="w-full flex items-center justify-center flex-col p-4 md:p-10">
       <Button text={"TOP CATEGORIES"} />
       <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 mt-8 md:mt-10">
-        {categories.map((elem) => (
+        {uniqueSubCategories.map((elem) => (
           <Link
-            to={`/shop/${category}/${elem.title}`}
+            to={`/shop/${category}/${elem.subCategory}`}
             key={elem.id}
             className="relative h-60 md:h-80 rounded-lg overflow-hidden group"
           >
             <img
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              src={elem.img}
-              alt={elem.title}
+              src={elem.img || elem.images}
+              alt={elem.subCategory}
             />
-       <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
-  <p 
-    className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter"
-    style={{
-      color: "rgba(0, 0, 0, 0.6)", // Wahi color jo background ka hai
-      WebkitTextStroke: "1px white",
-      paintOrder: "stroke fill"
-    }}
-  >
-    {elem.title}
-  </p>
-</div>
+            <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
+              <p
+                className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter"
+                style={{
+                  color: "rgba(0,0,0,0.6)",
+                  WebkitTextStroke: "1px white",
+                  paintOrder: "stroke fill",
+                }}
+              >
+                {elem.subCategory}
+              </p>
+            </div>
           </Link>
         ))}
       </div>
@@ -149,84 +152,29 @@ const TopCategories = ({ category }) => {
   );
 };
 
-// Mock Data
-const mockProducts = [
-  {
-    id: 1,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/1.jpg",
-    type: "dress",
-  },
-  {
-    id: 2,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/2.jpg",
-    type: "dress",
-  },
-  {
-    id: 3,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/3.jpg",
-    type: "dress",
-  },
-  {
-    id: 4,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/4.jpg",
-    type: "dress",
-  },
-  {
-    id: 5,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/1.jpg",
-    type: "dress",
-  },
-  {
-    id: 6,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/2.jpg",
-    type: "dress",
-  },
-  {
-    id: 7,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/3.jpg",
-    type: "dress",
-  },
-  {
-    id: 8,
-    title: "samsoe",
-    brand: "Women's Yellow All Over",
-    price: "2,500",
-    img: "/images/pdImg/4.jpg",
-    type: "dress",
-  },
-];
-
-// 5. MAIN PRODUCT PAGE (Home Page Pe Jo Show Hota Hai)
+// 5. MAIN PRODUCT PAGE
 function Product({ category }) {
+  const { products } = useContext(AppContext);
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center font-bold uppercase tracking-widest">
+        Loading...
+      </div>
+    );
+  }
+
+  const filtered = products.filter(
+    (item) => item.category?.toLowerCase() === category?.toLowerCase(),
+  );
+
   return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
-      <TopCategories category={category} />
-      {/* Ab saare sections wapis aa gaye hain */}
-      <ProductSliderSection title="NEW ARRIVALS" products={mockProducts} />
-      <ProductSliderSection title="TOP TRENDING" products={mockProducts} />
-      <ProductSliderSection title="TOP DISCOUNT" products={mockProducts} />
-      <ProductSliderSection title="BUY 2 GET 1 FREE" products={mockProducts} />
+      <TopCategories category={category} products={filtered} />
+      <NewArrivals products={filtered} />
+      <ProductSliderSection title="TOP TRENDING" products={filtered} />
+      <ProductSliderSection title="TOP DISCOUNT" products={filtered} />
+      <ProductSliderSection title="BUY 2 GET 1 FREE" products={filtered} />
     </div>
   );
 }

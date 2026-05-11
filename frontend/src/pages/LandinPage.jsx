@@ -67,12 +67,12 @@ function LandinPage() {
           />
         </div>
       </header>
-     <section className="w-full py-10 px-4 min-h-screen flex flex-wrap items-stretch justify-center gap-4">
+     <section className="w-full py-10 px-2 min-h-screen flex flex-wrap items-stretch justify-center gap-4">
   {items.map((item, idx) => {
     return (
       <div 
         key={idx} 
-        className="w-full sm:w-[48%] lg:w-[31%] shrink-0 relative h-[400px] md:h-[500px] overflow-hidden rounded-lg"
+        className="w-full sm:w-[48%] lg:w-[31%] shrink-0 relative h-screen overflow-hidden "
       >
         {/* Image */}
         <img

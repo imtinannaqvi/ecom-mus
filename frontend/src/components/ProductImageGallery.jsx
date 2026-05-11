@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 const ProductImageGallery = ({ thumbnails, mainImage }) => {
   const [currentImage, setCurrentImage] = useState(mainImage);
 
-  // Jab product change ho toh main image update ho jaye
+  // Update main image display whenever the product changes
   useEffect(() => {
     setCurrentImage(mainImage);
   }, [mainImage]);
 
   return (
     <div className="flex flex-col-reverse md:flex-row gap-4 h-auto md:h-[650px]">
-      {/* Side Thumbnails */}
+      {/* Thumbnail gallery - clickable to switch main product image */}
       <div className="flex md:flex-col gap-3 w-full md:w-24 h-auto md:h-full overflow-y-auto no-scrollbar">
         {thumbnails.map((img, idx) => (
           <div 
@@ -24,7 +24,7 @@ const ProductImageGallery = ({ thumbnails, mainImage }) => {
         ))}
       </div>
 
-      {/* Main Image View */}
+      {/* Large primary product image display area */}
       <div className="flex-1 w-full h-[450px] md:h-full bg-[#f9f9f9] rounded-xl overflow-hidden shadow-sm">
         <img 
           src={currentImage} 

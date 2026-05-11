@@ -14,6 +14,7 @@ function SizeChartOverlay({ sizeGuide, productType, guideLabel, setSizeGuideOpen
 
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="space-y-4 lg:w-1/2">
+            {/* Header section with product type and measurement instructions */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold">{sizeGuide.title}</h2>
@@ -26,6 +27,7 @@ function SizeChartOverlay({ sizeGuide, productType, guideLabel, setSizeGuideOpen
               <div className="absolute inset-x-6 top-6 h-40 rounded-3xl bg-white shadow-sm" />
               <div className="relative flex h-40 items-center justify-center">
                 <div className="h-40 w-36 rounded-3xl border-2 border-dashed border-gray-300 bg-white" />
+              {/* Visual guide labels indicating measurement points on garment */}
                 <div className="absolute left-4 top-10 text-xs font-semibold uppercase tracking-[0.2em] text-gray-700">
                   {guideLabel[0]}
                 </div>

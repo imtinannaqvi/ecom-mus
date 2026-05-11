@@ -25,11 +25,10 @@ const ProductDetails = ({
 }) => {
   const { cartItem, setCartItem } = useContext(AppContext);
 
-  console.log(cartItem);
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Title & Price */}
+      {/* Product name, description, price and discount information */}
       <div className="space-y-2">
         <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">
           {product.name}
@@ -46,7 +45,7 @@ const ProductDetails = ({
         </div>
       </div>
 
-      {/* Sizing Section */}
+      {/* Size selector with optional size chart guide */}
       {hasSizing && (
         <div className="space-y-4 pt-4 border-t border-dashed">
           <div className="flex justify-between items-center">
@@ -73,7 +72,7 @@ const ProductDetails = ({
         </div>
       )}
 
-      {/* Quantity & Add to Cart */}
+      {/* Quantity selector and add-to-cart button with social sharing options */}
       <div className="flex justify-between  gap-2 mt-2">
         <div className="flex items-center border  border-gray-300 rounded overflow-hidden">
           <button
@@ -94,14 +93,14 @@ const ProductDetails = ({
         </div>
         <button
           onClick={() => {
-            // Pehle check karo kya item pehle se cart mein hai
+            // Check if this product already exists in the shopping cart
             const isExist = cartItem.find((item) => item.id === product.id);
 
             if (isExist) {
-              // Agar item pehle se hai, toh sirf alert de do ya quantity update karo
+              // Notify user if item is already in cart
               alert("This item is already in your cart!");
             } else {
-              // Agar naya item hai, toh purane items ke saath naya add karo
+              // Add new item to cart with selected size and quantity
               setCartItem([
                 ...cartItem,
                 { ...product, quantity: quantity, size: selectedSize },
@@ -124,7 +123,7 @@ const ProductDetails = ({
         </div>
       </div>
 
-      {/* Delivery Info */}
+      {/* Estimated delivery and free shipping information */}
       <div className="space-y-3 ">
         <div className="flex items-center gap-3 text-xs">
           <FaTruck className="text-gray-400" />
@@ -140,7 +139,7 @@ const ProductDetails = ({
         </div>
       </div>
 
-      {/* Feature Icons Grid */}
+      {/* Key features: track order, 24/7 support, quality guarantee, and returns policy */}
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-4 pt-6 border-t mt-4">
         {/* Track Order */}
         <div className="flex items-center gap-2 min-w-fit">

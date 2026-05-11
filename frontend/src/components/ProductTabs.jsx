@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 const tabs = ["Description", "Additional Info", "Vendor", "Reviews"];
 
 function ProductTabs({ activeTab, setActiveTab, product }) {
-  // --- Fallback / Dummy Data ---
+  // Default placeholder data used when product information is incomplete
   const dummyDescription = "Uninhibited candor flared played in whipped cider gorilla knoll depends and much yikes off for quetzal goodness and from far grimaced spacemen unaccountably and melodrama roam unblinkingly crucial scallop tightly nervous.";
   
   const dummyAdditionalInfo = ["Standard Fit", "Cotton Blend", "Pre-shrunk Fabric", "Eco-friendly Dye"];
@@ -37,7 +37,7 @@ function ProductTabs({ activeTab, setActiveTab, product }) {
             <p className="leading-relaxed">
               {product?.description || dummyDescription}
             </p>
-            {/* Agar product mein longDescription hai toh wo bhi dikha sakte hain */}
+            {/* Display extended description if available in product data */}
             {product?.longDescription && <p>{product.longDescription}</p>}
           </div>
         )}
@@ -83,7 +83,7 @@ function ProductTabs({ activeTab, setActiveTab, product }) {
               </span>
             </div>
 
-            {/* Agar real reviews hain toh wo map honge, warna empty state dikhayega */}
+            {/* Display actual reviews if available, otherwise show empty state message */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {product?.reviews && product.reviews.length > 0 ? (
                 product.reviews.map((review, index) => (

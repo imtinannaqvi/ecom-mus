@@ -15,6 +15,9 @@ function SingleProduct() {
   const { products, cartItem, setCartItem } = useContext(AppContext);
   const product = products.find((p) => p.id === parseInt(id));
 
+    const filteredProducts = products.filter((item)=> item.category === product.category )
+
+
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("Description");
@@ -89,8 +92,8 @@ function SingleProduct() {
           </section>
 
           <section className="bg-[#fcfcfc] py-16">
-            <div className="max-w-[1440px] mx-auto space-y-20">
-              <NewArrivals />
+            <div className="max-w-[1440px]  mx-auto space-y-20">
+              <NewArrivals products={filteredProducts} />
               <div className="px-4 md:px-10">
                 <CoustomerReviews />
               </div>

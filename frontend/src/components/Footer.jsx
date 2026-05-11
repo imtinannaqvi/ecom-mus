@@ -13,7 +13,7 @@ import { FaInstagram } from "react-icons/fa6";
 const Footer = () => {
   return (
     <footer className="w-full font-sans text-gray-300">
-      {/* SECTION 1: TOP FEATURES (Light Gray Background) */}
+      {/* Promotional section with feature highlights like returns, shipping, etc */}
       <div className="bg-[#f3f4f6] py-12 px-4 border-b border-gray-200">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center text-black">
           {[
@@ -53,10 +53,10 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* SECTION 2: MAIN FOOTER (Black Background) */}
+      {/* Main footer content with company info, links, and subscription */}
       <div className="bg-black text-white pt-16 pb-8 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10 border-b border-gray-800 pb-12">
-          {/* Brand Info */}
+          {/* Company logo and contact information section */}
           <div className="col-span-1">
             <img src="/images/footer-logo.png" alt="" />
             <div className="space-y-4 text-sm text-gray-400">
@@ -82,7 +82,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Company navigation and mobile app download links */}
           <div>
             <h4 className="font-bold mb-6 text-sm">COMPANY</h4>
             <ul className="space-y-3 text-sm text-gray-400">
@@ -122,7 +122,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Customer Service */}
+          {/* Customer support contact and assistance options */}
           <div>
             <h4 className="font-bold mb-6 text-sm">CUSTOMER SERVICE</h4>
             <ul className="space-y-3 text-sm text-gray-400">
@@ -133,7 +133,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Socials & Payments */}
+          {/* Social media connections and payment method icons */}
           <div>
             <h4 className="font-bold mb-6 text-sm">CONNECT WITH US</h4>
             <div className="space-y-3 text-sm text-gray-400 mb-6">
@@ -164,7 +164,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Subscribe */}
+          {/* Email subscription form for newsletter and promotions */}
           <div>
             <h4 className="font-bold mb-6 text-sm uppercase">
               Keep up to date
@@ -204,9 +204,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* SECTION 3: SITEMAP (Bottom Grid) */}
+        {/* Sitemap with organized product categories and quick links */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 py-12 text-gray-400 text-[13px]">
-          {/* Men's Column */}
+          {/* Men's products category navigation */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
               MEN'S
@@ -220,7 +220,7 @@ const Footer = () => {
             <p>Men's White T-Shirts</p>
           </div>
 
-          {/* Women's Column */}
+          {/* Women's products category navigation */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
               WOMEN'S
@@ -233,7 +233,7 @@ const Footer = () => {
             <p>Women's Nightwear</p>
           </div>
 
-          {/* Kids Column */}
+          {/* Children's products category navigation */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
               Kids
@@ -244,7 +244,7 @@ const Footer = () => {
             <p>Kids Shopping</p>
           </div>
 
-          {/* Parental Column */}
+          {/* Parental control and additional resource links */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
               Parental
@@ -261,7 +261,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Return Policy Callout */}
+          {/* Prominent display of return policy for customer assurance */}
           <div className="flex flex-col items-end">
             <div className="flex items-center gap-2 text-white font-bold">
               <Truck size={20} />

@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
 
-/* ── Inline Icons ── */
+/* SVG icon components used in the filter UI */  
 const FilterIcon = () => (
   <svg
     width="16"
@@ -29,16 +29,15 @@ const CategoriesProduct = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { products } = useContext(AppContext);
 
-  // 1. Filter products based on subCategory from context
+  // Filter products matching the current subcategory from context
   const categoriesProduct = products.filter(
     (item) => item.subCategory === subCategory
   );
-  console.log(categoriesProduct)
 
-  // 2. Parallelogram ke liye pehle 5 products nikaale
+  // Extract first 5 products for the featured parallelogram section
   const topFiveProducts = categoriesProduct.slice(0, 5);
   
-  // 3. Grid ke liye baaki bache hue products
+  // Get remaining products for the standard grid layout below
   const remainingProducts = categoriesProduct.slice(5);
 
   return (
@@ -46,7 +45,7 @@ const CategoriesProduct = () => {
       <Header />
 
       <div className="w-full px-4 md:px-6 pt-5">
-        {/* ── PARALLELOGRAM SECTION (Top 5 Products) ── */}
+        {/* Featured section with slanted parallelogram layout for top 5 products */}
         <div className="flex flex-col md:flex-row h-auto md:h-[450px] gap-2 md:gap-0 w-full overflow-hidden">
           {topFiveProducts.map((cat, index) => {
             let desktopClip =
@@ -67,7 +66,7 @@ const CategoriesProduct = () => {
           ${desktopClip}`}
                 style={{ zIndex: topFiveProducts.length - index }}
               >
-                {/* Image updated with product data */}
+                {/* Product images with hover zoom effect */}
                 <img
                   src={cat.images} // Handle array or single string
                   alt={cat.name}
@@ -80,7 +79,7 @@ const CategoriesProduct = () => {
           })}
         </div>
 
-        {/* ── TOOLBAR ── */}
+        {/* Section toolbar with category title, item count, and filter options */}
         <div className="mt-8">
           <p className="text-[10px] text-gray-400 tracking-widest uppercase">
             home / {subCategory}
@@ -103,7 +102,7 @@ const CategoriesProduct = () => {
           </div>
         </div>
 
-        {/* ── PRODUCT GRID (Remaining Products) ── */}
+        {/* Responsive grid layout displaying remaining products */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mt-8 pb-20">
           {remainingProducts.map((item, idx) => (
             <Link to={`/product/${item.id}`} key={item.id || idx} className="group">

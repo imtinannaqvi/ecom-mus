@@ -15,7 +15,7 @@ import { CiHeart } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
 import { AppContext } from "../context/AppContextProvider";
 
-// --- REUSABLE MEGA MENU (Desktop) ---
+// Mega menu component that displays category navigation on desktop hover
 const MegaMenu = ({ data, closeMenu, category }) => {
   return (
     <>
@@ -62,7 +62,7 @@ function Header({category}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [bagHovered, setBagHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cartItem, setCartItem } = useContext(AppContext); // Cart items array
+  const { cartItem, setCartItem } = useContext(AppContext);
 
   const menuContent = {
     men: [
@@ -149,7 +149,7 @@ function Header({category}) {
       className="w-full font-[Inter] shadow-md bg-white relative z-[100]"
       onMouseLeave={() => setActiveMenu(null)}
     >
-      {/* 1. TOP BLACK BAR (Hidden on mobile) */}
+      {/* Header top section with contact and social links - hidden on mobile */}
       <div className="hidden md:flex w-full h-10 items-center justify-between text-white px-6 bg-black relative z-[110]">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-2 text-[11px] tracking-wider">
@@ -181,9 +181,9 @@ function Header({category}) {
         </div>
       </div>
 
-      {/* 2. MAIN NAVBAR */}
+      {/* Main navigation bar with logo, menu links, and action icons */}
       <div className="w-full h-16 flex items-center justify-between px-4 md:px-6 bg-white relative">
-        {/* Mobile Hamburger */}
+        {/* Menu toggle button for mobile navigation drawer */}
         <div className="md:hidden">
           <FaBars
             size={22}
@@ -192,7 +192,7 @@ function Header({category}) {
           />
         </div>
 
-        {/* Desktop Links */}
+        {/* Navigation category links - visible only on desktop screens */}
         <div className="hidden md:flex gap-8 items-center h-full">
           {["men", "women", "kids"].map((cat) => (
             <div
@@ -214,7 +214,7 @@ function Header({category}) {
           ))}
         </div>
 
-        {/* LOGO */}
+        {/* Centered brand logo linking to homepage */}
         <Link to="/" className="absolute left-1/2 -translate-x-1/2">
           <img
             className="h-7 md:h-9 object-contain"
@@ -223,7 +223,7 @@ function Header({category}) {
           />
         </Link>
 
-        {/* ACTION ICONS */}
+        {/* Search, account, wishlist, and shopping cart icons */}
         <div className="flex items-center gap-4 md:gap-6">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
@@ -249,7 +249,7 @@ function Header({category}) {
             <CiHeart size={24} className="hover:text-red-600" />
           </Link>
 
-          {/* SHOPPING BAG WRAPPER */}
+          {/* Shopping cart icon with item counter and hover preview panel */}
           <div
             className="relative  h-full py-5 px-4"
             onMouseEnter={() => setBagHovered(true)}
@@ -262,7 +262,7 @@ function Header({category}) {
               <IoCartOutline size={24} />
             </Link>
 
-            {/* Shopping Bag Sidebar (Desktop Hover UI) */}
+            {/* Desktop-only dropdown showing cart items preview on hover */}
             {bagHovered && (
               <div className="hidden md:flex fixed top-[104px] right-0 w-80 h-[calc(100vh-104px)] bg-white shadow-2xl border-l border-gray-100 z-[110] flex-col animate-in slide-in-from-right duration-300">
                 <div className="p-5 border-b flex justify-between items-center text-black">
