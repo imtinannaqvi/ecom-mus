@@ -2,16 +2,16 @@ import Button from "../components/Button";
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CiHeart } from "react-icons/ci";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 // 1. Reusable Product Card
 const ProductCard = ({ item, itemsToShow }) => (
-  <Link 
+  <Link
     to={`/product/${item.id}`}
     className="shrink-0 relative group mb-4"
     style={{ width: `calc(${100 / itemsToShow}% - 16px)` }}
   >
-    <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-red-500 hover:text-white transition-colors">
+    <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors">
       <CiHeart />
     </div>
     <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
@@ -22,12 +22,16 @@ const ProductCard = ({ item, itemsToShow }) => (
       />
     </div>
     <div className="mt-3 md:mt-4">
-      <p className="text-[10px] md:text-xs text-gray-400 capitalize">{item.type}</p>
+      <p className="text-[10px] md:text-xs text-gray-400 capitalize">
+        {item.type}
+      </p>
       <h3 className="font-bold text-xs md:text-sm truncate uppercase">
         {item.title}
       </h3>
       <div className="flex justify-between items-center mt-1 md:mt-2">
-        <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">{item.brand}</p>
+        <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">
+          {item.brand}
+        </p>
         <p className="text-sm md:text-lg font-semibold">${item.price}</p>
       </div>
     </div>
@@ -51,7 +55,9 @@ export const ProductSliderSection = ({ title, products }) => {
   }, []);
 
   const totalItems = products.length;
-  const nextSlide = () => currentIndex < totalItems - itemsToShow && setCurrentIndex(currentIndex + 1);
+  const nextSlide = () =>
+    currentIndex < totalItems - itemsToShow &&
+    setCurrentIndex(currentIndex + 1);
   const prevSlide = () => currentIndex > 0 && setCurrentIndex(currentIndex - 1);
 
   return (
@@ -96,7 +102,8 @@ export const NewArrivals = () => {
 };
 
 // 4. Categories Section
-const TopCategories = () => {
+const TopCategories = ({ category }) => {
+  console.log("filtring object for category", category);
   const categories = [
     { id: 1, title: "Hoodies", img: "/images/catImg/hoodie.jpg" },
     { id: 2, title: "Caps", img: "/images/catImg/cap.jpg" },
@@ -113,13 +120,28 @@ const TopCategories = () => {
       <Button text={"TOP CATEGORIES"} />
       <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 mt-8 md:mt-10">
         {categories.map((elem) => (
-          <Link to={`/home/${elem.title}`} key={elem.id} className="relative h-60 md:h-80 rounded-lg overflow-hidden group">
-            <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src={elem.img} alt={elem.title} />
-            <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
-              <p className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter" style={{ color: "transparent", WebkitTextStroke: "1px white" }}>
-                {elem.title}
-              </p>
-            </div>
+          <Link
+            to={`/shop/${category}/${elem.title}`}
+            key={elem.id}
+            className="relative h-60 md:h-80 rounded-lg overflow-hidden group"
+          >
+            <img
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              src={elem.img}
+              alt={elem.title}
+            />
+       <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
+  <p 
+    className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter"
+    style={{
+      color: "rgba(0, 0, 0, 0.6)", // Wahi color jo background ka hai
+      WebkitTextStroke: "1px white",
+      paintOrder: "stroke fill"
+    }}
+  >
+    {elem.title}
+  </p>
+</div>
           </Link>
         ))}
       </div>
@@ -129,21 +151,77 @@ const TopCategories = () => {
 
 // Mock Data
 const mockProducts = [
-  { id: 1, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/1.jpg", type: "dress" },
-  { id: 2, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/2.jpg", type: "dress" },
-  { id: 3, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/3.jpg", type: "dress" },
-  { id: 4, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/4.jpg", type: "dress" },
-  { id: 5, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/1.jpg", type: "dress" },
-  { id: 6, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/2.jpg", type: "dress" },
-  { id: 7, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/3.jpg", type: "dress" },
-  { id: 8, title: "samsoe", brand: "Women's Yellow All Over", price: "2,500", img: "/images/pdImg/4.jpg", type: "dress" },
+  {
+    id: 1,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/1.jpg",
+    type: "dress",
+  },
+  {
+    id: 2,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/2.jpg",
+    type: "dress",
+  },
+  {
+    id: 3,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/3.jpg",
+    type: "dress",
+  },
+  {
+    id: 4,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/4.jpg",
+    type: "dress",
+  },
+  {
+    id: 5,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/1.jpg",
+    type: "dress",
+  },
+  {
+    id: 6,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/2.jpg",
+    type: "dress",
+  },
+  {
+    id: 7,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/3.jpg",
+    type: "dress",
+  },
+  {
+    id: 8,
+    title: "samsoe",
+    brand: "Women's Yellow All Over",
+    price: "2,500",
+    img: "/images/pdImg/4.jpg",
+    type: "dress",
+  },
 ];
 
 // 5. MAIN PRODUCT PAGE (Home Page Pe Jo Show Hota Hai)
-function Product() {
+function Product({ category }) {
   return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
-      <TopCategories />
+      <TopCategories category={category} />
       {/* Ab saare sections wapis aa gaye hain */}
       <ProductSliderSection title="NEW ARRIVALS" products={mockProducts} />
       <ProductSliderSection title="TOP TRENDING" products={mockProducts} />

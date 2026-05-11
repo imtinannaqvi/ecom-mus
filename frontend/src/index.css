@@ -17,3 +17,11 @@
     /* Agar aapne exact #ffff likha hai (jo ki shortcut hai #ffffff ka) */
   }
 }
+
+@layer utilities {
+  .text-stroke-fix {
+    color: white; /* Inner Color */
+    -webkit-text-stroke: 4px black; /* Stroke Width & Color */
+    paint-order: stroke fill; /* Yeh overlapping fix karega */
+  }
+}

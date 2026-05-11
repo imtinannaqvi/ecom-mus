@@ -11,7 +11,7 @@ const categories = [
   { id: 5, title: "Lower", img: "/images/lower.jpg" },
 ];
 
-function HeroBanner() {
+function HeroBanner({category}) {
   const [showLayout, setShowLayout] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -97,7 +97,7 @@ function HeroBanner() {
             >
               {categories.map((cat, index) => (
                 <Link
-                  to={`/categories/${cat.title}`}
+                  to={`/shop/${category}/${cat.title}`}
                   key={cat.id}
                   className="relative flex-1 h-full w-full overflow-hidden transition-all duration-500 hover:flex-[1.5] group cursor-pointer"
                   style={{

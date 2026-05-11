@@ -1,115 +1,193 @@
-import React from "react";
-import { Heart, Star, Truck, Headset, ShieldCheck, RefreshCcw } from "lucide-react";
-import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
+import React, { useContext } from "react";
+import {
+  FaWhatsapp,
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaRegHeart,
+  FaTruck,
+  FaUndoAlt,
+  FaHeadset,
+  FaShieldAlt,
+} from "react-icons/fa";
+import { MdOutlineTrackChanges } from "react-icons/md";
+import { IoCartOutline } from "react-icons/io5";
+import { AppContext } from "../context/AppContextProvider";
 
-function ProductDetails({
-  productName, productDescription, selectedSize, setSelectedSize,
-  quantity, setQuantity, setSizeGuideOpen, hoveredSize, setHoveredSize,
-  productType, sizeGuide, sizeGuideImages, sizeDetailsBySize, guideLabel = [],
-}) {
+const ProductDetails = ({
+  product,
+  selectedSize,
+  setSelectedSize,
+  hasSizing,
+  setSizeGuideOpen,
+  quantity,
+  setQuantity,
+}) => {
+  const { cartItem, setCartItem } = useContext(AppContext);
+
+  console.log(cartItem);
+
   return (
-    <div className="flex flex-col space-y-5">
-      {/* Name & Wishlist */}
-      <div className="flex justify-between items-start">
-        <div className="max-w-[85%]">
-          <h1 className="text-xl md:text-2xl font-bold uppercase tracking-tight">{productName}</h1>
-          <p className="text-gray-500 text-xs md:text-sm mt-1">{productDescription}</p>
-        </div>
-        <button className="p-2 border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all shrink-0">
-          <Heart size={20} />
-        </button>
-      </div>
-
-      {/* Price & Reviews */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl md:text-4xl font-black">$449</span>
+    <div className="flex flex-col gap-5">
+      {/* Title & Price */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">
+          {product.name}
+        </h1>
+        <p className="text-gray-500 text-sm md:text-base">
+          {product.description}
+        </p>
+        <div className="flex items-center gap-4 mt-2">
+          <span className="text-3xl font-bold">${product.price}</span>
           <span className="text-gray-400 line-through text-lg">$549</span>
-        </div>
-        <span className="bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">SAVE 33%</span>
-        <div className="flex items-center gap-1 text-sm ml-auto">
-          <Star size={16} fill="#FBBF24" className="text-yellow-400" />
-          <span className="font-bold">4.6/5</span>
-          <span className="text-gray-400">| 135 Reviews</span>
+          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+            SAVE 33%
+          </span>
         </div>
       </div>
 
-      <hr className="border-dashed" />
-
-      {/* Sizes Section */}
-      <div className="relative">
-        <div className="flex justify-between items-center mb-3">
-          <p className="text-xs font-bold uppercase tracking-widest">Sizes</p>
-          <button onClick={() => setSizeGuideOpen(true)} className="text-[10px] font-bold underline uppercase">Size Chart</button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {["XS", "S", "M", "L", "XL", "XXL", "XXXL"].map((size) => (
+      {/* Sizing Section */}
+      {hasSizing && (
+        <div className="space-y-4 pt-4 border-t border-dashed">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-sm uppercase">Sizes</span>
             <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              onMouseEnter={() => setHoveredSize(size)}
-              onMouseLeave={() => setHoveredSize(null)}
-              className={`px-4 py-2 border text-xs font-bold transition-all ${
-                selectedSize === size ? "bg-black text-white border-black" : "border-gray-200 hover:border-black"
-              }`}
+              onClick={() => setSizeGuideOpen(true)}
+              className="text-xs font-bold underline hover:text-blue-600 transition-colors"
             >
-              {size}
+              VIEW SIZE CHART
             </button>
-          ))}
-        </div>
-
-        {/* Hover Size Preview (Fixed the error here) */}
-        {hoveredSize && sizeDetailsBySize[hoveredSize] && (
-          <div className="hidden lg:block absolute top-full left-0 mt-2 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl z-50 w-full animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center mb-4 border-b pb-2">
-              <p className="text-sm font-bold uppercase">Preview: {hoveredSize}</p>
-              <span className="text-[10px] bg-gray-100 px-2 py-1 rounded uppercase font-bold">{productType}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                {Object.entries(sizeDetailsBySize[hoveredSize]).map(([key, value]) => (
-                  <div key={key} className="flex justify-between text-xs border-b border-gray-50 pb-1">
-                    <span className="text-gray-400 capitalize">{key}</span>
-                    <span className="font-bold">{value}</span>
-                  </div>
-                ))}
-              </div>
-              {/* FIXED: Added safe check for sizeGuideImages */}
-              {sizeGuideImages && sizeGuideImages[productType] && (
-                <img src={sizeGuideImages[productType]} className="h-24 w-full object-contain rounded-lg bg-gray-50" alt="guide" />
-              )}
-            </div>
           </div>
-        )}
-      </div>
+          <div className="flex flex-wrap gap-2">
+            {product.sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`w-12 h-11 flex items-center justify-center border font-bold transition-all
+                  ${selectedSize === size ? "border-black bg-black text-white" : "border-gray-200 text-gray-500 hover:border-black"}`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Quantity & Add to Cart */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-2">
-        <div className="flex items-center border border-gray-200 h-12 w-full sm:w-32">
-          <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="flex-1 h-full hover:bg-gray-50">-</button>
-          <span className="w-10 text-center font-bold">{quantity.toString().padStart(2, '0')}</span>
-          <button onClick={() => setQuantity(q => q + 1)} className="flex-1 h-full hover:bg-gray-50">+</button>
+      <div className="flex justify-between  gap-2 mt-2">
+        <div className="flex items-center border  border-gray-300 rounded overflow-hidden">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="px-2  hover:bg-gray-100 "
+          >
+            -
+          </button>
+          <span className="px-2 font-semibold">
+            {quantity < 10 ? `0${quantity}` : quantity}
+          </span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="px-2  hover:bg-gray-100 "
+          >
+            +
+          </button>
         </div>
-        <button className="flex-1 bg-black text-white h-12 font-bold uppercase text-xs tracking-[2px] hover:bg-gray-900 transition-all shadow-lg shadow-black/10">
-          🛒 Add to cart
+        <button
+          onClick={() => {
+            // Pehle check karo kya item pehle se cart mein hai
+            const isExist = cartItem.find((item) => item.id === product.id);
+
+            if (isExist) {
+              // Agar item pehle se hai, toh sirf alert de do ya quantity update karo
+              alert("This item is already in your cart!");
+            } else {
+              // Agar naya item hai, toh purane items ke saath naya add karo
+              setCartItem([
+                ...cartItem,
+                { ...product, quantity: quantity, size: selectedSize },
+              ]);
+              alert("Product added to cart!");
+            }
+          }}
+          className="px-4 grow bg-black text-white py-4 rounded shadow-lg hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+        >
+          <IoCartOutline /> Add To Cart
         </button>
+        <div className="flex items-center  gap-2 py-4 ">
+          <span className="text-xs font-semibold text-gray-400">Share:</span>
+          <div className="flex gap-2 text-gray-600">
+            <FaWhatsapp className="cursor-pointer hover:text-green-500" />
+            <FaFacebookF className="cursor-pointer hover:text-blue-600" />
+            <FaTwitter className="cursor-pointer hover:text-blue-400" />
+            <FaInstagram className="cursor-pointer hover:text-pink-500" />
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery Info */}
+      <div className="space-y-3 ">
+        <div className="flex items-center gap-3 text-xs">
+          <FaTruck className="text-gray-400" />
+          <p>
+            <strong>Estimated Delivery:</strong> Jul 30 - Aug 03
+          </p>
+        </div>
+        <div className="flex items-center gap-3 text-sm">
+          <FaUndoAlt className="text-gray-400" />
+          <p>
+            <strong>Free Shipping & Returns:</strong> On all orders over $75
+          </p>
+        </div>
       </div>
 
       {/* Feature Icons Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-gray-100">
-        {[
-          { icon: <Truck size={20} />, title: "Track Order" },
-          { icon: <Headset size={20} />, title: "Support" },
-          { icon: <ShieldCheck size={20} />, title: "Quality" },
-          { icon: <RefreshCcw size={20} />, title: "Return" }
-        ].map((item, i) => (
-          <div key={i} className="flex flex-col items-center text-center p-2">
-            <div className="p-2 bg-gray-50 rounded-full mb-1">{item.icon}</div>
-            <p className="text-[10px] font-bold uppercase tracking-tighter">{item.title}</p>
+      <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-4 pt-6 border-t mt-4">
+        {/* Track Order */}
+        <div className="flex items-center gap-2 min-w-fit">
+          <MdOutlineTrackChanges className="text-2xl text-gray-400 shrink-0" />
+          <div>
+            <p className="text-[10px] font-bold uppercase leading-none">
+              Track Order
+            </p>
+            <p className="text-[9px] text-gray-500 italic">Over 2 years</p>
           </div>
-        ))}
+        </div>
+
+        {/* 24/7 Support */}
+        <div className="flex items-center gap-2 min-w-fit">
+          <FaHeadset className="text-2xl text-gray-400 shrink-0" />
+          <div>
+            <p className="text-[10px] font-bold uppercase leading-none">
+              24/7 Support
+            </p>
+            <p className="text-[9px] text-gray-500 italic">Dedicated</p>
+          </div>
+        </div>
+
+        {/* Quality */}
+        <div className="flex items-center gap-2 min-w-fit">
+          <FaShieldAlt className="text-2xl text-gray-400 shrink-0" />
+          <div>
+            <p className="text-[10px] font-bold uppercase leading-none">
+              Quality
+            </p>
+            <p className="text-[9px] text-gray-500 italic">Over 2 years</p>
+          </div>
+        </div>
+
+        {/* Return Policy */}
+        <div className="flex items-center gap-2 min-w-fit">
+          <FaUndoAlt className="text-2xl text-gray-400 shrink-0" />
+          <div>
+            <p className="text-[10px] font-bold uppercase leading-none">
+              Return Policy
+            </p>
+            <p className="text-[9px] text-gray-500 italic">Instant Return</p>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
+
 export default ProductDetails;
