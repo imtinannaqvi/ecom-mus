@@ -9,6 +9,137 @@ import {
 } from "lucide-react";
 import { FaFacebookF, FaYoutube, FaTwitter } from "react-icons/fa";
 import { FaInstagram } from "react-icons/fa6";
+import { Link } from "react-router-dom";
+
+// Colorful Payment Method Icons
+const VisaIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#1A1F71" />
+    <text
+      x="50%"
+      y="50%"
+      dominantBaseline="middle"
+      textAnchor="middle"
+      fill="white"
+      fontSize="10"
+      fontWeight="bold"
+    >
+      VISA
+    </text>
+  </svg>
+);
+
+const MastercardIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#EB001B" />
+    <circle cx="16" cy="14" r="8" fill="#FF5F00" />
+    <circle cx="24" cy="14" r="8" fill="#FFB81C" />
+  </svg>
+);
+
+const AmexIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#006FCF" />
+    <text
+      x="50%"
+      y="50%"
+      dominantBaseline="middle"
+      textAnchor="middle"
+      fill="white"
+      fontSize="8"
+      fontWeight="bold"
+    >
+      AMEX
+    </text>
+  </svg>
+);
+
+const PaypalIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#003087" />
+    <text
+      x="50%"
+      y="50%"
+      dominantBaseline="middle"
+      textAnchor="middle"
+      fill="white"
+      fontSize="9"
+      fontWeight="bold"
+    >
+      PayPal
+    </text>
+  </svg>
+);
+
+const GooglePayIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#000000" />
+    <text
+      x="50%"
+      y="50%"
+      dominantBaseline="middle"
+      textAnchor="middle"
+      fill="white"
+      fontSize="8"
+      fontWeight="bold"
+    >
+      G Pay
+    </text>
+  </svg>
+);
+
+const ApplePayIcon = () => (
+  <svg
+    width="40"
+    height="28"
+    viewBox="0 0 40 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="40" height="28" rx="4" fill="#000000" />
+    <text
+      x="50%"
+      y="50%"
+      dominantBaseline="middle"
+      textAnchor="middle"
+      fill="white"
+      fontSize="9"
+      fontWeight="bold"
+    >
+      Apple
+    </text>
+  </svg>
+);
 
 const Footer = () => {
   return (
@@ -112,11 +243,15 @@ const Footer = () => {
                 </span>
               </div>
               <div className="bg-black w-60 border border-gray-700 p-2 rounded flex items-center gap-1 cursor-pointer hover:bg-gray-900">
-                <img className="w-5 h-5 object-cover" src="/images/play-store.png" alt="" />
+                <img
+                  className="w-5 h-5 object-cover"
+                  src="/images/play-store.png"
+                  alt=""
+                />
 
                 <span className="w-full h-full  flex flex-col items-start justify-start ">
                   <span className="text-[8px]">GET IT ON</span>
-                <span className="text-xs font-bold">Google Play</span>
+                  <span className="text-xs font-bold">Google Play</span>
                 </span>
               </div>
             </div>
@@ -149,18 +284,44 @@ const Footer = () => {
             <h4 className="font-bold mb-4 text-sm">
               100% Secured Payment Gateways
             </h4>
-            <div className="flex gap-1 flex-wrap">
-              {/* Replace these with actual payment SVG icons */}
-              {["Visa", "Master", "Amex", "PayPal", "Maestro", "Klarna"].map(
-                (p) => (
-                  <div
-                    key={p}
-                    className="w-10 h-6 bg-gray-200 rounded text-[8px] text-black flex items-center justify-center font-bold"
-                  >
-                    {p}
-                  </div>
-                ),
-              )}
+            <div className="flex gap-3 flex-wrap">
+              {/* Colorful payment method icons */}
+              <div
+                title="Visa"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <VisaIcon />
+              </div>
+              <div
+                title="Mastercard"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <MastercardIcon />
+              </div>
+              <div
+                title="American Express"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <AmexIcon />
+              </div>
+              <div
+                title="PayPal"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <PaypalIcon />
+              </div>
+              <div
+                title="Google Pay"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <GooglePayIcon />
+              </div>
+              <div
+                title="Apple Pay"
+                className="hover:scale-110 transition-transform cursor-pointer"
+              >
+                <ApplePayIcon />
+              </div>
             </div>
           </div>
 
@@ -211,13 +372,105 @@ const Footer = () => {
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
               MEN'S
             </h4>
-            <p>Top Wear</p>
-            <p>Men's New Arrivals</p>
-            <p>Men's T-Shirts</p>
-            <p>Men's Hoodies</p>
-            <p>Oversized T-Shirts</p>
-            <p>Men's Long Sleeve</p>
-            <p>Men's White T-Shirts</p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Top Wear
+              </p>
+              <Link
+                to="/shop/men/all-top-wear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                All Top wear
+              </Link>
+              <Link
+                to="/shop/men/all-t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                All T-Shirts
+              </Link>
+              <Link
+                to="/shop/men/classic-fit-t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Classic Fit T-Shirts
+              </Link>
+              <Link
+                to="/shop/men/oversized-t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Oversized T-Shirts
+              </Link>
+              <Link
+                to="/shop/men/all-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                All Shirts
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Bottom Wear
+              </p>
+              <Link
+                to="/shop/men/all-bottom-wear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                All Bottom wear
+              </Link>
+              <Link
+                to="/shop/men/joggers"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Joggers
+              </Link>
+              <Link
+                to="/shop/men/trousers-pants"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Trousers & Pants
+              </Link>
+              <Link
+                to="/shop/men/jeans"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Jeans
+              </Link>
+              <Link
+                to="/shop/men/shorts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Shorts
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Footwear & Accessories
+              </p>
+              <Link
+                to="/shop/men/footwear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Maurish Sneakers
+              </Link>
+              <Link
+                to="/shop/men/footwear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Casual Shoes
+              </Link>
+              <Link
+                to="/shop/men/accessories"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Accessories
+              </Link>
+              <Link
+                to="/shop/men/accessories"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Caps
+              </Link>
+            </div>
           </div>
 
           {/* Women's products category navigation */}
@@ -225,12 +478,93 @@ const Footer = () => {
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
               WOMEN'S
             </h4>
-            <p>Women's Top Wear</p>
-            <p>Women's New Arrivals</p>
-            <p>Women's T-Shirts</p>
-            <p>Women's Fashion Tops</p>
-            <p>Women's Tank Tops</p>
-            <p>Women's Nightwear</p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Ethnic Wear
+              </p>
+              <Link
+                to="/shop/women/kurtas-suits"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Kurtas & Suits
+              </Link>
+              <Link
+                to="/shop/women/sarees"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Sarees
+              </Link>
+              <Link
+                to="/shop/women/ethnic-dresses"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Ethnic Dresses
+              </Link>
+              <Link
+                to="/shop/women/lehenga-cholis"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Lehenga Cholis
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Western Wear
+              </p>
+              <Link
+                to="/shop/women/tops"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Tops
+              </Link>
+              <Link
+                to="/shop/women/dresses"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Dresses
+              </Link>
+              <Link
+                to="/shop/women/t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                T-shirts
+              </Link>
+              <Link
+                to="/shop/women/jeans"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Jeans
+              </Link>
+              <Link
+                to="/shop/women/trousers"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Trousers
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                More
+              </p>
+              <Link
+                to="/shop/women/footwear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Footwear
+              </Link>
+              <Link
+                to="/shop/women/lingerie"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Lingerie
+              </Link>
+              <Link
+                to="/shop/women/beauty"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Beauty & Fragrances
+              </Link>
+            </div>
           </div>
 
           {/* Children's products category navigation */}
@@ -238,26 +572,163 @@ const Footer = () => {
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
               Kids
             </h4>
-            <p>Men's Shopping</p>
-            <p>Women's</p>
-            <p>Shopping</p>
-            <p>Kids Shopping</p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Boys Clothing
+              </p>
+              <Link
+                to="/shop/kids/boys-t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                T-Shirts
+              </Link>
+              <Link
+                to="/shop/kids/boys-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Shirts
+              </Link>
+              <Link
+                to="/shop/kids/boys-shorts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Shorts
+              </Link>
+              <Link
+                to="/shop/kids/boys-jeans"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Jeans
+              </Link>
+              <Link
+                to="/shop/kids/boys-trousers"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Trousers
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Girls Clothing
+              </p>
+              <Link
+                to="/shop/kids/girls-dresses"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Dresses
+              </Link>
+              <Link
+                to="/shop/kids/girls-tops"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Tops
+              </Link>
+              <Link
+                to="/shop/kids/girls-t-shirts"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                T-shirts
+              </Link>
+              <Link
+                to="/shop/kids/girls-lehenga"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Lehenga Choli
+              </Link>
+              <Link
+                to="/shop/kids/girls-kurta"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Kurta Sets
+              </Link>
+            </div>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Footwear & Infants
+              </p>
+              <Link
+                to="/shop/kids/footwear"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Casual Shoes
+              </Link>
+              <Link
+                to="/shop/kids/infants"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Infant Clothing
+              </Link>
+              <Link
+                to="/shop/kids/toys"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Toys
+              </Link>
+            </div>
           </div>
 
-          {/* Parental control and additional resource links */}
+          {/* Quick links and company information */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
-              Parental
+              Help & Info
             </h4>
-            <div className="mb-4">
-              <h5 className="text-white text-xs mb-2">MEN'S</h5>
-              <p>Men's Shopping</p>
-              <p>Women's</p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Support
+              </p>
+              <Link
+                to="/profile/support"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Contact Us
+              </Link>
+              <Link
+                to="/profile/track"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Track Order
+              </Link>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                FAQ
+              </a>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Shipping Info
+              </a>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Return Policy
+              </a>
             </div>
-            <div>
-              <h5 className="text-white text-xs mb-2">WOMEN'S</h5>
-              <p>Men's Shopping</p>
-              <p>Women's</p>
+            <div className="space-y-2 mt-3">
+              <p className="text-xs font-semibold text-gray-300 uppercase">
+                Company
+              </p>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                About Us
+              </a>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Careers
+              </a>
+              <a
+                href="#"
+                className="block text-xs text-gray-400 hover:text-white transition"
+              >
+                Blog
+              </a>
             </div>
           </div>
 
