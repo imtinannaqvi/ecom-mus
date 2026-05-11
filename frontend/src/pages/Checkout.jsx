@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AiOutlinePlus,
@@ -10,14 +10,29 @@ import {
 } from "react-icons/ai";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { AppContext } from "../context/AppContextProvider";
 
 const Checkout = () => {
+  const { cartItem } = useContext(AppContext);
+
+  // Dynamic Subtotal Logic
+  const subtotal = cartItem.reduce((acc, item) => {
+    // Price se dollar sign ya comma hatane ke liye (agar string mein ho)
+    const price =
+      typeof item.price === "string"
+        ? parseFloat(item.price.replace(/[^0-9.-]+/g, ""))
+        : item.price;
+
+    return acc + price * (item.quantity || 1);
+  }, 0);
+
+  const deliveryCharge = subtotal > 75 ? 0 : 15; // Example: Free delivery over $75
+  const total = subtotal + deliveryCharge;
+
   const [step, setStep] = useState("address"); // address, payment
   const [openSection, setOpenSection] = useState("card"); // card, wallet, netbanking
   const [selectedWallet, setSelectedWallet] = useState("paytm");
   const [orderPlaced, setOrderPlaced] = useState(false);
-
-  const subtotal = 1798;
 
   if (orderPlaced) {
     return (
@@ -264,7 +279,10 @@ const Checkout = () => {
                 </button>
 
                 <div className="flex justify-between items-center pt-10 border-t border-gray-100 mt-12">
-                  <Link to={'/shopping-bag'} className="text-xs font-bold text-gray-400 flex items-center gap-2 uppercase tracking-widest">
+                  <Link
+                    to={"/shopping-bag"}
+                    className="text-xs font-bold text-gray-400 flex items-center gap-2 uppercase tracking-widest"
+                  >
                     <AiOutlineLeft /> Return to Cart
                   </Link>
                   <button
