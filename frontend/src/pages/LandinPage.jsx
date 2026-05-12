@@ -28,7 +28,7 @@ function LandinPage() {
   ];
   return (
     <main className="w-full ">
-      <header>
+      <header className="w-full  shadow ">
         <div className="hidden md:flex w-full h-10 items-center justify-between text-white px-6 bg-black relative z-[110]">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2 text-[11px] tracking-wider">
@@ -59,7 +59,7 @@ function LandinPage() {
             </Link>
           </div>
         </div>
-        <div className="w-full p-4 flex items-center justify-center ">
+        <div className="w-full h-15  p-4 flex items-center justify-center ">
           <img
             className="w-fit h-fit object-cover"
             src="/images/logo.png"
@@ -67,12 +67,12 @@ function LandinPage() {
           />
         </div>
       </header>
-     <section className="w-full py-10 px-2 min-h-screen flex flex-wrap items-stretch justify-center gap-4">
+     <section className="w-full py-5 px-4  min-h-screen flex flex-wrap items-stretch justify-between gap-4">
   {items.map((item, idx) => {
     return (
       <div 
         key={idx} 
-        className="w-full sm:w-[48%] lg:w-[31%] shrink-0 relative h-screen overflow-hidden "
+        className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-screen overflow-hidden "
       >
         {/* Image */}
         <img

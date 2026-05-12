@@ -24,10 +24,10 @@ const ProductCard = ({ item, itemsToShow }) => (
     </div>
     <div className="mt-3 md:mt-4">
       <p className="text-[10px] md:text-xs text-gray-400 capitalize">
-        {item.type}
+        {item.subCategory}
       </p>
       <h3 className="font-bold text-xs md:text-sm truncate uppercase">
-        {item.title}
+        {item.name}
       </h3>
       <div className="flex justify-between items-center mt-1 md:mt-2">
         <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">
