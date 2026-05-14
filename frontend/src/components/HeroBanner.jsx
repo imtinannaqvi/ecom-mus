@@ -7,17 +7,11 @@ import { AppContext } from "../context/AppContextProvider";
 // Categories are now dynamically filtered from AppContext based on the category prop
 // Previously: static array defined here - now fetched from context products
 
-function HeroBanner({ category }) {
+function HeroBanner({ subCategories, mainCategory }) {
   const { products } = useContext(AppContext);
   const [showLayout, setShowLayout] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const categories = products
-    .filter((item) => item.category.toLowerCase() === category.toLowerCase())
-    .slice(0, 5);
-
-
-  // Detect screen size to adjust UI elements responsively for mobile vs desktop
   useEffect(() => {
     const checkRes = () => setIsMobile(window.innerWidth < 768);
     checkRes();
@@ -57,7 +51,7 @@ function HeroBanner({ category }) {
       <div className="relative w-full h-full">
         <AnimatePresence initial={false} mode="wait">
           {!showLayout ? (
-            /* Primary banner section displaying main promotional image */  
+            /* Primary banner section displaying main promotional image */
             <motion.div
               key="banner-main"
               initial={{ opacity: 0, x: 50 }}
@@ -88,7 +82,7 @@ function HeroBanner({ category }) {
               </Link>
             </motion.div>
           ) : (
-            /* Secondary banner with slanted grid layout showing product categories */  
+            /* Secondary banner with slanted grid layout showing product categories */
             <motion.div
               key="banner-slanted"
               initial={{ opacity: 0 }}
@@ -97,20 +91,24 @@ function HeroBanner({ category }) {
               transition={{ duration: 0.6 }}
               className="absolute inset-0 flex flex-col md:flex-row w-full h-full bg-white overflow-hidden"
             >
-              {categories.map((cat, index) => (
+              {subCategories.map((cat, index) => (
                 <Link
-                  to={`/shop/${category}/${cat.subCategory}`}
-                  key={cat.id}
+                  to={`/shop/${mainCategory}/${cat.name}`}
+                  key={cat._id}
                   className="relative flex-1 h-full w-full overflow-hidden transition-all duration-500 hover:flex-[1.5] group cursor-pointer"
                   style={{
-                    clipPath: getClipPath(index, categories.length, isMobile),
+                    clipPath: getClipPath(
+                      index,
+                      subCategories.length,
+                      isMobile,
+                    ),
                     marginTop: isMobile && index !== 0 ? "-8%" : "0",
                     marginLeft: !isMobile && index !== 0 ? "-5.8%" : "0",
                     zIndex: index,
                   }}
                 >
                   <img
-                    src={cat.images}
+                    src={`http://localhost:3000${cat.image}`}
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
@@ -126,7 +124,7 @@ function HeroBanner({ category }) {
                           : "1.2px white",
                       }}
                     >
-                      {cat.subCategory}
+                      {cat.name}
                     </h2>
                   </div>
                 </Link>

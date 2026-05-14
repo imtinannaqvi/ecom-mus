@@ -1,12 +1,18 @@
-const express = require("express")
-const { getAllProducts, createProduct } = require("../controllers/product.controller")
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
+const upload = require('../middlewares/Multer')
+const {
+  createProduct,
+  getAllProducts,
+  
+  getProductById,
+  getUserProducts,
+} = require("../controllers/product.controller");
+const authUser = require("../middlewares/auth.middleware");
 
+router.post("/add", upload.array("images", 5), createProduct);
 
-router.post('/get-all-product' , getAllProducts)
-router.post('/create-product', createProduct)
+router.get("/all", getAllProducts);
+router.get("/get-products/:category",authUser, getUserProducts);
 
-
-
-
-module.exports = router
+module.exports = router;

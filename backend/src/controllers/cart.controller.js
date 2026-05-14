@@ -3,26 +3,29 @@ const userModel = require("../models/user.model");
 // 1. Add to Cart / Update Quantity
 exports.addToCart = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, size, color } = req.body; // Size/Color receive karein
     const user = await userModel.findById(req.user.id);
 
-    const isItemExist = user.cart.find(
-      (item) => item.productId.toString() === productId
+    // Check if EXACT combination exists
+    const itemIndex = user.cart.findIndex(
+      (item) => 
+        item.productId.toString() === productId && 
+        item.size === size && 
+        item.color === color
     );
 
-    if (isItemExist) {
-      user.cart.forEach((item) => {
-        if (item.productId.toString() === productId) {
-          item.quantity = quantity;
-        }
-      });
+    if (itemIndex > -1) {
+      // Agar exact combo hai toh quantity plus karein (ya update karein)
+      user.cart[itemIndex].quantity += quantity; 
     } else {
-      // Agar nahi hai toh naya product add karein
-      user.cart.push({ productId, quantity });
+      // Naya combination add karein
+      user.cart.push({ productId, quantity, size, color });
     }
 
     await user.save();
-    res.status(200).json({ success: true, cart: user.cart });
+    // Populate karke bhejein taaki frontend ko fauran update mile
+    const updatedUser = await userModel.findById(req.user.id).populate("cart.productId");
+    res.status(200).json({ success: true, cart: updatedUser.cart });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -31,14 +34,27 @@ exports.addToCart = async (req, res) => {
 // 2. Get User Cart Details
 exports.getCart = async (req, res) => {
   try {
-    // .populate('cart.productId') se product ki saari details (name, price, image) mil jayengi
-    const user = await userModel.findById(req.user.id).populate("cart.productId");
-    
+    // Check karein ki user.id mil raha hai
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Populate ko thoda detail mein likhte hain taaki image lazmi aaye
+    const user = await userModel.findById(req.user.id).populate({
+      path: "cart.productId",
+      select: "name price images description mainCategory" // Yahan 'images' lazmi likhen
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     res.status(200).json({
       success: true,
-      cart: user.cart,
+      cart: user.cart, // Isme ab productId object ke roop mein hoga
     });
   } catch (error) {
+    console.error("Get Cart Error:", error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };

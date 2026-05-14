@@ -15,39 +15,58 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Product price is required"],
     },
-    // Color Selection
+    // Main Category: Men, Women, or Kids
+    mainCategory: {
+      type: String,
+      required: [true, "Please specify a main category"],
+      enum: ["Men", "Women", "Kids"], // Seeded values se match hona chahiye
+    },
+    // Sub Category: Dress, Shoes, Watch etc.
+    subCategory: {
+      type: String,
+      required: [true, "Please specify a sub-category"],
+    },
     colors: {
-      type: [String], // Array: ["Red", "Blue", "Black"]
+      type: [String],
       required: [true, "Please add at least one color"],
     },
-    // Size Selection
     sizes: {
-      type: [String], // Array: ["S", "M", "L", "XL"]
+      type: [String],
       required: [true, "Please add at least one size"],
     },
     images: [
       {
-        public_id: {
-          type: String,
-          required: false,
-        },
         url: {
           type: String,
           required: true,
         },
       },
     ],
-    category: {
-      type: String,
-      required: [true, "Please specify a category"],
-    },
     stock: {
       type: Number,
       required: [true, "Please enter product stock"],
       default: 1,
     },
+    // Average Rating for easy filtration (e.g. show products with 4+ stars)
+    ratings: {
+      type: Number,
+      default: 0,
+    },
+    numOfReviews: {
+      type: Number,
+      default: 0,
+    },
+    reviews: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+        stars: { type: Number, required: true },
+        title: { type: String },
+        description: { type: String },
+        createdAt: { type: Date, default: Date.now }
+      },
+    ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const productModel = mongoose.model("product", productSchema);

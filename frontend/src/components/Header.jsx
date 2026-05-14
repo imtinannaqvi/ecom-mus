@@ -13,7 +13,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { GoPerson } from "react-icons/go";
 import { CiHeart } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
-import { AppContext } from "../context/AppContextProvider";
+import { CartContext } from "../context/CartContext";
 
 // Mega menu component that displays category navigation on desktop hover
 const MegaMenu = ({ data, closeMenu, category }) => {
@@ -62,8 +62,11 @@ function Header({category}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [bagHovered, setBagHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cartItem, setCartItem } = useContext(AppContext);
+  const { cartItems, setCartItems } = useContext(CartContext);
 
+  console.log(cartItems)
+
+const BACKEND_URL = 'http://localhost:3000'
   const menuContent = {
     men: [
       {
@@ -257,7 +260,7 @@ function Header({category}) {
           >
             <Link to="/shopping-bag" className="relative">
               <span className="absolute -right-2 -top-2 flex items-center justify-center w-4 h-4 text-[9px] bg-black rounded-full text-white font-bold">
-                {cartItem.length}
+                {cartItems.length}
               </span>
               <IoCartOutline size={24} />
             </Link>
@@ -267,7 +270,7 @@ function Header({category}) {
               <div className="hidden md:flex fixed top-[104px] right-0 w-80 h-[calc(100vh-104px)] bg-white shadow-2xl border-l border-gray-100 z-[110] flex-col animate-in slide-in-from-right duration-300">
                 <div className="p-5 border-b flex justify-between items-center text-black">
                   <h2 className="font-bold text-sm uppercase tracking-widest">
-                    Your Bag ({cartItem.length})
+                    Your Bag ({cartItems.length})
                   </h2>
                   <AiOutlineClose
                     className="cursor-pointer"
@@ -276,7 +279,7 @@ function Header({category}) {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4">
-                  {cartItem.length === 0 ? (
+                  {cartItems.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center gap-4">
                       <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
                         <IoCartOutline size={30} className="text-gray-300" />
@@ -293,42 +296,48 @@ function Header({category}) {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {cartItem.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex gap-3 pb-4 border-b border-gray-50"
-                        >
-                          <img
-                            className="w-20 h-24 object-cover rounded"
-                            src={item.images}
-                            alt=""
-                          />
-                          <div className="flex-1 flex flex-col justify-between py-1">
-                            <div>
-                              <h4 className="text-[11px] font-bold uppercase text-black leading-tight">
-                                {item.name}
-                              </h4>
-                              <p className="text-[11px] text-gray-500 mt-1">
-                                Size: {item.size} | Color: {item.color}
-                              </p>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-bold text-black">
-                                ${item.price}
-                              </span>
-                              <RiDeleteBin6Line
-                                className="text-red-400 cursor-pointer hover:text-red-600"
-                                size={14}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                     {cartItems.map((item, idx) => (
+  <div
+    key={idx}
+    className="flex gap-3 pb-4 border-b border-gray-50"
+  >
+    {/* Image access: item.productId.images[0] */}
+    <img
+      className="w-20 h-24 object-cover rounded"
+      src={`${BACKEND_URL}${item.productId?.images?.[0]}`}
+      alt={item.productId?.name}
+    />
+    
+    <div className="flex-1 flex flex-col justify-between py-1">
+      <div>
+        <h4 className="text-[11px] font-bold uppercase text-black leading-tight">
+          {/* Name access: item.productId.name */}
+          {item.productId?.name}
+        </h4>
+        <p className="text-[11px] text-gray-500 mt-1">
+          Size: {item.size} | Color: {item.color} | Qty: {item.quantity}
+        </p>
+      </div>
+      
+      <div className="flex justify-between items-center">
+        <span className="text-xs font-bold text-black">
+          {/* Price access: item.productId.price */}
+          Rs. {item.productId?.price}
+        </span>
+        <RiDeleteBin6Line
+          className="text-red-400 cursor-pointer hover:text-red-600"
+          size={14}
+          onClick={() => handleRemove(item.productId._id)} // Delete logic
+        />
+      </div>
+    </div>
+  </div>
+))}
                     </div>
                   )}
                 </div>
 
-                {cartItem.length > 0 && (
+                {cartItems.length > 0 && (
                   <div className="p-5 bg-gray-50 border-t">
                     <Link
                       to="/shopping-bag"

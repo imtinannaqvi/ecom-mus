@@ -7,6 +7,7 @@ const Sidebar = () => {
     { name: "Dashboard", path: "/admin/dashboard", icon: <FiGrid /> },
     { name: "All Products", path: "/admin/products", icon: <FiShoppingBag /> },
     { name: "Create Product", path: "/admin/product/new", icon: <FiPlusSquare /> },
+    { name: "Create Category", path: "/admin/category/new", icon: <FiPlusSquare /> },
     { name: "Orders", path: "/admin/orders", icon: <FiLayers /> },
     { name: "Users", path: "/admin/users", icon: <FiUsers /> },
   ];

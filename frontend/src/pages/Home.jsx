@@ -1,26 +1,73 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HeroBanner from "../components/HeroBanner";
 import Product from "./Product";
 import CoustomerReviews from "./CoustomerReviews";
-import { useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
+import useProduct from "../hooks/productService";
+import TopCategories from "../components/TopCategories";
 
 function Home() {
-  const { products } = useContext(AppContext);
   const { mainCategory } = useParams();
+  const { fetchMainCategory, fetchProducts, loading, setLoading, products } =
+    useProduct();
 
-  const filteredProduct = products.filter((item) => {
-    return item.category.toLowerCase() === mainCategory.toLocaleLowerCase();
-  });
+
+
+  const [subCategories, setSubCategories] = useState([]);
+
+  const loadPageData = async () => {
+    setLoading(true);
+    try {
+      const catRes = await fetchMainCategory();
+      const foundCategory = catRes.data.find(
+        (cat) => cat.name.toLowerCase() === mainCategory.toLowerCase(),
+      );
+
+      if (foundCategory) {
+        setSubCategories(foundCategory.subCategories);
+      }
+
+      const productData = await fetchProducts({ mainCategory });
+
+    } catch (err) {
+      console.log(err.message);
+    }
+    finally{
+      setLoading(false)
+    }
+  };
+
+    useEffect(() => {
+      loadPageData()
+    
+     
+    }, [mainCategory])
+    
+
 
 
   return (
     <div>
-      <Header category={mainCategory} />
-      <HeroBanner category={mainCategory} />
-      <Product category={mainCategory} products={filteredProduct} />
+      <Header category={subCategories} />
+
+      <HeroBanner mainCategory={mainCategory} subCategories={subCategories} />
+      <TopCategories
+        mainCategory={mainCategory}
+        subCategories={subCategories}
+      />
+
+      {loading ? (
+        <div className="text-center py-10">Loading Products...</div>
+      ) : (
+        <Product
+          category={mainCategory}
+          products={products} // Yahan products state pass ki
+        />
+      )}
+
       <CoustomerReviews />
       <Footer />
     </div>

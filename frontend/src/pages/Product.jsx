@@ -6,40 +6,61 @@ import { AppContext } from "../context/AppContextProvider";
 import Button from "../components/Button";
 
 // 1. Reusable Product Card
-const ProductCard = ({ item, itemsToShow }) => (
-  <Link
-    to={`/product/${item.id}`}
-    className="shrink-0 relative group mb-4"
-    style={{ width: `calc(${100 / itemsToShow}% - 16px)` }}
-  >
-    <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors">
-      <CiHeart />
-    </div>
-    <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
-      <img
-        src={item.images || item.images?.[0]}
-        alt={item.title}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-      />
-    </div>
-    <div className="mt-3 md:mt-4">
-      <p className="text-[10px] md:text-xs text-gray-400 capitalize">
-        {item.subCategory}
-      </p>
-      <h3 className="font-bold text-xs md:text-sm truncate uppercase">
-        {item.name}
-      </h3>
-      <div className="flex justify-between items-center mt-1 md:mt-2">
-        <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">
-          {item.brand}
-        </p>
-        <p className="text-sm md:text-lg font-semibold">${item.price}</p>
-      </div>
-    </div>
-  </Link>
-);
+const ProductCard = ({ item, itemsToShow }) => {
+  const BACKEND_URL = "http://localhost:3000";
 
-// 2. Reusable Slider Section
+  // Logic to get the image URL correctly
+  // Agar images array hai to pehli image ka url lo, warna check karo fallback
+  const getImageUrl = () => {
+    if (Array.isArray(item.images) && item.images.length > 0) {
+      return item.images[0].url; // Pehli image ka URL
+    } else if (item.image && Array.isArray(item.image) && item.image.length > 0) {
+      return item.image[0].url;
+    } else if (item.images?.url) {
+      return item.images.url;
+    }
+    return "/images/placeholder.png"; // Default image
+  };
+
+  const imagePath = getImageUrl();
+  const finalSrc = imagePath.startsWith("http") 
+    ? imagePath 
+    : `${BACKEND_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+
+  return (
+    <Link
+      to={`/product/${item._id}`}
+      className="shrink-0 relative group mb-4"
+      style={{ width: `calc(${100 / itemsToShow}% - 16px)` }}
+    >
+      <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors">
+        <CiHeart />
+      </div>
+      <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
+        <img
+          src={finalSrc}
+          alt={item.title || item.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => { e.target.src = "/images/placeholder.png"; }} // Image load na ho to handle kare
+        />
+      </div>
+      <div className="mt-3 md:mt-4">
+        <p className="text-[10px] md:text-xs text-gray-400 capitalize">
+          {item.subCategory}
+        </p>
+        <h3 className="font-bold text-xs md:text-sm truncate uppercase">
+          {item.name}
+        </h3>
+        <div className="flex justify-between items-center mt-1 md:mt-2">
+          <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">
+            {item.brand}
+          </p>
+          <p className="text-sm md:text-lg font-semibold">${item.price}</p>
+        </div>
+      </div>
+    </Link>
+  );
+};
 export const ProductSliderSection = ({ title, products = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(5);
@@ -99,62 +120,16 @@ export const ProductSliderSection = ({ title, products = [] }) => {
   );
 };
 
-// 3. NEW ARRIVALS (Alag Export - Fixed)
 export const NewArrivals = ({ products }) => {
   return <ProductSliderSection title="NEW ARRIVALS" products={products} />;
 };
 
 // 4. TOP CATEGORIES
-const TopCategories = ({ category, products = [] }) => {
-  const uniqueSubCategories = [];
-  const seen = new Set();
-  products.forEach((item) => {
-    if (
-      item.category?.toLowerCase() === category?.toLowerCase() &&
-      !seen.has(item.subCategory)
-    ) {
-      seen.add(item.subCategory);
-      uniqueSubCategories.push(item);
-    }
-  });
 
-  return (
-    <section className="w-full flex items-center justify-center flex-col p-4 md:p-10">
-      <Button text={"TOP CATEGORIES"} />
-      <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 mt-8 md:mt-10">
-        {uniqueSubCategories.map((elem) => (
-          <Link
-            to={`/shop/${category}/${elem.subCategory}`}
-            key={elem.id}
-            className="relative h-60 md:h-80 rounded-lg overflow-hidden group"
-          >
-            <img
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              src={elem.img || elem.images}
-              alt={elem.subCategory}
-            />
-            <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">
-              <p
-                className="text-xl md:text-2xl font-extrabold capitalize tracking-tighter"
-                style={{
-                  color: "rgba(0,0,0,0.6)",
-                  WebkitTextStroke: "1px white",
-                  paintOrder: "stroke fill",
-                }}
-              >
-                {elem.subCategory}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-};
 
 // 5. MAIN PRODUCT PAGE
-function Product({ category }) {
-  const { products } = useContext(AppContext);
+function Product({ category , products }) {
+
 
   if (!products || products.length === 0) {
     return (
@@ -164,17 +139,14 @@ function Product({ category }) {
     );
   }
 
-  const filtered = products.filter(
-    (item) => item.category?.toLowerCase() === category?.toLowerCase(),
-  );
+  
 
   return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
-      <TopCategories category={category} products={filtered} />
-      <NewArrivals products={filtered} />
-      <ProductSliderSection title="TOP TRENDING" products={filtered} />
-      <ProductSliderSection title="TOP DISCOUNT" products={filtered} />
-      <ProductSliderSection title="BUY 2 GET 1 FREE" products={filtered} />
+      <NewArrivals products={products} />
+      <ProductSliderSection title="TOP TRENDING"  category={category} products={products} />
+      <ProductSliderSection title="TOP DISCOUNT" products={products} />
+      <ProductSliderSection title="BUY 2 GET 1 FREE" products={products} />
     </div>
   );
 }

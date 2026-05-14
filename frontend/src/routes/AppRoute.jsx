@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import CategoriesProduct from "../pages/CategoriesProduct";
 import SingleProduct from "../pages/SingleProduct";
@@ -25,10 +25,12 @@ import Country from "../pages/ProfilePges/Country";
 import Language from "../pages/ProfilePges/Language";
 import Support from "../pages/ProfilePges/Support";
 import LandinPage from "../pages/LandinPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoute() {
   return (
     <Routes>
+      {/* --- Public Routes --- */}
       <Route path="/" element={<LandinPage />} />
       <Route path="/shop/:mainCategory" element={<Home />} />
       <Route
@@ -39,24 +41,30 @@ function AppRoute() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<OTPVerification />} />
-      <Route path="/shopping-bag" element={<ShoppingBag />} />
-      <Route path="/checkout" element={<Checkout />} />
-      <Route path="/payment-successfull" element={<PaymentSuccessfull />} />
-      <Route path="/profile" element=<Profile />>
-        <Route path="orders" element=<Orders /> />
-        <Route path="orders/:id" element=<OrdersDetail /> />
-        <Route path="orders/review/:id" element=<ProductReviews /> />
-        <Route path="track" element=<TrackOrders /> />
-        <Route path="touchpoints" element=<MaurishTouchpoints /> />
-        <Route path="wishlist" element=<Wishlist /> />
-        <Route path="address" element=<Address /> />
-        <Route path="payment" element=<Payment /> />
-        <Route path="returns" element=<Returns /> />
-        <Route path="security" element=<Security /> />
-        <Route path="notifications" element=<Notifications /> />
-        <Route path="country" element=<Country /> />
-        <Route path="language" element=<Language /> />
-        <Route path="support" element=<Support /> />
+
+      {/* --- Protected Routes (Login Required) --- */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/shopping-bag" element={<ShoppingBag />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment-successfull" element={<PaymentSuccessfull />} />
+        
+        {/* Profile and its nested routes */}
+        <Route path="/profile" element={<Profile />}>
+          <Route path="orders" element={<Orders />} />
+          <Route path="orders/:id" element={<OrdersDetail />} />
+          <Route path="orders/review/:id" element={<ProductReviews />} />
+          <Route path="track" element={<TrackOrders />} />
+          <Route path="touchpoints" element={<MaurishTouchpoints />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="address" element={<Address />} />
+          <Route path="payment" element={<Payment />} />
+          <Route path="returns" element={<Returns />} />
+          <Route path="security" element={<Security />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="country" element={<Country />} />
+          <Route path="language" element={<Language />} />
+          <Route path="support" element={<Support />} />
+        </Route>
       </Route>
     </Routes>
   );

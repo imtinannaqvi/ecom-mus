@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaPhoneAlt,
@@ -6,26 +6,31 @@ import {
   FaInstagram,
   FaTwitter,
   FaBars,
-  FaYoutube
+  FaYoutube,
 } from "react-icons/fa";
-import { Mail , Phone } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { IoMdMail } from "react-icons/io";
+import useProduct from "../hooks/productService";
 
 function LandinPage() {
-  const items = [
-    {
-      title: "men",
-      img: "/images/mens.png",
-    },
-    {
-      title: "women",
-      img: "/images/womens.png",
-    },
-    {
-      title: "kids",
-      img: "/images/kids.png",
-    },
-  ];
+  const [items, setItems] = useState([]);
+
+  const { fetchMainCategory } = useProduct();
+
+  const fetchCategory = async () => {
+    try {
+      const res = await fetchMainCategory();
+      setItems(res.data);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
   return (
     <main className="w-full ">
       <header className="w-full  shadow ">
@@ -67,36 +72,36 @@ function LandinPage() {
           />
         </div>
       </header>
-     <section className="w-full py-5 px-4  min-h-screen flex flex-wrap items-stretch justify-between gap-4">
-  {items.map((item, idx) => {
-    return (
-      <div 
-        key={idx} 
-        className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-screen overflow-hidden "
-      >
-        {/* Image */}
-        <img
-          className="w-full h-full object-cover object-top"
-          src={item.img}
-          alt={item.title}
-        />
+      <section className="w-full py-5 px-4  min-h-screen flex flex-wrap items-stretch justify-between gap-4">
+        {items.map((item, idx) => {
+          return (
+            <div
+              key={idx}
+              className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-screen overflow-hidden "
+            >
+              {/* Image */}
+              <img
+                className="w-full h-full object-cover object-top"
+                src={`http://localhost:3000${item.image}`}
+                alt={item.title}
+              />
 
-        {/* Overlay Content */}
-        <div className="w-full flex items-center gap-4 flex-col justify-center bottom-0 h-[30%] bg-black/60 absolute backdrop-blur-sm">
-          <h1 className="text-xl uppercase font-bold text-white text-center px-2">
-            {item.title}
-          </h1>
-          <Link 
-            to={`/shop/${item.title}`} 
-            className="px-6 py-2 bg-white text-black font-semibold hover:bg-gray-200 transition-colors"
-          >
-            Buy Now
-          </Link>
-        </div>
-      </div>
-    );
-  })}
-</section>
+              {/* Overlay Content */}
+              <div className="w-full flex items-center gap-4 flex-col justify-center bottom-0 h-[30%] bg-black/60 absolute backdrop-blur-sm">
+                <h1 className="text-xl uppercase font-bold text-white text-center px-2">
+                  {item.title}
+                </h1>
+                <Link
+                  to={`/shop/${item.name}`}
+                  className="px-6 py-2 bg-white text-black font-semibold hover:bg-gray-200 transition-colors"
+                >
+                  Buy Now
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </section>
       <footer className="w-full lg:p-10 p-5  bg-black">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10 border-b border-gray-800 pb-12">
           {/* Brand Info */}

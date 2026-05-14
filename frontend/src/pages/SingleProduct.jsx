@@ -9,34 +9,102 @@ import ProductTabs from "../components/ProductTabs";
 import SizeChartOverlay from "../components/SizeChartOverlay";
 import { NewArrivals } from "./Product";
 import CoustomerReviews from "./CoustomerReviews";
-
+import API from '../api/api'
+import {getCartApi} from '../services/cartServices'
+import { CartContext } from "../context/CartContext";
 function SingleProduct() {
   const { id } = useParams();
-  const { products, cartItem, setCartItem } = useContext(AppContext);
-  const product = products.find((p) => p.id === parseInt(id));
-
-    const filteredProducts = products.filter((item)=> item.category === product.category )
+  // Context se products nikal rahe hain
+  const { products } = useContext(AppContext);
 
 
+  // States for Data
+  const [product, setProduct] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Local UI States
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("Description");
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [hoveredSize, setHoveredSize] = useState(null);
 
   useEffect(() => {
-    if (product?.sizes && product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0]);
-    }
-    window.scrollTo(0, 0); // Page change par top par scroll kare
-  }, [product]);
+    const getProductFromContext = () => {
+      setLoading(true);
 
-  if (!product)
+      // 1. Context array se specific product find karein
+      const foundProduct = products.find((p) => p._id === id);
+
+      if (foundProduct) {
+        setProduct(foundProduct);
+
+        // Default selection for Size
+        if (foundProduct.sizes?.length > 0) {
+          setSelectedSize(foundProduct.sizes[0]);
+        }
+
+        // Default selection for Color
+        if (foundProduct.colors?.length > 0) {
+          setSelectedColor(foundProduct.colors[0]);
+        }
+
+        // 2. Related Products filter logic (Context se hi)
+        if (foundProduct.mainCategory) {
+          const related = products
+            .filter(
+              (p) =>
+                p.mainCategory === foundProduct.mainCategory && p._id !== id,
+            )
+            .slice(0, 8); // Limit to 8
+
+          setFilteredProducts(related);
+        }
+      }
+
+      setLoading(false);
+    };
+
+    if (products && products.length > 0) {
+      getProductFromContext();
+    }
+
+    window.scrollTo(0, 0);
+  }, [id, products]); // Products array change hone par re-run hoga
+
+  if (loading || !product) {
     return (
-      <div className="h-screen flex items-center justify-center font-bold">
+      <div className="h-screen flex items-center justify-center font-bold text-gray-500">
         Loading...
       </div>
     );
+  }
+
+  const BACKEND_URL = "http://localhost:3000";
+    const { setCartItems } = useContext(CartContext); // Context se setter lein
+
+const handleAddToCart = async () => {
+  // 1. Data prepare karein
+  const payload = {
+    productId: product._id,
+    quantity: quantity,
+    size: selectedSize,
+    color: selectedColor
+  };
+
+  // 2. Context wala function call karein
+  const result = await getCartApi(payload);
+
+  // 3. Response handle karein
+  if (result.success) {
+    alert("Added to cart successfully!");
+  } else {
+    alert(result.message || "Failed to add to cart");
+  }
+};
+
+
 
   // Sizing Logic
   const hasSizing =
@@ -45,12 +113,29 @@ function SingleProduct() {
     product.sizes[0] !== "Free" &&
     product.sizes[0] !== "Standard";
 
-  const mainImage = Array.isArray(product.images)
-    ? product.images[0]
-    : product.images;
-  const thumbnails = Array.isArray(product.images)
-    ? product.images
-    : [product.images, "/images/caps.jpg", "/images/banner.png"];
+  // Image Processing Logic (Same as before)
+  const processImages = (imgs) => {
+    if (Array.isArray(imgs)) {
+      return imgs
+        .map((item) => {
+          const imagePath = typeof item === "object" ? item.url : item;
+          if (!imagePath) return null;
+          return imagePath.startsWith("http")
+            ? imagePath
+            : `${BACKEND_URL}${imagePath}`;
+        })
+        .filter((img) => img !== null);
+    }
+    return [];
+  };
+
+  const processedImagesList = processImages(product.images);
+  const mainImage =
+    processedImagesList.length > 0
+      ? processedImagesList[0]
+      : "/images/placeholder.png";
+  const thumbnails =
+    processedImagesList.length > 0 ? processedImagesList : [mainImage];
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -61,7 +146,6 @@ function SingleProduct() {
         >
           <section className="max-w-[1440px] mx-auto px-4 md:px-10 py-12 h-fit">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start h-fit">
-              {/* Left Column (Images) */}
               <div className="lg:col-span-7 h-fit">
                 <ProductImageGallery
                   thumbnails={thumbnails}
@@ -69,20 +153,23 @@ function SingleProduct() {
                 />
               </div>
 
-              {/* Right Column (Details) - Ye div sticky hoga */}
               <div className="lg:col-span-5 sticky top-28 h-fit">
                 <ProductDetails
                   product={product}
                   hasSizing={hasSizing}
                   quantity={quantity}
                   setQuantity={setQuantity}
-                  // other props...
+                  selectedSize={selectedSize}
+                  setSelectedSize={setSelectedSize}
+                  selectedColor={selectedColor}
+                  setSelectedColor={setSelectedColor}
+                  setSizeGuideOpen={setSizeGuideOpen}
+                  handleAddToCart={handleAddToCart}
                 />
               </div>
             </div>
           </section>
 
-          {/* TABS & REVIEWS */}
           <section className="max-w-[1440px] mx-auto px-4 md:px-10 py-10">
             <ProductTabs
               activeTab={activeTab}
@@ -92,7 +179,8 @@ function SingleProduct() {
           </section>
 
           <section className="bg-[#fcfcfc] py-16">
-            <div className="max-w-[1440px]  mx-auto space-y-20">
+            <div className="max-w-[1440px] mx-auto space-y-20">
+              {/* Context se filtered products pass kiye hain */}
               <NewArrivals products={filteredProducts} />
               <div className="px-4 md:px-10">
                 <CoustomerReviews />

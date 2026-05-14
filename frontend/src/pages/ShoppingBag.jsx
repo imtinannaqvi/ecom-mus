@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router-dom"; // useNavigate add kiya
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { AppContext } from "../context/AppContextProvider";
+import { CartContext } from "../context/CartContext";
 
 const ShoppingBag = () => {
-  const { cartItem, setCartItem } = useContext(AppContext);
+  const { cartItems, setCartItems } = useContext(CartContext);
   const navigate = useNavigate(); // Hook initialize kiya
 
   // Items state: cartItem se data lekar qty initialize ki
-  const [items, setItems] = useState(cartItem.map((i) => ({ ...i, qty: 1 })));
+  const [items, setItems] = useState(cartItems.map((i) => ({ ...i, qty: 1 })));
   const [coupon, setCoupon] = useState("");
   const [agreed, setAgreed] = useState(true);
 

@@ -13,6 +13,7 @@ import ProcessOrder from "./pages/ProcessOrder";
 import NewProduct from "./pages/NewProduct";
 import UserList from "./pages/UserList";
 import UpdateProduct from "./pages/UpdateProduct";
+import NewCategory from "./pages/NewCategory";
 // Baki pages bhi import karein...
 
 function App() {
@@ -28,6 +29,8 @@ function App() {
             <Route path="/admin/products" element={<ProductList />} />
             <Route path="/admin/order/:id" element={<ProcessOrder />} />
             <Route path="/admin/product/new" element={<NewProduct />} />
+            <Route path="/admin/category/new" element={<NewCategory />} />
+            
             <Route path="/admin/orders" element={<OrderList />} />
             <Route path="/admin/users"  element={<UserList/>} />
             <Route  path="/admin/product/:id" element={<UpdateProduct />} />

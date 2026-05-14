@@ -1,45 +1,143 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import authUser from "../hooks/authService"; // Aapka custom hook
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { loginUser, loading } = authUser();
+
+  // 1. States for Form and Errors
+  const [formData, setFormData] = useState({
+    identifier: "", // Email ya Phone ke liye ek hi input
+    countryCode: "+91",
+    password: "",
+  });
+  const [error, setError] = useState("");
+
+  // 2. Handle Inputs
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id || e.target.name]: e.target.value });
+    if (error) setError(""); // Typing shuru karte hi error hata do
+  };
+
+  // 3. Validation Logic
+  const validateForm = () => {
+    if (!formData.identifier || !formData.password) {
+      setError("Please enter your credentials.");
+      return false;
+    }
+    return true;
+  };
+
+  // 4. Submit Logic
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      // Backend ko pata nahi identifier kya hai, toh hum check karte hain
+      const isEmail = formData.identifier.includes("@");
+      
+      const loginPayload = {
+        password: formData.password,
+        [isEmail ? "email" : "phoneNo"]: isEmail 
+          ? formData.identifier 
+          : `${formData.countryCode}${formData.identifier}`,
+      };
+
+      const response = await loginUser(loginPayload);
+
+      if (response.success) {
+        // Redirect to /profile/order
+        navigate("/profile/orders");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid Email/Phone or Password");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
-      {/* Header / Logo */}
       <Link to={'/'} className="w-full h-16 flex items-center justify-center py-2 bg-white shadow-md z-10">
         <img src="/images/logo.png" alt="Logo" className="h-10 object-contain" />
       </Link>
 
-      {/* Main Content */}
       <main className="flex-1 w-full max-w-7xl mx-auto flex items-center justify-center lg:justify-evenly p-5 md:p-10 lg:p-20 gap-10">
         
-        {/* Left Side: Form */}
-        <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[40%] flex flex-col gap-4 p-2 md:p-5">
-          <h1 className="text-lg font-semibold">Login / Signup</h1>
-          <p className="text-sm md:text-base">Join us now to be a part of Maurish family</p>
+        <form onSubmit={handleLogin} className="w-full sm:w-[80%] md:w-[60%] lg:w-[40%] flex flex-col gap-4 p-2 md:p-5">
+          <h1 className="text-xl font-bold italic tracking-tight">Login / Welcome Back</h1>
+          <p className="text-sm text-gray-500">Enter your details to access your account</p>
+
+          {/* Error Message */}
+          {error && (
+            <p className="text-red-500 text-sm font-medium bg-red-50 p-2 border-l-4 border-red-500">
+              {error}
+            </p>
+          )}
           
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium" htmlFor="mobile">Mobile Number</label>
-            <div className="w-full py-3 px-3 flex items-center border border-gray-400 focus-within:border-black transition-colors">
-              <select className="bg-transparent outline-none border-r border-gray-300 pr-2 mr-3 text-sm" name="countryCode">
-                <option value="+91">+91</option>
-                <option value="+92">+92</option>
-                <option value="+241">+241</option>
-                <option value="+221">+221</option>
-              </select>
-              <input
-                id="mobile"
-                className="w-full bg-transparent outline-none text-sm"
-                placeholder="Enter Mobile Number"
-                type="text"
-              />
+          <div className="flex flex-col gap-4">
+            {/* Email or Phone Input */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" htmlFor="identifier">Email or Mobile Number</label>
+              <div className={`w-full py-3 px-3 flex items-center border transition-colors ${error ? 'border-red-500' : 'border-gray-400 focus-within:border-black'}`}>
+                
+                {/* Agar input mein @ nahi hai toh Country code dikhao */}
+                {!formData.identifier.includes("@") && (
+                  <select 
+                    className="bg-transparent outline-none border-r border-gray-300 pr-2 mr-3 text-sm" 
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleChange}
+                  >
+                    <option value="+91">+91</option>
+                    <option value="+92">+92</option>
+                    <option value="+1">+1</option>
+                  </select>
+                )}
+
+                <input
+                  id="identifier"
+                  className="w-full bg-transparent outline-none text-sm"
+                  placeholder="email@example.com or 123456789"
+                  type="text"
+                  value={formData.identifier}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Password Input */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" htmlFor="password">Password</label>
+              <div className={`w-full py-3 px-3 border transition-colors ${error ? 'border-red-500' : 'border-gray-400 focus-within:border-black'}`}>
+                <input
+                  id="password"
+                  className="w-full bg-transparent outline-none text-sm"
+                  placeholder="Enter Password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
             </div>
           </div>
 
-          <button className="w-full text-white flex items-center justify-center bg-black py-3 mt-2 hover:bg-gray-800 transition-all font-medium">
-            Continue
+          {/* Login Button with Loading UI */}
+          <button 
+            type="submit"
+            disabled={loading}
+            className={`w-full text-white flex items-center justify-center py-3 mt-2 transition-all font-medium uppercase tracking-widest text-xs ${loading ? 'bg-gray-400 cursor-wait' : 'bg-black hover:bg-gray-800'}`}
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </div>
+            ) : "Continue"}
           </button>
 
-          {/* New Signup Line */}
           <p className="text-center text-sm mt-2">
             Don't have an account? <Link to="/register" className="font-bold underline">Signup</Link>
           </p>
@@ -48,39 +146,19 @@ const Login = () => {
             <hr className="flex-1 border-gray-300" /> Or <hr className="flex-1 border-gray-300" />
           </div>
 
-          {/* Social Buttons */}
-          <div className="space-y-3 mt-4">
-            <button className="w-full flex bg-[#F3F9FA] py-3 items-center justify-center gap-3 hover:bg-gray-100 transition-all text-sm font-medium">
-              <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-                <g clipPath="url(#clip0_8117_17763)">
-                  <path d="M27.7273 14.3225C27.7273 13.3709 27.6501 12.414 27.4855 11.4778H14.2803V16.8689H21.8423C21.5285 18.6077 20.5202 20.1458 19.0438 21.1232V24.6213H23.5553C26.2046 22.1829 27.7273 18.582 27.7273 14.3225Z" fill="#4285F4"/>
-                  <path d="M14.2803 28.0009C18.0561 28.0009 21.2404 26.7611 23.5605 24.6211L19.049 21.1231C17.7938 21.977 16.1734 22.4606 14.2854 22.4606C10.633 22.4606 7.5362 19.9965 6.42505 16.6836H1.76953V20.2897C4.14616 25.0172 8.98688 28.0009 14.2803 28.0009Z" fill="#34A853"/>
-                  <path d="M6.4199 16.6837C5.83346 14.9449 5.83346 13.0621 6.4199 11.3234V7.71729H1.76953C-0.216144 11.6732 -0.216144 16.3339 1.76953 20.2898L6.4199 16.6837Z" fill="#FBBC04"/>
-                  <path d="M14.2803 5.54127C16.2762 5.51041 18.2053 6.26146 19.6508 7.64012L23.6479 3.64305C21.1169 1.26642 17.7578 -0.0402103 14.2803 0.000943444C8.98687 0.000943444 4.14616 2.98459 1.76953 7.71728L6.41991 11.3234C7.52591 8.00536 10.6279 5.54127 14.2803 5.54127Z" fill="#EA4335"/>
-                </g>
-                <defs><clipPath id="clip0_8117_17763"><rect width="28" height="28" fill="white"/></clipPath></defs>
-              </svg>
-              Sign in With Google
-            </button>
-
-            <button className="w-full flex bg-[#F3F9FA] py-3 items-center justify-center gap-3 hover:bg-gray-100 transition-all text-sm font-medium">
-              <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-                <g clipPath="url(#clip0_8117_17778)">
-                  <path d="M28 14C28 6.26801 21.732 0 14 0C6.26801 0 0 6.26801 0 14C0 20.9877 5.11957 26.7796 11.8125 27.8299V18.0469H8.25781V14H11.8125V10.9156C11.8125 7.40687 13.9027 5.46875 17.1005 5.46875C18.6318 5.46875 20.2344 5.74219 20.2344 5.74219V9.1875H18.4691C16.73 9.1875 16.1875 10.2668 16.1875 11.375V14H20.0703L19.4496 18.0469H16.1875V27.8299C22.8804 26.7796 28 20.9877 28 14Z" fill="#1877F2"/>
-                  <path d="M19.4496 18.0469L20.0703 14H16.1875V11.375C16.1875 10.2679 16.73 9.1875 18.4691 9.1875H20.2344V5.74219C20.2344 5.74219 18.6323 5.46875 17.1005 5.46875C13.9027 5.46875 11.8125 7.40688 11.8125 10.9156V14H8.25781V18.0469H11.8125V27.8299C13.262 28.0567 14.738 28.0567 16.1875 27.8299V18.0469H19.4496Z" fill="white"/>
-                </g>
-                <defs><clipPath id="clip0_8117_17778"><rect width="28" height="28" fill="white"/></clipPath></defs>
-              </svg>
-              Sign In with Facebook
+          {/* Social Buttons (Disabled while loading) */}
+          <div className="space-y-3 mt-4 opacity-70">
+            <button type="button" disabled={loading} className="w-full flex bg-[#F3F9FA] py-3 items-center justify-center gap-3 hover:bg-gray-100 transition-all text-sm font-medium">
+                {/* Google SVG from your code */}
+                Sign in With Google
             </button>
           </div>
 
           <p className="w-full text-center text-[10px] text-gray-400 mt-8 tracking-widest uppercase">
-            © 2025 ALL RIGHTS RESERVED
+            © 2026 ALL RIGHTS RESERVED
           </p>
-        </div>
+        </form>
 
-        {/* Right Side: Image (Hidden on mobile/tablet) */}
         <div className="hidden lg:block w-[38%] h-[600px]">
           <img className="w-full h-full object-cover object-top rounded-sm shadow-sm" src="/images/loginImg.jpg" alt="Login Visual" />
         </div>

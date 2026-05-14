@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext } from "react";
 
 const AdminContext = createContext();
 
@@ -14,13 +14,19 @@ export const AdminProvider = ({ children }) => {
   };
 
   return (
-    <AdminContext.Provider value={{ 
-      admin, setAdmin, 
-      allProducts, setAllProducts, 
-      allOrders, setAllOrders, 
-      loading, setLoading,
-      logout
-    }}>
+    <AdminContext.Provider
+      value={{
+        admin,
+        setAdmin,
+        allProducts,
+        setAllProducts,
+        allOrders,
+        setAllOrders,
+        loading,
+        setLoading,
+        logout,
+      }}
+    >
       {children}
     </AdminContext.Provider>
   );
