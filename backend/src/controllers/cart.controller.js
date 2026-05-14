@@ -1,4 +1,5 @@
 const userModel = require("../models/user.model");
+const productModel = require('../models/product.model')
 
 // 1. Add to Cart / Update Quantity
 exports.addToCart = async (req, res) => {
@@ -64,14 +65,35 @@ exports.removeFromCart = async (req, res) => {
   try {
     const user = await userModel.findById(req.user.id);
 
-    // Filter use karke wo product nikal dein
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const initialLength = user.cart.length;
     user.cart = user.cart.filter(
-      (item) => item.productId.toString() !== req.params.id
+      (item) => item._id.toString() !== req.params.id
     );
 
+    if (user.cart.length === initialLength) {
+        user.cart = user.cart.filter(
+            (item) => item.productId.toString() !== req.params.id
+        );
+    }
+
     await user.save();
-    res.status(200).json({ success: true, cart: user.cart });
+
+    const populatedUser = await userModel.findById(req.user.id).populate({
+      path: "cart.productId",
+      model: "product", 
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      cart: populatedUser.cart // Ab isme pura product object hoga, sirf ID nahi
+    });
+
   } catch (error) {
+    console.error("Remove Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

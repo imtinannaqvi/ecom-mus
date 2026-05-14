@@ -14,12 +14,13 @@ import {
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { AppContext } from "../context/AppContextProvider";
+import { CartContext } from "../context/CartContext";
 
 const Checkout = () => {
-  const { cartItem } = useContext(AppContext);
+  const { cartItems } = useContext(CartContext);
 
   // --- LOGIC: CALCULATIONS ---
-  const subtotal = cartItem.reduce((acc, item) => {
+  const subtotal = cartItems.reduce((acc, item) => {
     const price = typeof item.price === "string"
         ? parseFloat(item.price.replace(/[^0-9.-]+/g, ""))
         : item.price;

@@ -1,259 +1,214 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom"; // useNavigate add kiya
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { AppContext } from "../context/AppContextProvider";
 import { CartContext } from "../context/CartContext";
 
 const ShoppingBag = () => {
-  const { cartItems, setCartItems } = useContext(CartContext);
-  const navigate = useNavigate(); // Hook initialize kiya
+  const { cartItems, removeFromCart, addToCart, cartLoading } = useContext(CartContext);
+  const navigate = useNavigate();
+  const BACKEND_URL = "http://localhost:3000";
 
-  // Items state: cartItem se data lekar qty initialize ki
-  const [items, setItems] = useState(cartItems.map((i) => ({ ...i, qty: 1 })));
-  const [coupon, setCoupon] = useState("");
   const [agreed, setAgreed] = useState(true);
-
-  // Responsive check
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  // Responsive logic
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const updateQty = (id, delta) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-      )
-    );
+  // 1. Quantity Update (Backend Sync)
+  const handleUpdateQty = async (item, delta) => {
+    if (item.quantity === 1 && delta === -1) return;
+
+    await addToCart({
+      productId: item.productId?._id || item.productId,
+      quantity: delta, 
+      size: item.size,
+      color: item.color
+    });
   };
 
-  const removeItem = (id) =>
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  // 2. Remove Item (Fixed to prevent loops)
+  const handleRemove = async (id) => {
+    if (window.confirm("Are you sure you want to remove this item?")) {
+      await removeFromCart(id);
+    }
+  };
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // 3. Subtotal calculation
+  const subtotal = cartItems.reduce((sum, item) => {
+    const price = item.productId?.price || 0;
+    return sum + (price * item.quantity);
+  }, 0);
+
+  if (cartLoading && cartItems.length === 0) {
+    return (
+      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <p>Loading your bag...</p>
+      </div>
+    );
+  }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f5f5f5",
-        fontFamily: "'Segoe UI', sans-serif",
-      }}
-    >
+    <div style={{ minHeight: "100vh", background: "#f5f5f5", fontFamily: "'Segoe UI', sans-serif" }}>
       <Header />
 
       {/* Breadcrumb */}
-      <div
-        style={{
-          background: "#fff",
-          borderBottom: "1px solid #eee",
-          padding: "10px 24px",
-          fontSize: 10,
-          color: "#999",
-        }}
-      >
-        <Link to="/cart" style={{ color: "inherit", textDecoration: "none" }}>Cart</Link> /{" "}
-        <span style={{ color: "#222", fontWeight: 600 }}>Info</span> / Shipping / Payment
+      <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "10px 24px", fontSize: 10, color: "#999" }}>
+        <Link to="/" style={{ color: "inherit", textDecoration: "none" }}>Home</Link> /{" "}
+        <span style={{ color: "#222", fontWeight: 600 }}>Shopping Bag</span>
       </div>
 
-      {/* Page Header */}
-      <div
-        style={{
-          background: "#fff",
-          borderBottom: "1px solid #eee",
-          padding: "14px 24px",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>
-          Checkout Details
-        </p>
-        <p style={{ fontSize: 12, color: "#777", margin: 0 }}>
-          Have An Account?{" "}
-          <Link to="/login" style={{ color: "#111", fontWeight: 700, textDecoration: "underline" }}>
-            Log In
-          </Link>
-        </p>
-      </div>
-
-      <div
-        style={{
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: isMobile ? "15px" : "24px 20px",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          gap: 20,
-        }}
-      >
-        {/* LEFT COLUMN */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "15px" : "24px 20px", display: "flex", flexDirection: isMobile ? "column" : "row", gap: 20 }}>
+        
+        {/* LEFT COLUMN: Items */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
           
-          {/* Step Indicators */}
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e8e8e8",
-              borderRadius: 12,
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
-              overflow: "hidden",
-            }}
-          >
-            {/* Step 1: Address (Active) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderRight: !isMobile ? "1px solid #eee" : "none", background: "#fff" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 8, background: "#111", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>📍</div>
-              <div>
-                <div style={{ fontSize: 9, textTransform: "uppercase", color: "#aaa" }}>Address</div>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>Step 1</div>
-              </div>
+          {/* Progress Steps UI */}
+          <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", overflow: "hidden" }}>
+            <div style={{ padding: "15px", background: "#f0f0f0", borderRight: "1px solid #e8e8e8", display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#111", color: "#fff", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 10 }}>1</div>
+              <span style={{ fontSize: 12, fontWeight: 700 }}>Bag</span>
             </div>
-            {/* Step 2: Payment (Active) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderRight: !isMobile ? "1px solid #eee" : "none", background: "#fff" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 8, background: "#111", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>💳</div>
-              <div>
-                <div style={{ fontSize: 9, textTransform: "uppercase", color: "#aaa" }}>Payment</div>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>Step 2</div>
-              </div>
+            <div style={{ padding: "15px", borderRight: "1px solid #e8e8e8", display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid #ccc", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 10, color: "#999" }}>2</div>
+              <span style={{ fontSize: 12, color: "#999" }}>Shipping</span>
             </div>
-            {/* Step 3: Review */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", background: "#fafafa" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 8, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa" }}>📝</div>
-              <div>
-                <div style={{ fontSize: 9, textTransform: "uppercase", color: "#aaa" }}>Review</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#aaa" }}>Step 3</div>
-              </div>
+            <div style={{ padding: "15px", display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid #ccc", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 10, color: "#999" }}>3</div>
+              <span style={{ fontSize: 12, color: "#999" }}>Payment</span>
             </div>
           </div>
 
-          {/* Delivery Note */}
-          <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ fontSize: 16 }}>🚚</div>
-            <span style={{ fontSize: 13, color: "#555" }}>
-              Estimated Delivery: <strong style={{ color: "#111" }}>15 May 2026</strong>
-            </span>
-          </div>
-
-          {/* Cart Items */}
           <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: isMobile ? 15 : 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 15 }}>Items in Bag ({items.length})</h3>
-            {items.map((item, idx) => (
-              <div key={item.id} style={{ paddingBottom: 18, marginBottom: idx < items.length - 1 ? 18 : 0, borderBottom: idx < items.length - 1 ? "1px solid #f0f0f0" : "none" }}>
-                <div style={{ display: "flex", gap: 14 }}>
-                  <img src={item.images} alt={item.title} style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover" }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{item.title}</div>
-                      <button onClick={() => removeItem(item.id)} style={{ border: "none", background: "none", color: "#c0392b", fontSize: 18, cursor: "pointer" }}>×</button>
-                    </div>
-                    <div style={{ fontSize: 11, color: "#999" }}>Size: {item.size} | Color: {item.color}</div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
-                      <div style={{ fontSize: 16, fontWeight: 700 }}>₹{item.price * item.qty}</div>
-                      <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 20, background: "#fafafa" }}>
-                        <button onClick={() => updateQty(item.id, -1)} style={{ width: 28, border: "none", background: "none", cursor: "pointer" }}>−</button>
-                        <span style={{ width: 24, textAlign: "center", fontSize: 12 }}>{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} style={{ width: 28, border: "none", background: "none", cursor: "pointer" }}>+</button>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 15 }}>Items ({cartItems.length})</h3>
+            
+            {cartItems.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <p style={{ color: "#888", marginBottom: 10 }}>Your bag is empty.</p>
+                <Link to="/" style={{ color: "#111", fontWeight: 700, fontSize: 13, textDecoration: "underline" }}>Continue Shopping</Link>
+              </div>
+            ) : (
+              cartItems.map((item, idx) => {
+                const product = item.productId || {};
+                
+                // SAFE IMAGE LOGIC (Infinite Loop Proof)
+                let imgSource = "https://placehold.co/150x150?text=No+Image"; 
+                if (product.images && product.images.length > 0) {
+                  const rawImg = product.images[0];
+                  const path = typeof rawImg === "object" ? rawImg.url : rawImg;
+                  if (path && typeof path === "string") {
+                    imgSource = path.startsWith("http") ? path : `${BACKEND_URL}${path}`;
+                  }
+                }
+
+                return (
+                  <div key={item._id || `item-${idx}`} style={{ paddingBottom: 18, marginBottom: idx < cartItems.length - 1 ? 18 : 0, borderBottom: idx < cartItems.length - 1 ? "1px solid #f0f0f0" : "none" }}>
+                    <div style={{ display: "flex", gap: 14 }}>
+                      <img 
+                        src={imgSource} 
+                        alt={product.name} 
+                        style={{ width: 85, height: 85, borderRadius: 8, objectFit: "cover", background: "#f9f9f9" }} 
+                        onError={(e) => { 
+                          e.target.onerror = null; // Crucial: stops the loop
+                          e.target.src = "https://placehold.co/150x150?text=Error"; 
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>{product.name || "Unknown Product"}</div>
+                          <button onClick={() => handleRemove(item._id)} style={{ border: "none", background: "none", color: "#c0392b", fontSize: 20, cursor: "pointer", padding: "0 5px" }}>×</button>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>
+                          {item.size && `Size: ${item.size}`} {item.color && `| Color: ${item.color}`}
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 12 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700 }}>₹{(product.price || 0) * item.quantity}</div>
+                          <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 20, background: "#fafafa" }}>
+                            <button onClick={() => handleUpdateQty(item, -1)} style={{ width: 30, height: 30, border: "none", background: "none", cursor: "pointer", fontSize: 16 }}>−</button>
+                            <span style={{ width: 24, textAlign: "center", fontSize: 12, fontWeight: 600 }}>{item.quantity}</span>
+                            <button onClick={() => handleUpdateQty(item, 1)} style={{ width: 30, height: 30, border: "none", background: "none", cursor: "pointer", fontSize: 16 }}>+</button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
 
-          {/* Address & Payment (Ab click par redirect karega) */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: "14px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 9, textTransform: "uppercase", color: "#aaa", marginBottom: 6 }}>Shipping Address</div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>Brooklyn Simmons</div>
-                  <div style={{ fontSize: 12, color: "#777" }}>2972 Westheimer Rd, Illinois 85486</div>
-                </div>
-                {/* Yahan redirect logic lagaya */}
-                <button 
-                  onClick={() => navigate("/checkout")} 
-                  style={{ fontSize: 11, padding: "5px 12px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer" }}
-                >
-                  Edit
-                </button>
-              </div>
-            </div>
-
-            <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: "14px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 9, textTransform: "uppercase", color: "#aaa", marginBottom: 6 }}>Payment Method</div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>Debit Card (**** 6378)</div>
-                  <div style={{ fontSize: 11, color: "#22c55e" }}>Verified & Secured</div>
-                </div>
-                {/* Yahan redirect logic lagaya */}
-                <button 
-                  onClick={() => navigate("/checkout")} 
-                  style={{ fontSize: 11, padding: "5px 12px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer" }}
-                >
-                  Change
-                </button>
-              </div>
-            </div>
+          <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 18 }}>🚚</span>
+            <span style={{ fontSize: 12, color: "#555" }}>Free standard delivery on all orders.</span>
           </div>
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div style={{ width: isMobile ? "100%" : "320px", background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: 20, alignSelf: "start", position: isMobile ? "static" : "sticky", top: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>Order Summary</h3>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
-            <span style={{ fontSize: 13, color: "#888" }}>Subtotal</span>
-            <span style={{ fontSize: 16, fontWeight: 700 }}>₹{subtotal}</span>
+        <div style={{ width: isMobile ? "100%" : "340px", alignSelf: "start", position: isMobile ? "static" : "sticky", top: 20 }}>
+          <div style={{ background: "#fff", border: "1px solid #e8e8e8", borderRadius: 12, padding: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>Order Summary</h3>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{ fontSize: 13, color: "#888" }}>Subtotal</span>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>₹{subtotal}</span>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{ fontSize: 13, color: "#888" }}>Shipping</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>FREE</span>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 15, marginTop: 15, display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>Total (GST included)</span>
+              <span style={{ fontWeight: 800, fontSize: 18 }}>₹{subtotal}</span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 20 }}>
+              <input 
+                type="checkbox" 
+                id="agree"
+                checked={agreed} 
+                onChange={() => setAgreed(!agreed)} 
+                style={{ cursor: "pointer", marginTop: 3 }} 
+              />
+              <label htmlFor="agree" style={{ fontSize: 11, color: "#666", lineHeight: "1.4", cursor: "pointer" }}>
+                By checking this, I agree to the <b>Terms & Conditions</b> and Privacy Policy.
+              </label>
+            </div>
+
+            <button
+              onClick={() => navigate('/checkout')}
+              disabled={!agreed || cartItems.length === 0}
+              style={{ 
+                width: "100%", 
+                padding: "16px 0", 
+                background: (agreed && cartItems.length > 0) ? "#111" : "#ccc", 
+                color: "#fff", 
+                borderRadius: 10, 
+                fontSize: 13, 
+                fontWeight: 700, 
+                cursor: (agreed && cartItems.length > 0) ? "pointer" : "not-allowed", 
+                border: "none",
+                transition: "background 0.3s"
+              }}
+            >
+              Secure Checkout
+            </button>
           </div>
 
-          {/* Coupon */}
-          <div style={{ background: "#f8f8f8", border: "1px solid #eee", borderRadius: 10, padding: 12, marginBottom: 15 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 11 }}>
-              <span style={{ color: "#666" }}>Coupon Code</span>
-              <span style={{ color: "#22c55e", fontWeight: 700, cursor: "pointer" }}>Offers</span>
-            </div>
-            <div style={{ display: "flex", gap: 5 }}>
-              <input value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="PROMO10" style={{ flex: 1, border: "1px solid #ddd", borderRadius: 6, padding: "6px 10px", fontSize: 12 }} />
-              <button style={{ padding: "6px 12px", borderRadius: 6, background: "#111", color: "#fff", fontSize: 11, cursor: "pointer", border: "none" }}>Apply</button>
-            </div>
+          <div style={{ marginTop: 15, textAlign: "center" }}>
+            <p style={{ fontSize: 11, color: "#999" }}>We accept all major credit cards and UPI.</p>
           </div>
-
-          {/* Total */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-              <span style={{ color: "#888" }}>Delivery</span>
-              <span style={{ fontWeight: 600, color: "#22c55e" }}>FREE</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, borderTop: "1px solid #eee", paddingTop: 10 }}>
-              <span style={{ fontWeight: 700 }}>Total</span>
-              <span style={{ fontWeight: 800 }}>₹{subtotal}</span>
-            </div>
-          </div>
-
-          {/* Terms */}
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 15 }}>
-            <input type="checkbox" checked={agreed} onChange={() => setAgreed(!agreed)} style={{ cursor: "pointer" }} />
-            <span style={{ fontSize: 11, color: "#555" }}>I agree to the <strong>Terms</strong> and <strong>Return Policy</strong>.</span>
-          </div>
-
-          <button
-            onClick={() => navigate('/checkout')}
-            disabled={!agreed}
-            style={{ width: "100%", padding: "14px 0", background: agreed ? "#111" : "#ccc", color: "#fff", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: agreed ? "pointer" : "not-allowed", border: "none" }}
-          >
-            Confirm Order
-          </button>
         </div>
       </div>
-      <Footer />
+
+      <div style={{ marginTop: 40 }}>
+        <Footer />
+      </div>
     </div>
   );
 };

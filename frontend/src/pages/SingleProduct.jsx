@@ -10,7 +10,7 @@ import SizeChartOverlay from "../components/SizeChartOverlay";
 import { NewArrivals } from "./Product";
 import CoustomerReviews from "./CoustomerReviews";
 import API from '../api/api'
-import {getCartApi} from '../services/cartServices'
+import { getCartApi } from '../services/cartServices'
 import { CartContext } from "../context/CartContext";
 function SingleProduct() {
   const { id } = useParams();
@@ -73,38 +73,45 @@ function SingleProduct() {
     window.scrollTo(0, 0);
   }, [id, products]); // Products array change hone par re-run hoga
 
-  if (loading || !product) {
+ 
+
+  const BACKEND_URL = "http://localhost:3000";
+  const { addToCart } = useContext(CartContext);
+
+  const handleAddToCart = async () => {
+    // Check karein agar size select nahi kiya (agar product mein sizes hain)
+    if (hasSizing && !selectedSize) {
+      alert("Please select a size first!");
+      return;
+    }
+
+    // 1. Data prepare karein (exact wahi format jo backend maang raha hai)
+    const payload = {
+      productId: product._id,
+      quantity: quantity,
+      size: selectedSize,
+      color: selectedColor
+    };
+
+
+    const result = await addToCart(payload);
+
+    // 3. Response handle karein
+    if (result.success) {
+      alert("✅ Added to cart successfully!");
+    } else {
+      console.error("Add Error:", result.message);
+      alert(result.message || "❌ Failed to add to cart");
+    }
+  };
+
+ if (loading || !product) {
     return (
       <div className="h-screen flex items-center justify-center font-bold text-gray-500">
         Loading...
       </div>
     );
   }
-
-  const BACKEND_URL = "http://localhost:3000";
-    const { setCartItems } = useContext(CartContext); // Context se setter lein
-
-const handleAddToCart = async () => {
-  // 1. Data prepare karein
-  const payload = {
-    productId: product._id,
-    quantity: quantity,
-    size: selectedSize,
-    color: selectedColor
-  };
-
-  // 2. Context wala function call karein
-  const result = await getCartApi(payload);
-
-  // 3. Response handle karein
-  if (result.success) {
-    alert("Added to cart successfully!");
-  } else {
-    alert(result.message || "Failed to add to cart");
-  }
-};
-
-
 
   // Sizing Logic
   const hasSizing =

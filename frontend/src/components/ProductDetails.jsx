@@ -122,7 +122,6 @@ const ProductDetails = ({
         <button
           onClick={() => {
            handleAddToCart()
-              alert("Product added to cart!");
             
           }}
           className="px-4 grow bg-black text-white h-14 rounded shadow-lg hover:bg-gray-800 transition-all flex items-center justify-center gap-2 font-bold uppercase"

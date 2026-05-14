@@ -4,15 +4,14 @@ import {Link} from 'react-router-dom'
 
 function TopCategories({ mainCategory, subCategories }) {
  
-    console.log( 'data is commign form top categories' ,  mainCategory , subCategories)
   
 
   return (
     <section className="w-full flex items-center justify-center flex-col p-4 md:p-10">
       <Button text={"TOP CATEGORIES"} />
       <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 mt-8 md:mt-10">
-        {subCategories.map((elem) => (
-          <Link
+        {subCategories.map((elem , idx) => (
+          <Link  key={idx}
             to={`/shop/${mainCategory}/${elem.name}`}
             key={elem.id}
             className="relative h-60 md:h-80 rounded-lg overflow-hidden group"

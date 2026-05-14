@@ -4,9 +4,8 @@ import API from "../api/api";
 export const addToCartApi = async (data) => {
   try {
     const response = await API.post("/cart/add-to-cart", data);
-    return response.data; // Direct data return karein
+    return response.data; 
   } catch (error) {
-    // Error ko handle karke throw karein taaki calling function ko pata chale
     console.error("API Error (addToCart):", error.response?.data || error.message);
     throw error.response?.data || error; 
   }
