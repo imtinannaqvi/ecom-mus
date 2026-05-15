@@ -39,10 +39,29 @@ const useProduct = () => {
     }
   };
 
+ const submitProductReview = async (formData) => {
+  try {
+    const res = await API.put('/product/rating', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // File upload ke liye zaroori hai
+      },
+    });
+    
+    return res.data;
+  } catch (err) {
+    // Backend se aane wala error message pakadne ke liye
+    const errorMsg = err.response?.data?.message || err.message;
+    console.error("Rating Service Error:", errorMsg);
+    throw new Error(errorMsg); 
+  }
+};
+
+
   return {
     fetchMainCategory,
     fetchProducts,
     loading,
+    submitProductReview,
     setLoading,
     products
   };

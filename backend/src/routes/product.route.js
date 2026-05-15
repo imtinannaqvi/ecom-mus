@@ -7,6 +7,7 @@ const {
   
   getProductById,
   getUserProducts,
+  createProductReview,
 } = require("../controllers/product.controller");
 const authUser = require("../middlewares/auth.middleware");
 
@@ -14,5 +15,6 @@ router.post("/add", upload.array("images", 5), createProduct);
 
 router.get("/all", getAllProducts);
 router.get("/get-products/:category",authUser, getUserProducts);
+router.put('/rating' , authUser , upload.single('reviewMedia') ,    createProductReview)
 
 module.exports = router;

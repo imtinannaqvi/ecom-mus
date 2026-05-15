@@ -81,3 +81,66 @@ exports.getUserProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
+exports.createProductReview = async (req, res) => {
+  try {
+    const { stars, title, description, productId } = req.body;
+    
+    let mediaUrl = "";
+    if (req.file) {
+      mediaUrl = `/uploads/reviews/${req.file.filename}`; 
+    }
+
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    const review = {
+      userId: req.user._id,
+      stars: Number(stars),
+      title,
+      description,
+      reviewMedia: mediaUrl,
+    };
+
+    // Check if already reviewed
+    const isReviewed = product.reviews.find(
+      (rev) => rev.userId.toString() === req.user._id.toString()
+    );
+
+    if (isReviewed) {
+      product.reviews.forEach((rev) => {
+        if (rev.userId.toString() === req.user._id.toString()) {
+          rev.stars = stars;
+          rev.title = title;
+          rev.description = description;
+          // Purani image update karni hai toh:
+          if (mediaUrl) rev.reviewMedia = mediaUrl; 
+        }
+      });
+    } else {
+      product.reviews.push(review);
+      product.numOfReviews = product.reviews.length;
+    }
+
+    let avg = 0;
+    product.reviews.forEach((rev) => {
+      avg += rev.stars;
+    });
+    product.ratings = avg / product.reviews.length;
+
+    await product.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: "Review submitted successfully",
+      ratings: product.ratings
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

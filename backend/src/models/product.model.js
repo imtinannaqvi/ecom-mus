@@ -57,16 +57,19 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     reviews: [
-      {
+      
+       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
         stars: { type: Number, required: true },
         title: { type: String },
         description: { type: String },
+        reviewMedia: { type: String }, // Image ya Video ka URL/Path
         createdAt: { type: Date, default: Date.now }
-      },
+      }
+    
     ],
   },
-  { timestamps: true }
+{ timestamps: true }
 );
 
 const productModel = mongoose.model("product", productSchema);

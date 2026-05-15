@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { Outlet, Link, useLocation } from "react-router-dom";
@@ -9,10 +9,16 @@ import { MdOutlinePayment, MdNotificationsNone } from "react-icons/md";
 import { LiaLanguageSolid } from "react-icons/lia";
 import { GrLanguage } from "react-icons/gr";
 import { FaAngleRight, FaXmark } from "react-icons/fa6";
+import { AppContext } from "../../context/AppContextProvider";
+import { IoPersonCircleOutline } from "react-icons/io5";
+
 
 function Profile() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile toggle ke liye
+  const{user} = useContext(AppContext)
+
+ 
 
   const menuSections = [
     {
@@ -70,10 +76,11 @@ function Profile() {
             {/* Profile Info */}
             <div className="w-full border-b px-4 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" src="/images/p1.jpg" alt="Profile" />
+              <IoPersonCircleOutline size={40} />
+
                 <div>
                   <p className="text-xs text-gray-500">hello👋</p>
-                  <h1 className="text-lg md:text-xl font-bold">Zarwish</h1>
+                  <h1 className="text-lg md:text-xl font-bold">{user.name}</h1>
                 </div>
               </div>
               <FaEdit className="cursor-pointer text-gray-600 hover:text-black" />

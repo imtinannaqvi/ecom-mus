@@ -6,7 +6,7 @@ import SingleProduct from "../pages/SingleProduct";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import OTPVerification from "../pages/OTPVerification";
-import ShoppingBag from "../pages/ShoppingBag";
+import ShoppingBag from "../pages/ReviewOrder";
 import Checkout from "../pages/Checkout";
 import PaymentSuccessfull from "../pages/PaymentSuccessfull";
 import Profile from "../pages/ProfilePges/Profile";
@@ -26,6 +26,8 @@ import Language from "../pages/ProfilePges/Language";
 import Support from "../pages/ProfilePges/Support";
 import LandinPage from "../pages/LandinPage";
 import ProtectedRoute from "./ProtectedRoute";
+import ShippingAddress from "../pages/ShippingAddress";
+import AddPayment from "../pages/AddPayment";
 
 function AppRoute() {
   return (
@@ -46,6 +48,8 @@ function AppRoute() {
       <Route element={<ProtectedRoute />}>
         <Route path="/shopping-bag" element={<ShoppingBag />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/address" element={<ShippingAddress />} />
+        <Route path="/payment" element={<AddPayment />} />
         <Route path="/payment-successfull" element={<PaymentSuccessfull />} />
         
         {/* Profile and its nested routes */}

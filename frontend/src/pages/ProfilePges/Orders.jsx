@@ -1,8 +1,50 @@
 import React from "react";
 import { RiEqualizer3Fill } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { getOrder } from "../../services/orderService";
+import { useEffect } from "react";
+import { useState } from "react";
+import { cancelOrder } from "../../services/orderService";
 
 function Orders() {
+  const [orders, setOrders] = useState([]);
+  const BACKEND_URL = "http://localhost:3000";
+
+  const getOrders = async () => {
+    try {
+      const res = await getOrder();
+
+      if (res && res.success && res.orders) {
+        setOrders(res.orders);
+      } else if (Array.isArray(res)) {
+        setOrders(res);
+      } else {
+        setOrders([]); // Fallback to empty array
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error.message);
+      setOrders([]);
+    }
+  };
+
+  useEffect(() => {
+    getOrders();
+  }, []);
+
+
+  const handleCancelOrder = async (id) => {
+    try {
+      const res = await cancelOrder(id)
+      if (res.success) {
+        alert('order is canceled')
+      }
+    } catch (err) {
+      alert(err.message)
+    }
+
+  }
+
+
   return (
     <section className="w-full h-full">
       {/* Search and Filter Section */}
@@ -20,110 +62,88 @@ function Orders() {
         </button>
       </div>
 
-      <div className="w-full flex mt-6 md:mt-10 flex-col gap-8 md:gap-6">
-        {/* Single Order Card Start */}
-        <div className="w-full border-b pb-6">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-            
-            <div className="flex gap-4 w-full md:w-auto">
-              {/* Product Image */}
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-md shrink-0 overflow-hidden">
-                <img
-                  src="/images/p1.jpg"
-                  alt="product"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Product Details */}
-              <div className="flex flex-col gap-1 flex-1">
-                <h2 className="text-base md:text-lg font-bold text-gray-800 leading-tight">
-                  Girls Pink Moana Printed Dress
-                </h2>
-                <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-gray-600 mt-1">
-                  <p>
-                    Size: <span className="font-semibold text-black">S</span>
-                  </p>
-                  <p className="border-l pl-2 md:pl-4">
-                    Color: <span className="font-semibold text-black">White</span>
-                  </p>
-                </div>
-                <p className="text-xs md:text-sm text-gray-600">
-                  Qty: <span className="font-semibold text-black">1</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Price (Mobile par image ke sath ya alag line mein) */}
-            <div className="text-lg md:text-xl font-bold">₹449</div>
-
-            {/* Buttons Section */}
-            <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-              <Link to={'/profile/orders/1'} className="flex-1 text-center md:px-6 py-2 border border-gray-400 rounded-md text-xs md:text-sm font-semibold hover:bg-gray-50 transition">
-                View Order
-              </Link>
-              <Link to={'/profile/orders/review/1'} className="flex-1 text-center md:px-6 py-2 bg-black text-white rounded-md text-xs md:text-sm font-semibold hover:bg-gray-800 transition">
-                Write Review
-              </Link>
-            </div>
-          </div>
-
-          {/* Status Section */}
-          <div className="flex items-center gap-3 mt-4 bg-gray-50 p-2 md:bg-transparent md:p-0 rounded-md">
-            <span className="px-2 md:px-3 py-1 bg-green-100 text-green-700 text-[10px] md:text-xs font-bold rounded">
-              Delivered
-            </span>
-            <p className="text-xs md:text-sm text-gray-600 font-medium">
-              Your product has been delivered
-            </p>
-          </div>
+    <div className="w-full flex mt-6 md:mt-10 flex-col gap-8 md:gap-6">
+  {/* Agar orders load nahi hue toh skeleton ya message dikhao */}
+  {orders && orders.length > 0 ? (
+    orders.map((order) => (
+      <div key={order._id} className="w-full border-b pb-8 mb-4">
+        {/* Order Header: ID aur Date yahan dikha dein (Optional but better) */}
+        <div className="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded">
+             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Order ID: {order._id}</p>
+             <p className="text-[10px] font-bold text-gray-500 uppercase">{new Date(order.createdAt).toLocaleDateString()}</p>
         </div>
-        {/* Single Order Card End */}
 
-        {/* Second Order (In Process Example) */}
-        <div className="w-full border-b pb-6">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-            <div className="flex gap-4 w-full md:w-auto">
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-md shrink-0 overflow-hidden">
-                <img
-                  src="/images/bag.jpg"
-                  alt="product"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <h2 className="text-base md:text-lg font-bold text-gray-800 leading-tight">
-                  Women Textured Handheld Bag
-                </h2>
-                <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-gray-600 mt-1">
-                  <p>Size: <span className="font-semibold text-black">M</span></p>
-                  <p className="border-l pl-2 md:pl-4">Color: <span className="font-semibold text-black">Pink</span></p>
+        {/* Ab Order ke andar ke Items dikhao */}
+        {order.orderItems?.map((item, index) => {
+          const product = item.productId || {};
+          // Image fallback logic
+          const imgSource = product.images?.[0]?.url || product.images?.[0] || "";
+
+          return (
+            <div key={`${order._id}-${index}`} className="flex flex-col md:flex-row items-start justify-between gap-4 mb-6 last:mb-0">
+              <div className="flex gap-4 w-full md:w-auto">
+                {/* Image */}
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-md shrink-0 overflow-hidden">
+                  <img
+                    src={imgSource.startsWith("http") ? imgSource : `${BACKEND_URL}${imgSource}`}
+                    alt="product"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.target.src = "/images/placeholder.png"; }} // Error handling
+                  />
                 </div>
-                <p className="text-xs md:text-sm text-gray-600">
-                  Qty: <span className="font-semibold text-black">1</span>
-                </p>
+
+                {/* Details */}
+                <div className="flex flex-col gap-1 flex-1">
+                  <h2 className="text-sm md:text-base font-bold text-gray-800 uppercase tracking-tight">
+                    {product.name || "Product Name"}
+                  </h2>
+                  <div className="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-1">
+                    <p>SIZE: <span className="font-bold text-black uppercase">{item.size || "STD"}</span></p>
+                    <p className="border-l pl-2">QTY: <span className="font-bold text-black">{item.quantity}</span></p>
+                  </div>
+                  <div className="text-sm font-bold mt-2">Rs. {item.price * item.quantity}</div>
+                </div>
               </div>
+
+              {/* Action Buttons (Sirf pehle item ke sath dikhaein ya separate column mein) */}
+              
+{index === 0 && (
+  <div className="flex flex-row md:flex-col gap-2 w-full md:w-48">
+    <Link 
+      to={`/profile/orders/${order._id}`} 
+      className="flex-1 text-center py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 transition"
+    >
+      View Details
+    </Link>
+    
+    {/* Cancel button sirf tab jab order pending ho */}
+    {order.orderStatus === "Processing" && (
+      <button 
+        onClick={() => handleCancelOrder(order._id)} 
+        className="flex-1 py-2 border border-red-600 text-red-600 text-[10px] font-bold uppercase tracking-widest hover:bg-red-50"
+      >
+        Cancel Order
+      </button>
+    )}
+  </div>
+)}
             </div>
-            <div className="text-lg md:text-xl font-bold">₹549</div>
-            <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-              <button className="flex-1 md:px-6 py-2 border border-gray-400 rounded-md text-xs md:text-sm font-semibold">
-                View Order
-              </button>
-              <button className="flex-1 md:px-6 py-2 bg-red-600 text-white rounded-md text-xs md:text-sm font-semibold hover:bg-red-700 transition">
-                Cancel Order
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 mt-4 bg-gray-50 p-2 md:bg-transparent md:p-0 rounded-md">
-            <span className="px-2 md:px-3 py-1 bg-orange-100 text-orange-600 text-[10px] md:text-xs font-bold rounded">
-              In Process
-            </span>
-            <p className="text-xs md:text-sm text-gray-600 font-medium">
-              Your product is in process
-            </p>
-          </div>
+          );
+        })}
+
+        {/* Status Section for the whole Order */}
+        <div className="mt-4 flex items-center gap-2">
+           <div className={`w-2 h-2 rounded-full ${order.orderStatus === "Delivered" ? "bg-green-500" : order.orderStatus === "Cancelled" ? "bg-red-500" : "bg-orange-500"}`}></div>
+           <p className="text-[11px] font-bold uppercase tracking-tighter text-gray-600">
+             Status: {order.orderStatus} — <span className="font-normal normal-case">{order.orderStatus === "Delivered" ? "Your product has been delivered" : `Your order is currently ${order.orderStatus.toLowerCase()}`}</span>
+           </p>
         </div>
       </div>
+    ))
+  ) : (
+    <div className="text-center py-20 uppercase tracking-widest text-gray-400 text-sm">No orders found</div>
+  )}
+</div>
     </section>
   );
 }

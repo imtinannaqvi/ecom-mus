@@ -1,12 +1,13 @@
 const express = require('express')
 const authUser = require('../middlewares/auth.middleware')
-const { newOrder, cancelOrder, myOrders } = require('../controllers/order.controller')
+const {cancelOrder, myOrders, createOrder, getOrderById } = require('../controllers/order.controller')
 const router = express.Router()
 
 
-router.post('/new' , authUser , newOrder)
+router.post('/new' , authUser , createOrder)
 router.post('/cancel/:id', authUser , cancelOrder)
-router.get('/get' , authUser , myOrders)
+router.get('/get-order' , authUser , myOrders)
+router.get('/get-order-by-id/:id' , getOrderById )
 
 
 

@@ -1,37 +1,48 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  shippingInfo: {
-    address: { type: String, required: true },
-    city: { type: String, required: true },
-    phoneNo: { type: String, required: true },
-  },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   orderItems: [
     {
-      name: { type: String, required: true },
-      price: { type: Number, required: true },
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
       quantity: { type: Number, required: true },
-      image: { type: String, required: true },
-      product: {
-        type: mongoose.Schema.ObjectId,
-        ref: "product",
-        required: true,
-      },
-    },
+      size: String,
+      color: String,
+      price: { type: Number, required: true }
+    }
   ],
-  user: {
-    type: mongoose.Schema.ObjectId,
-    ref: "user",
+  shippingAddress: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Address', 
+    required: true 
+  },
+  paymentMethod: { 
+    type: String, 
+    required: true, 
+    enum: ['COD', 'Card', 'UPI', 'NetBanking'],
+    default: 'COD' 
+  },
+  paymentStatus: {
+    type: String,
     required: true,
+    enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
+    default: 'Pending'
   },
-  paymentInfo: {
-    id: { type: String }, // Payment gateway ID (Stripe/JazzCash)
-    status: { type: String },
+  // Future use ke liye (agar card use ho)
+  paymentDetails: {
+    transactionId: String,
+    cardLastFour: String,
   },
-  totalPrice: { type: Number, default: 0 },
-  orderStatus: { type: String, default: "Processing" },
-  deliveredAt: Date,
-  createdAt: { type: Date, default: Date.now },
-});
+  totalPrice: { type: Number, required: true },
+  deliveryCharge: { type: Number, default: 0 },
+  isPaid: { type: Boolean, default: false },
+  paidAt: Date,
+  orderStatus: {
+    type: String,
+    default: 'Processing',
+    enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled']
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model("Order", orderSchema);
+const orderModel = mongoose.model('Order', orderSchema);
+module.exports = orderModel
