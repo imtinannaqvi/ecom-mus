@@ -5,7 +5,6 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import ProductList from "./pages/ProductList";
 import OrderList from "./pages/OrderList";
@@ -14,29 +13,42 @@ import NewProduct from "./pages/NewProduct";
 import UserList from "./pages/UserList";
 import UpdateProduct from "./pages/UpdateProduct";
 import NewCategory from "./pages/NewCategory";
+import Report from "./pages/Report";
+import DashboardLayout from "./DashboardLayout";
+import CategoryList from "./pages/CategoryList";
+import Notification from "./pages/Notification";
+import Setting from "./pages/Setting";
 // Baki pages bhi import karein...
 
 function App() {
   return (
     <Router>
-      <div className="flex bg-gray-50 min-h-screen">
-        <Sidebar />
 
-        <div className="flex-1 ml-64 p-4">
-          <Routes>
-            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin/products" element={<ProductList />} />
-            <Route path="/admin/order/:id" element={<ProcessOrder />} />
-            <Route path="/admin/product/new" element={<NewProduct />} />
-            <Route path="/admin/category/new" element={<NewCategory />} />
-            
-            <Route path="/admin/orders" element={<OrderList />} />
-            <Route path="/admin/users"  element={<UserList/>} />
-            <Route  path="/admin/product/:id" element={<UpdateProduct />} />
-          </Routes> 
-        </div>
-      </div>
+
+
+
+      <Routes>
+        <Route path="/admin" element={<DashboardLayout />}>
+  {/* Index route ka matlab hai ke jab koi sirf "/admin" par aaye, toh automatically Dashboard dikhe */}
+  <Route index element={<Dashboard />} />
+  
+  {/* Baqi saare child routes ab bina "/admin" prefix ke likhenge kyunki parent ka path "/admin" hai */}
+  <Route path="dashboard" element={<Dashboard />} />
+  <Route path="products" element={<ProductList />} />
+  <Route path="product/new" element={<NewProduct />} />
+  <Route path="product/:id" element={<UpdateProduct />} />
+  <Route path="category"   element={<CategoryList/>} />
+  <Route path="category/new" element={<NewCategory />} />
+  <Route path="orders" element={<OrderList />} />
+  <Route path="order/:id" element={<ProcessOrder />} />
+  <Route path="report" element={<Report />} />
+  <Route path="users" element={<UserList />} />
+  <Route path='notification' element={<Notification/>} /> 
+  <Route path='setting' element={<Setting/>} /> 
+  
+</Route>
+      </Routes>
+
     </Router>
   );
 }

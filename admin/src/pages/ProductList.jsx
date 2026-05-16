@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
+import { FiSearch, FiSliders, FiEye, FiPlus } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Api from "../api/api";
 
@@ -8,8 +8,13 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  
+  // UI States matching the screenshot
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState({});
 
-  // ✅ fetchProducts called inside useEffect
+  // ✅ Keep original API fetch logic intact
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -24,9 +29,9 @@ const ProductList = () => {
     };
 
     fetchProducts();
-  }, []); // runs once on mount
+  }, []);
 
-  // ✅ Derived state — no useEffect needed
+  // ✅ Derived filtered data logic preserved
   const filteredProducts = allProducts.filter((product) => {
     const matchesSearch = searchTerm
       ? product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -37,139 +42,198 @@ const ProductList = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const deleteProductHandler = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        await Api.delete(`/product/delete/${id}`);
-        setAllProducts((prev) => prev.filter((p) => p._id !== id));
-      } catch (err) {
-        alert("Delete failed: " + err.message);
-      }
+  // Checkbox handlers for UI consistency
+  const handleSelectAll = () => {
+    const nextState = !selectAll;
+    setSelectAll(nextState);
+    const updatedSelections = {};
+    filteredProducts.forEach(p => {
+      updatedSelections[p._id] = nextState;
+    });
+    setSelectedItems(updatedSelections);
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Helper dynamic class mapping for exact status pill designs from screenshot
+  const getStatusStyles = (status) => {
+    const normalize = status?.toLowerCase() || "active";
+    if (normalize.includes("sched")) {
+      return "bg-[#E0F2FE] text-[#0369A1]"; // Light Blue for Scheduled
     }
+    if (normalize.includes("draft")) {
+      return "bg-[#FFEDD5] text-[#C2410C]"; // Soft Orange for Draft
+    }
+    return "bg-[#DCFCE7] text-[#15803D]"; // Mint Green for Active
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header & Search */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Product Inventory ({filteredProducts.length})
-        </h1>
-        <div className="relative w-full md:w-96">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search product by name..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black outline-none transition"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <div className="p-8 bg-white min-h-screen font-sans">
+      
+      {/* Top Header Controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 className="text-xl font-bold text-[#1E1B4B]">Products list</h1>
+        
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Custom Integrated Search bar matching UI theme */}
+          <div className="relative flex-1 sm:w-64">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 outline-none focus:border-gray-400 transition"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <button className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+            <FiSliders className="text-gray-400" /> Filter
+          </button>
+          
+          <button onClick={() => { setSelectedCategory(""); setSearchTerm(""); }} className="border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+            See All
+          </button>
+          
+          <Link to="/admin/product/new" className="flex items-center gap-1.5 bg-[#635BFF] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition">
+            <FiPlus className="text-lg" /> Add Product
+          </Link>
         </div>
       </div>
 
-      {/* Filter Buttons */}
-      <div className="flex gap-4 mb-6 overflow-x-auto pb-2">
-        <button
-          onClick={() => setSelectedCategory("")}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-            selectedCategory === ""
-              ? "bg-black text-white"
-              : "bg-white text-gray-600 border border-gray-200"
-          }`}
-        >
-          All
-        </button>
-        {["Men", "Women", "Kids"].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              selectedCategory === cat
-                ? "bg-black text-white"
-                : "bg-white text-gray-600 border border-gray-200"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Main Container Layout */}
+      <div className="border border-gray-100 rounded-xl overflow-hidden bg-white">
         {loading ? (
-          <div className="p-20 text-center text-gray-500">Loading Products...</div>
+          <div className="p-20 text-center text-gray-400 font-medium">Loading Products Data...</div>
         ) : (
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-bold">
-              <tr>
-                <th className="p-4">Product</th>
-                <th className="p-4">Main Category</th>
-                <th className="p-4">Price</th>
-                <th className="p-4">Stock</th>
-                <th className="p-4 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50 transition group">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={`http://localhost:3000${product.images[0]?.url}`}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover border border-gray-200"
-                          onError={(e) => {
-                            e.target.onerror = null; // ✅ stops infinite loop
-                            e.target.src = "https://placehold.co/50x50";
-                          }}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100 text-[#8A94A6] text-xs font-semibold bg-gray-50/50">
+                  <th className="p-4 w-12 text-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-[#635BFF] focus:ring-[#635BFF] w-4 h-4 cursor-pointer"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th className="p-4 font-medium text-[13px]">Product Name</th>
+                  <th className="p-4 font-medium text-[13px]">Category</th>
+                  <th className="p-4 font-medium text-[13px]">Price</th>
+                  <th className="p-4 font-medium text-[13px]">Stock</th>
+                  <th className="p-4 font-medium text-[13px]">Status</th>
+                  <th className="p-4 font-medium text-[13px] text-right">Action</th>
+                </tr>
+              </thead>
+              
+              <tbody className="divide-y divide-gray-50 text-[14px]">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <tr key={product._id} className="hover:bg-gray-50/40 transition-colors group">
+                      
+                      {/* Checkbox Column */}
+                      <td className="p-4 text-center">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-300 text-[#635BFF] focus:ring-[#635BFF] w-4 h-4 cursor-pointer"
+                          checked={!!selectedItems[product._id]}
+                          onChange={() => handleSelectItem(product._id)}
                         />
-                        <span className="font-semibold text-gray-800">
-                          {product.name}
+                      </td>
+
+                      {/* Product details combined */}
+                      <td className="p-4 font-medium text-[#1E293B]">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`http://localhost:3000${product.images?.[0]?.url || ''}`}
+                            alt={product.name}
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-100 bg-gray-50"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://placehold.co/40x40/f3f4f6/a1a1aa?text=Image";
+                            }}
+                          />
+                          <span>{product.name}</span>
+                        </div>
+                      </td>
+
+                      {/* Category Display */}
+                      <td className="p-4 text-[#5D6B82]">{product.mainCategory || "General"}</td>
+
+                      {/* Clean currency formatting match */}
+                      <td className="p-4 font-medium text-[#1E293B]">
+                        ${parseFloat(product.price).toFixed(2)}
+                      </td>
+
+                      {/* Stock Counter item */}
+                      <td className="p-4 text-[#5D6B82]">{product.stock}</td>
+
+                      {/* Precise Status Pill matching image rules */}
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${getStatusStyles(product.status || (product.stock > 0 ? 'Active' : 'Draft'))}`}>
+                          {product.status || (product.stock > 0 ? "Active" : "Draft")}
                         </span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-gray-600 text-sm">{product.mainCategory}</td>
-                    <td className="p-4 font-bold text-gray-900">Rs. {product.price}</td>
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          product.stock > 0
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {product.stock > 0 ? `${product.stock} in stock` : "Out of Stock"}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex justify-center gap-2">
+                      </td>
+
+                      {/* Details View/Action Router link */}
+                      <td className="p-4 text-right">
                         <Link
                           to={`/admin/product/${product._id}`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          className="text-[#635BFF] hover:underline font-semibold text-xs inline-flex items-center gap-1 transition"
                         >
-                          <FiEdit2 />
+                          Detail
                         </Link>
-                        <button
-                          onClick={() => deleteProductHandler(product._id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                      </td>
+
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="p-16 text-center text-gray-400">
+                      No inventory records loaded matching this setup.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="p-10 text-center text-gray-400">
-                    No products found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
+
+        {/* Dynamic Image-Accurate Pagination Panel */}
+        <div className="flex items-center justify-between border-t border-gray-100 p-4 bg-white text-sm">
+          <button 
+            disabled={currentPage === 1}
+            className="border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ← Previous
+          </button>
+
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, "...", 8, 9, 10].map((page, idx) => (
+              <button
+                key={idx}
+                onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition ${
+                  page === currentPage
+                    ? "bg-[#F5F3FF] text-[#635BFF]"
+                    : "text-gray-500 hover:bg-gray-50"
+                } ${typeof page !== 'number' ? 'cursor-default' : ''}`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+          
+          <button 
+            className="border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition"
+          >
+            Next →
+          </button>
+        </div>
+
       </div>
     </div>
   );

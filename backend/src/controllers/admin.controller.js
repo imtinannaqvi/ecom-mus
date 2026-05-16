@@ -54,7 +54,6 @@ exports.addSubCategory = async (req, res) => {
   }
 };
 
-// 3. Sari Categories get karna
 exports.getAllCategories = async (req, res) => {
   try {
     const categories = await categoryModel.find();
@@ -64,8 +63,39 @@ exports.getAllCategories = async (req, res) => {
   }
 };
 
+exports.deleteSubCategory = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    const updatedCategory = await categoryModel.findOneAndUpdate(
+      { "subCategories._id": id }, 
+      {
+        $pull: {
+          subCategories: { _id: id }
+        }
+      },
+      { returnDocument: 'after' } 
+    );
+
+    if (!updatedCategory) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Sub-category not found or already deleted." 
+      });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Sub-category deleted successfully!",
+      data: updatedCategory 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 
 
-// 1. Naya Product Add Karna
+
+
 

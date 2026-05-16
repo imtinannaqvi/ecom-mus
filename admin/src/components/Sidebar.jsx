@@ -1,40 +1,175 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { FiGrid, FiShoppingBag, FiPlusSquare, FiUsers, FiLayers } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { 
+  LuLayoutDashboard, 
+  LuPackage, 
+  LuTag, 
+  LuUsers, 
+  LuTrendingUp, 
+  LuBell, 
+  LuSettings, 
+  LuChevronUp, 
+  LuChevronDown 
+} from 'react-icons/lu';
 
 const Sidebar = () => {
-  const menuItems = [
-    { name: "Dashboard", path: "/admin/dashboard", icon: <FiGrid /> },
-    { name: "All Products", path: "/admin/products", icon: <FiShoppingBag /> },
-    { name: "Create Product", path: "/admin/product/new", icon: <FiPlusSquare /> },
-    { name: "Create Category", path: "/admin/category/new", icon: <FiPlusSquare /> },
-    { name: "Orders", path: "/admin/orders", icon: <FiLayers /> },
-    { name: "Users", path: "/admin/users", icon: <FiUsers /> },
-  ];
+  const [isProductsOpen, setIsProductsOpen] = useState(true); // Dropdown state (default open)
+  const location = useLocation();
+
+  // Logo text or image can be adjusted here
+  const logoText = "Maurish"; 
+
+  // Check if current route belongs to products section to highlight parent
+  const isProductsActive = location.pathname.includes('/admin/products') || location.pathname.includes('/admin/product/new');
 
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 text-gray-800 p-5 fixed left-0 top-0">
-      <div className="mb-10 px-2">
-        <h1 className="text-2xl font-bold text-black tracking-tighter italic">MAURISH ADMIN</h1>
+    <div className="w-64 h-screen bg-white border-r border-gray-100 text-[#5D6B82] p-6 fixed left-0 top-0 flex flex-col font-sans select-none">
+      
+      {/* Logo Section */}
+      <div className="mb-8 px-2 flex  items-center gap-2">
+        {/* Custom SVG icon similar to the interlocking loops in image */}
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF]">
+          <path d="M12 20C14.2091 20 16 18.2091 16 16C16 13.7909 14.2091 12 12 12C9.79086 12 8 13.7909 8 16C8 18.2091 9.79086 20 12 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M20 20C22.2091 20 24 18.2091 24 16C24 13.7909 22.2091 12 20 12C17.7909 12 16 13.7909 16 16C16 18.2091 17.7909 20 20 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{logoText}</span>
       </div>
       
-      <nav className="space-y-2">
-        {menuItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            className={({ isActive }) => 
-              `flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
-                isActive 
-                ? "bg-black text-white shadow-md" 
-                : "text-gray-500 hover:bg-gray-100 hover:text-black"
-              }`
-            }
+      {/* Navigation Links */}
+      <nav className="flex-1 space-y-1">
+        
+        {/* Dashboard */}
+        <NavLink
+          to="/admin/dashboard"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 group ${
+              isActive 
+              ? "text-[#635BFF] font-semibold" 
+              : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuLayoutDashboard className="text-xl" />
+          <span className="text-[15px]">Dashboard</span>
+        </NavLink>
+
+        {/* Products Dropdown Parent */}
+        <div>
+          <button
+            onClick={() => setIsProductsOpen(!isProductsOpen)}
+            className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-150 ${
+              isProductsActive 
+              ? "text-[#635BFF] font-semibold" 
+              : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`}
           >
-            <span className="text-xl">{item.icon}</span>
-            <span className="font-medium">{item.name}</span>
-          </NavLink>
-        ))}
+            <div className="flex items-center gap-4">
+              <LuPackage className="text-xl" />
+              <span className="text-[15px]">Products</span>
+            </div>
+            {isProductsOpen ? <LuChevronUp className="text-lg" /> : <LuChevronDown className="text-lg" />}
+          </button>
+
+          {/* Submenu Items */}
+          {isProductsOpen && (
+            <div className="mt-1 space-y-1">
+              {/* Product List */}
+              <NavLink
+                to="/admin/products"
+                className={({ isActive }) => 
+                  `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                    isActive 
+                    ? "bg-[#F5F3FF] text-[#635BFF]" 
+                    : "text-[#5D6B82] hover:text-[#1E1B4B]"
+                  }`
+                }
+              >
+                Product List
+              </NavLink>
+
+              {/* Categories */}
+              <NavLink
+                to="/admin/category"
+                className={({ isActive }) => 
+                  `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                    isActive 
+                    ? "bg-[#F5F3FF] text-[#635BFF]" 
+                    : "text-[#5D6B82] hover:text-[#1E1B4B]"
+                  }`
+                }
+              >
+                Category List
+              </NavLink>
+
+            
+            </div>
+          )}
+        </div>
+
+        {/* Sales / Orders */}
+        <NavLink
+          to="/admin/orders"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+              isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuTag className="text-xl rotate-90" />
+          <span className="text-[15px]">Sales</span>
+        </NavLink>
+
+        {/* Customers / Users */}
+        <NavLink
+          to="/admin/users"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+              isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuUsers className="text-xl" />
+          <span className="text-[15px]">Customers</span>
+        </NavLink>
+        <NavLink
+          to="/admin/report"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+              isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuUsers className="text-xl" />
+          <span className="text-[15px]">Report</span>
+        </NavLink>
+        <NavLink
+          to="/admin/notification"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+              isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuBell className="text-xl" />
+          <span className="text-[15px]">Notifications</span>
+        </NavLink>
+        <NavLink
+          to="/admin/setting"
+          className={({ isActive }) => 
+            `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+              isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+            }`
+          }
+        >
+          <LuSettings className="text-xl" />
+          <span className="text-[15px]">Setting</span>
+        </NavLink>
+
+      
+
+
+       
+
       </nav>
     </div>
   );

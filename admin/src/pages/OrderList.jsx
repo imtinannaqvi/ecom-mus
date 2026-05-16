@@ -5,41 +5,33 @@ import {
   FiCheckCircle,
   FiClock,
   FiSearch,
+  FiInbox,
+  FiRefreshCw
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import Api from "../api/api";
 
 const OrderList = () => {
-  // 1. Backend sa aya hua data (Dummy)
-  const [orders, setOrders] = useState([
-    {
-      _id: "MAU-8801",
-      user: "Hamza Ahmed",
-      createdAt: "2024-03-20",
-      totalPrice: 4500,
-      orderStatus: "Processing",
-    },
-    {
-      _id: "MAU-8802",
-      user: "Zeeshan Khan",
-      createdAt: "2024-03-21",
-      totalPrice: 2200,
-      orderStatus: "Shipped",
-    },
-    {
-      _id: "MAU-8803",
-      user: "Bilal Raza",
-      createdAt: "2024-03-19",
-      totalPrice: 8900,
-      orderStatus: "Delivered",
-    },
-    {
-      _id: "MAU-8804",
-      user: "Saad Ali",
-      createdAt: "2024-03-22",
-      totalPrice: 3000,
-      orderStatus: "Processing",
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true); // Added loading handler state
+
+  const getOrder = async () => {
+    try {
+      setLoading(true);
+      const res = await Api.get('/admin/get-order');
+      if (res.data.success) {
+        setOrders(res.data.orders || []);
+      }
+    } catch (err) {
+      console.log("Error pulling data stream:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getOrder();
+  }, []);
 
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,12 +40,13 @@ const OrderList = () => {
   useEffect(() => {
     let result = orders;
 
-    // Search by Order ID or User Name
+    // Search by Order ID or User Name Layer
     if (searchTerm) {
       result = result.filter(
         (order) =>
-          order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.user.toLowerCase().includes(searchTerm.toLowerCase()),
+          order._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          // ✅ FIX: Accessing object's name safely using optional chaining
+          order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -65,100 +58,190 @@ const OrderList = () => {
     setFilteredOrders(result);
   }, [searchTerm, statusFilter, orders]);
 
-  // Status Badge Helper
-  const getStatusStyle = (status) => {
+  // Premium Custom Dynamic Badges Mapping
+  const getStatusConfig = (status) => {
     switch (status) {
       case "Processing":
-        return "bg-yellow-100 text-yellow-700";
+        return {
+          style: "bg-amber-50 text-amber-700 border-amber-200/60",
+          icon: <FiClock className="animate-pulse" size={12} />,
+        };
       case "Shipped":
-        return "bg-blue-100 text-blue-700";
+        return {
+          style: "bg-indigo-50 text-indigo-700 border-indigo-200/60",
+          icon: <FiTruck size={12} />,
+        };
       case "Delivered":
-        return "bg-green-100 text-green-700";
+        return {
+          style: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
+          icon: <FiCheckCircle size={12} />,
+        };
       default:
-        return "bg-gray-100 text-gray-700";
+        return {
+          style: "bg-slate-50 text-slate-700 border-slate-200/60",
+          icon: null,
+        };
     }
   };
 
-  return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800 italic">
-          Maurish Orders
-        </h1>
+  // Helper function to count tabs items dynamically
+  const getCount = (status) => {
+    if (status === "All") return orders.length;
+    return orders.filter((o) => o.orderStatus === status).length;
+  };
 
-        {/* Search Bar */}
-        <div className="relative w-full md:w-80">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search Order ID or Name..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-black"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+  // Safe UI layout for data synchronization loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+        <div className="flex flex-col items-center gap-3">
+          <FiRefreshCw className="animate-spin text-[#635BFF]" size={26} />
+          <p className="text-xs font-bold text-gray-400 tracking-wider uppercase">Fetching Active Order Feeds...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Status Tabs */}
-      <div className="flex gap-2 mb-6 bg-white p-1 rounded-xl w-fit border shadow-sm">
-        {["All", "Processing", "Shipped", "Delivered"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setStatusFilter(status)}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition ${statusFilter === status ? "bg-black text-white" : "text-gray-500 hover:bg-gray-50"}`}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
-
-      {/* Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 text-gray-400 text-xs uppercase font-black">
-            <tr>
-              <th className="p-4">Order ID</th>
-              <th className="p-4">Customer</th>
-              <th className="p-4">Date</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {filteredOrders.map((order) => (
-              <tr key={order._id} className="hover:bg-gray-50 transition">
-                <td className="p-4 font-mono text-sm font-bold text-blue-600">
-                  {order._id}
-                </td>
-                <td className="p-4 font-medium text-gray-800">{order.user}</td>
-                <td className="p-4 text-gray-500 text-sm">{order.createdAt}</td>
-                <td className="p-4 font-black text-gray-900">
-                  Rs. {order.totalPrice}
-                </td>
-                <td className="p-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.orderStatus)}`}
-                  >
-                    {order.orderStatus}
-                  </span>
-                </td>
-                <td className="p-4 text-center">
-                  <Link
-                    to={`/admin/order/${order._id}`}
-                    className="inline-flex items-center gap-1 text-black font-bold text-sm hover:underline"
-                  >
-                    <FiEye /> View Details
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {filteredOrders.length === 0 && (
-          <div className="p-20 text-center text-gray-400">
-            No orders found in this category.
+  return (
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Modern Unified Header Layout */}
+        <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Maurish Orders</h1>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Fulfillment pipeline. Monitor customer checkouts, invoices, and shipping statuses.
+            </p>
           </div>
-        )}
+
+          {/* Premium Rounded Search Bar */}
+          <div className="relative w-full sm:w-80">
+            <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+            <input
+              type="text"
+              placeholder="Search by ID or customer name..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none text-xs font-medium transition-all shadow-sm placeholder:text-gray-400"
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </header>
+
+        {/* Clean Pill Layout Tabs Control Bar */}
+        <div className="flex flex-wrap gap-2 mb-6 bg-slate-200/50 p-1 rounded-xl w-fit border border-gray-100 shadow-inner">
+          {["All", "Processing", "Shipped", "Delivered"].map((status) => {
+            const isActive = statusFilter === status;
+            return (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold tracking-wide flex items-center gap-2 transition-all ${
+                  isActive
+                    ? "bg-white text-[#1E1B4B] shadow-sm border border-slate-100"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                {status}
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold ${
+                    isActive ? "bg-[#1E1B4B] text-white" : "bg-slate-200 text-gray-500"
+                  }`}
+                >
+                  {getCount(status)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Orders Data Table Sheet Container */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/70 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="p-4 pl-6">Order Reference</th>
+                  <th className="p-4">Customer Name</th>
+                  <th className="p-4">Purchase Date</th>
+                  <th className="p-4">Gross Amount</th>
+                  <th className="p-4">Logistics Status</th>
+                  <th className="p-4 pr-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-xs font-medium">
+                {filteredOrders.map((order) => {
+                  const badge = getStatusConfig(order.orderStatus);
+
+                  return (
+                    <tr key={order._id} className="hover:bg-slate-50/50 transition-all group">
+                      {/* Order Code Reference */}
+                      <td className="p-4 pl-6 font-mono font-bold text-[#635BFF] tracking-wide">
+                        #{order._id?.substring(0, 8).toUpperCase()}...
+                      </td>
+                      
+                      {/* Customer Name and Sub-Email Payload */}
+                      <td className="p-4">
+                        <div className="flex flex-col">
+                          {/* ✅ FIX: Render name property safely */}
+                          <span className="text-gray-700 font-semibold">{order.user?.name || "Guest User"}</span>
+                          {/* Optional details addition */}
+                          <span className="text-[10px] text-gray-400 font-normal mt-0.5">{order.user?.email || "No email profile"}</span>
+                        </div>
+                      </td>
+                      
+                      {/* Formatted Creation Date */}
+                      <td className="p-4 text-gray-400 font-normal">
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric"
+                        }) : "N/A"}
+                      </td>
+                      
+                      {/* Gross Pricing Counter */}
+                      <td className="p-4 text-[#1E1B4B] font-bold text-sm">
+                        Rs. {order.totalPrice?.toLocaleString() || "0"}
+                      </td>
+                      
+                      {/* Dynamic Tracking Status Badge */}
+                      <td className="p-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${badge.style}`}
+                        >
+                          {badge.icon}
+                          {order.orderStatus || "Processing"}
+                        </span>
+                      </td>
+                      
+                      {/* Navigation Detail Trigger Link */}
+                      <td className="p-4 pr-6 text-right">
+                        <Link
+                          to={`/admin/order/${order._id}`}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 border border-gray-200 hover:border-[#1E1B4B] rounded-lg text-gray-600 hover:text-[#1E1B4B] font-bold transition-colors bg-white shadow-sm"
+                        >
+                          <FiEye size={13} />
+                          <span>Review</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Fallback Screen Context Empty Matrix Grid */}
+          {filteredOrders.length === 0 && (
+            <div className="py-20 flex flex-col items-center justify-center text-center text-gray-400">
+              <div className="p-3 bg-slate-50 border border-gray-100 text-gray-300 rounded-xl mb-3">
+                <FiInbox size={22} />
+              </div>
+              <p className="text-xs font-semibold text-gray-500">No records dispatch found</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">Try altering keywords or active status nodes</p>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

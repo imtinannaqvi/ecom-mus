@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Added for navigation
 import { FiUploadCloud, FiX, FiCheckCircle } from "react-icons/fi";
 import Api from "../api/api";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // ✅ Added to ensure toast styles render properly
 
 const NewProduct = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigation hook
   const availableSizes = ["S", "M", "L", "XL", "XXL"];
   const availableColors = ["Black", "White", "Red", "Blue", "Grey", "Beige"];
 
@@ -68,7 +72,8 @@ const NewProduct = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (colors.length === 0 || sizes.length === 0 || imageFiles.length === 0) {
-        return alert("Please select all required attributes.");
+        toast.error("Please select all required attributes."); // ✅ Swapped alert with premium toast error
+        return;
     }
     try {
       setLoading(true);
@@ -86,127 +91,157 @@ const NewProduct = () => {
       await Api.post("/product/add", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Product published!");
+      
+      // ✅ React Toastify Success notification 
+      toast.success("Product published successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+
       // Reset logic
       setName(""); setPrice(""); setDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
       setImagesPreview([]); setImageFiles([]);
+
+      // ✅ Securely route back to products overview pane after timeout
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 2000);
+
     } catch (err) {
-      alert("Error: " + (err.response?.data?.message || err.message));
+      toast.error("Error: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-4 bg-[#F1F3F6] min-h-screen font-sans text-slate-900">
-      <div className="max-w-5xl mx-auto">
-        <header className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight text-slate-800">New Inventory</h1>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">V2.1</span>
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Premium Dashboard Header */}
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Add details, metrics, sizes and asset gallery for the inventory</p>
+          </div>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.1</span>
         </header>
+        
+        <ToastContainer />
 
-        <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* ✅ Form structure corrected to professional dual-column Grid layout */}
+        <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Left Column */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200">
-              <div className="grid grid-cols-1 gap-4">
+          {/* Left Column - Core Details (7 Columns) */}
+          <div className="lg:col-span-7 space-y-5">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+              
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Product Title</label>
+                <input
+                  type="text"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                  placeholder="e.g. Premium Cotton Shirt"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Title</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Price ($)</label>
                   <input
-                    type="text"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-sm font-medium transition-all"
-                    placeholder="Product name..."
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    type="number"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
+                    placeholder="0.00"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
                     required
                   />
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Price</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-sm font-bold"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Stock</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-sm font-bold"
-                      value={stock}
-                      onChange={(e) => setStock(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Description</label>
-                  <textarea
-                    rows="3"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-sm leading-snug"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Stock Qty</label>
+                  <input
+                    type="number"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
+                    placeholder="1"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
                     required
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Gender</label>
-                      <select
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-xs font-semibold appearance-none"
-                        value={mainCategory}
-                        onChange={handleMainCategoryChange}
-                        required
-                      >
-                        <option value="">Select</option>
-                        <option value="Men">Men</option>
-                        <option value="Women">Women</option>
-                        <option value="Kids">Kids</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Type</label>
-                      <select
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 outline-none text-xs font-semibold appearance-none disabled:opacity-40"
-                        value={subCategory}
-                        onChange={(e) => setSubCategory(e.target.value)}
-                        required
-                        disabled={!mainCategory}
-                      >
-                        <option value="">{mainCategory ? "Sub Category" : "---"}</option>
-                        {allCategories.find((cat) => cat.name === mainCategory)?.subCategories.map((sub) => (
-                              <option key={sub._id} value={sub.name}>{sub.name}</option>
-                        ))}
-                      </select>
-                    </div>
                 </div>
               </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Description</label>
+                <textarea
+                  rows="4"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm leading-relaxed transition-all"
+                  placeholder="Write a comprehensive overview about product styling, material..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Gender Category</label>
+                  <div className="relative">
+                    <select
+                      className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold appearance-none transition-all"
+                      value={mainCategory}
+                      onChange={handleMainCategoryChange}
+                      required
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Men">Men</option>
+                      <option value="Women">Women</option>
+                      <option value="Kids">Kids</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Product Type</label>
+                  <div className="relative">
+                    <select
+                      className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold appearance-none disabled:opacity-40 transition-all"
+                      value={subCategory}
+                      onChange={(e) => setSubCategory(e.target.value)}
+                      required
+                      disabled={!mainCategory}
+                    >
+                      <option value="">{mainCategory ? "Select Sub Category" : "Choose Gender First"}</option>
+                      {allCategories.find((cat) => cat.name === mainCategory)?.subCategories.map((sub) => (
+                        <option key={sub._id} value={sub.name}>{sub.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-5">
-              {/* Sizes */}
+          {/* Right Column - Attributes & Uploads (5 Columns) */}
+          <div className="lg:col-span-5 space-y-5">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+              
+              {/* Sizes Block */}
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-wider">Sizes</label>
-                <div className="flex flex-wrap gap-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Available Sizes</label>
+                <div className="flex flex-wrap gap-2">
                   {availableSizes.map((size) => (
                     <button
                       key={size}
                       type="button"
                       onClick={() => handleSizeChange(size)}
-                      className={`w-10 h-10 rounded-lg text-xs font-bold border transition-all ${
-                        sizes.includes(size) ? "bg-slate-900 border-slate-900 text-white" : "bg-white border-slate-200 text-slate-400 hover:border-slate-400"
+                      className={`w-10 h-10 rounded-xl text-xs font-bold border transition-all duration-200 ${
+                        sizes.includes(size) 
+                          ? "bg-[#1E1B4B] border-[#1E1B4B] text-white shadow-sm" 
+                          : "bg-white border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600"
                       }`}
                     >
                       {size}
@@ -215,17 +250,19 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Colors */}
+              {/* Colors Block */}
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-wider">Colors</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Product Colors</label>
                 <div className="grid grid-cols-3 gap-2">
                   {availableColors.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => handleColorChange(color)}
-                      className={`py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
-                        colors.includes(color) ? "bg-slate-900 border-slate-900 text-white" : "bg-slate-50 border-slate-200 text-slate-500"
+                      className={`py-2 rounded-xl text-[11px] font-bold border transition-all duration-200 ${
+                        colors.includes(color) 
+                          ? "bg-[#635BFF] border-[#635BFF] text-white shadow-sm" 
+                          : "bg-slate-50 border-gray-200 text-gray-500 hover:border-gray-300"
                       }`}
                     >
                       {color}
@@ -234,41 +271,49 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Photos */}
+              {/* Asset Media Gallery Uploader */}
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-wider">Gallery</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Media Gallery</label>
                 <div className="grid grid-cols-4 gap-2">
                   {imagesPreview.map((img, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-100 group">
+                    <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group shadow-sm">
                       <img src={img} alt="Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                        className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200"
                       >
-                        <FiX className="text-white" />
+                        <FiX className="text-white text-base" />
                       </button>
                     </div>
                   ))}
-                  <label className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-slate-900 transition-all group">
-                    <FiUploadCloud className="text-lg text-slate-300 group-hover:text-slate-900" />
+                  
+                  <label className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/20 transition-all group">
+                    <FiUploadCloud className="text-xl text-gray-300 group-hover:text-[#635BFF] transition-colors" />
+                    <span className="text-[9px] font-bold text-gray-400 mt-1 group-hover:text-[#635BFF]">Upload</span>
                     <input type="file" accept="image/*" onChange={createProductImagesChange} multiple className="hidden" />
                   </label>
                 </div>
-                <p className="text-[9px] text-slate-400 mt-2 flex items-center gap-1 font-bold">
-                  <FiCheckCircle className="text-green-500" /> {imageFiles.length} IMAGES SELECTED
-                </p>
+                
+                {imageFiles.length > 0 && (
+                  <p className="text-[10px] text-emerald-600 mt-2.5 flex items-center gap-1 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded-md border border-emerald-100">
+                    <FiCheckCircle /> {imageFiles.length} IMAGES SELECTED
+                  </p>
+                )}
               </div>
+
             </div>
 
+            {/* Action Dynamic CTA Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-slate-900 text-white rounded-xl font-bold text-xs tracking-widest hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
             >
-              {loading ? "PROCESSING..." : "PUBLISH STORE"}
+              {loading ? "PUBLISHING TO STORE..." : "PUBLISH PRODUCT"}
             </button>
           </div>
+
         </form>
       </div>
     </div>

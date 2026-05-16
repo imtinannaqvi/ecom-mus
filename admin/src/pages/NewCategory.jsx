@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { FiPlus, FiUpload, FiX } from "react-icons/fi";
+import { FiPlus, FiUploadCloud, FiX, FiCheckCircle } from "react-icons/fi";
 import Api from "../api/api";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // ✅ Ensures toast styling renders perfectly
 
 const NewCategory = () => {
   const [mainCategoryName, setMainCategoryName] = useState("Men");
@@ -19,21 +21,27 @@ const NewCategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!subName) return alert("Please enter sub-category name");
-    if (!image) return alert("Please upload an image");
+    if (!subName) return toast.error("Please enter sub-category name"); // ✅ Swapped alert with toast
+    if (!image) return toast.error("Please upload an image");            // ✅ Swapped alert with toast
 
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("mainCategoryName", mainCategoryName); // ✅ exact field name
-    formData.append("subName", subName);                   // ✅ exact field name
+    formData.append("mainCategoryName", mainCategoryName); 
+    formData.append("subName", subName);                   
     formData.append("image", image);
 
     try {
       const res = await Api.post("/admin/sub", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Sub-Category Added Successfully!");
+      
+      // ✅ Premium React Toastify Success Trigger
+      toast.success("Sub-Category Added Successfully!", {
+        position: "top-right",
+        autoClose: 2500,
+      });
+
       // Reset
       setMainCategoryName("Men");
       setSubName("");
@@ -42,96 +50,114 @@ const NewCategory = () => {
     } catch (err) {
       console.error("Full error:", err);
       const message = err.response?.data?.message || err.message || "Unknown error";
-      alert("Error: " + message);
+      toast.error("Error: " + message); // ✅ Swapped alert with toast error
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-gray-100 mt-10">
-      <div className="flex items-center gap-2 mb-6 border-b pb-4">
-        <div className="p-2 bg-black text-white rounded-lg">
-          <FiPlus size={20} />
-        </div>
-        <h2 className="text-xl font-bold text-gray-800">Add New Sub-Category</h2>
-      </div>
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+      <div className="max-w-3xl mx-auto">
+        
+        {/* Unified Dashboard Header Theme */}
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Configure sub-branches for your primary storefront departments</p>
+          </div>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.1</span>
+        </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+        <ToastContainer />
 
-        {/* Main Category Dropdown */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Main Category
-          </label>
-          <select
-            value={mainCategoryName}
-            onChange={(e) => setMainCategoryName(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black outline-none transition"
-          >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
-          </select>
-        </div>
-
-        {/* Sub-Category Name */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Sub-Category Name
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. Hoodies, T-Shirts, Sneakers"
-            value={subName}
-            onChange={(e) => setSubName(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black outline-none transition"
-            required
-          />
-        </div>
-
-        {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Sub-Category Image
-          </label>
-
-          {!preview ? (
-            <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition">
-              <FiUpload className="text-gray-400 mb-2" size={24} />
-              <p className="text-sm text-gray-500">Click to upload image</p>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleImageChange}
-                accept="image/*"
-              />
-            </label>
-          ) : (
-            <div className="relative w-full h-44 rounded-2xl overflow-hidden border">
-              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => { setPreview(null); setImage(null); }}
-                className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition"
+        {/* Form Container Container */}
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Main Category Dropdown Selector */}
+            <div>
+              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+                Main Department
+              </label>
+              <select
+                value={mainCategoryName}
+                onChange={(e) => setMainCategoryName(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold appearance-none transition-all"
               >
-                <FiX size={16} />
-              </button>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Kids">Kids</option>
+              </select>
             </div>
-          )}
-        </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-3 rounded-xl font-bold text-white transition shadow-lg ${
-            loading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800 active:scale-95"
-          }`}
-        >
-          {loading ? "Creating..." : "Create Sub-Category"}
-        </button>
+            {/* Sub-Category Name Input Field */}
+            <div>
+              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+                Sub-Category Title
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Hoodies, T-Shirts, Sneakers"
+                value={subName}
+                onChange={(e) => setSubName(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                required
+              />
+            </div>
+          </div>
 
-      </form>
+          {/* Asset Image Uploader Slot */}
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
+              Category Cover Image
+            </label>
+
+            {!preview ? (
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group">
+                <FiUploadCloud className="text-2xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
+                <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">Click to upload image</span>
+                <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG up to 5MB</p>
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                />
+              </label>
+            ) : (
+              <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
+                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => { setPreview(null); setImage(null); }}
+                  className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200"
+                >
+                  <div className="p-2 bg-red-500 text-white rounded-xl shadow-md transform scale-90 group-hover:scale-100 transition duration-200">
+                    <FiX size={18} />
+                  </div>
+                </button>
+              </div>
+            )}
+            
+            {preview && (
+              <p className="text-[10px] text-emerald-600 mt-2.5 flex items-center gap-1 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded-md border border-emerald-100">
+                <FiCheckCircle /> 1 ASSET SELECTED
+              </p>
+            )}
+          </div>
+
+          {/* Action Publish CTA Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
+          >
+            {loading ? "CREATING SUB-CATEGORY..." : "CREATE SUB-CATEGORY"}
+          </button>
+
+        </form>
+      </div>
     </div>
   );
 };
