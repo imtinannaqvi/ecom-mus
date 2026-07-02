@@ -5,4 +5,13 @@ const Api = axios.create({
   withCredentials: true,
 });
 
+// Attach the admin JWT (set at login) to every request as a Bearer token.
+Api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("adminToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default Api;

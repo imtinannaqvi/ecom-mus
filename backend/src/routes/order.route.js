@@ -7,7 +7,7 @@ const router = express.Router()
 router.post('/new' , authUser , createOrder)
 router.post('/cancel/:id', authUser , cancelOrder)
 router.get('/get-order' , authUser , myOrders)
-router.get('/get-order-by-id/:id' , getOrderById )
+router.get('/get-order-by-id/:id' , authUser , getOrderById )
 
 
 

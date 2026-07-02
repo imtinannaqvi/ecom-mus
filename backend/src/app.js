@@ -17,6 +17,7 @@ const cartRoute = require('../src/routes/cart.route')
 const orderRoute = require('../src/routes/order.route')
 const adminRoute = require('../src/routes/admin.route')
 const addressRoute = require('../src/routes/address.route')
+const wishlistRoute = require('../src/routes/wishlist.route')
 
 // uses all files here
 
@@ -26,6 +27,7 @@ app.use('/api/cart' , cartRoute)
 app.use('/api/order' , orderRoute)
 app.use('/api/admin' , adminRoute)
 app.use('/api/address' , addressRoute)
+app.use('/api/wishlist' , wishlistRoute)
 
 app.get("/", (req, res) => {
   res.send("hello world");

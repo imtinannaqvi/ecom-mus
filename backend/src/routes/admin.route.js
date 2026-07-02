@@ -5,19 +5,40 @@ const {
   createMainCategory,
   addSubCategory,
   getAllCategories,createProduct ,getAllProducts,
-  deleteSubCategory
+  deleteSubCategory,
+  adminLogin,
+  getAllUsers,
+  getUserById,
+  deleteUser,
+  getDashboardStats
 } = require("../controllers/admin.controller");
 const { myOrders, getOrderById, getAllOrder, deleteOrder, updateOrderStatus } = require("../controllers/order.controller");
+const adminAuth = require("../middlewares/adminAuth.middleware");
 
 
-// router.post("/main",  upload.single("image"), createMainCategory); this route will be used to add main category but now we just want add just 3 c=main category so that's why i can pause this 
-router.post("/sub", upload.single("image"), addSubCategory);
-router.get("/all", getAllCategories);
-router.delete('/delete/:id' , deleteSubCategory)
-router.get('/get-order' ,  getAllOrder)
-router.get('/get-order-by-id/:id' , getOrderById)
-router.delete('/delete-order/:id' , deleteOrder)
-router.put('/update-order-status/:id' , updateOrderStatus)
+// --- Public ---
+router.post("/login", adminLogin);
+router.get("/all", getAllCategories); // also consumed by the storefront for categories
+
+// --- Admin-only (token required) ---
+// Categories
+router.post("/main", adminAuth, upload.single("image"), createMainCategory);
+router.post("/sub", adminAuth, upload.single("image"), addSubCategory);
+router.delete('/delete/:id' , adminAuth, deleteSubCategory)
+
+// Orders
+router.get('/get-order' , adminAuth, getAllOrder)
+router.get('/get-order-by-id/:id' , adminAuth, getOrderById)
+router.delete('/delete-order/:id' , adminAuth, deleteOrder)
+router.put('/update-order-status/:id' , adminAuth, updateOrderStatus)
+
+// Users
+router.get('/users', adminAuth, getAllUsers)
+router.get('/users/:id', adminAuth, getUserById)
+router.delete('/users/:id', adminAuth, deleteUser)
+
+// Dashboard / Reports
+router.get('/stats', adminAuth, getDashboardStats)
 
 
 

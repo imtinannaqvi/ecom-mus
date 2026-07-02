@@ -3,12 +3,12 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 
 const ProtectedRoute = () => {
-  const { admin, loading } = useAdmin();
+  const { isAuthenticated, loading } = useAdmin();
 
   // Jab tak API check kar rahi hai (loading), tab tak khali screen ya spinner dikhao
-  if (loading) return null; 
+  if (loading) return null;
 
-  return admin ? <Outlet /> : <Navigate to="/login" />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

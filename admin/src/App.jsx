@@ -18,16 +18,20 @@ import DashboardLayout from "./DashboardLayout";
 import CategoryList from "./pages/CategoryList";
 import Notification from "./pages/Notification";
 import Setting from "./pages/Setting";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 // Baki pages bhi import karein...
 
 function App() {
   return (
     <Router>
-
-
-
-
       <Routes>
+        {/* Public */}
+        <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected: everything under /admin requires an admin session */}
+        <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<DashboardLayout />}>
   {/* Index route ka matlab hai ke jab koi sirf "/admin" par aaye, toh automatically Dashboard dikhe */}
   <Route index element={<Dashboard />} />
@@ -44,9 +48,10 @@ function App() {
   <Route path="report" element={<Report />} />
   <Route path="users" element={<UserList />} />
   <Route path='notification' element={<Notification/>} /> 
-  <Route path='setting' element={<Setting/>} /> 
-  
+  <Route path='setting' element={<Setting/>} />
+
 </Route>
+        </Route>
       </Routes>
 
     </Router>

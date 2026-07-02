@@ -20,7 +20,11 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 1. Generate 6 Digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Dev bypass: when SKIP_OTP=true use a fixed OTP (DEV_OTP) and skip email.
+    const skipOtp = process.env.SKIP_OTP === "true";
+    const otp = skipOtp
+      ? (process.env.DEV_OTP || "123456")
+      : Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpire = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes valid
 
     // 2. Create User (Verification Pending)
@@ -57,11 +61,23 @@ const registerUser = async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    if (skipOtp) {
+      // Dev mode: don't send email, just surface the OTP on the server console.
+      console.log(`[DEV] OTP for ${email} is: ${otp}`);
+    } else {
+      // Email send is best-effort: a failure shouldn't roll back registration.
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (mailErr) {
+        console.log("Email send failed:", mailErr.message, "| OTP:", otp);
+      }
+    }
 
     res.status(201).json({
       success: true,
-      message: "OTP sent to your email. Please verify to continue.",
+      message: skipOtp
+        ? `Dev mode: use OTP ${otp} to verify.`
+        : "OTP sent to your email. Please verify to continue.",
       email: user.email,
     });
   } catch (error) {
@@ -178,4 +194,89 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, verifyOTP, logoutUser , getMe};
+// Update own profile (name / phoneNo). Email & password are intentionally
+// excluded here — email change should re-verify and password has its own route.
+const updateProfile = async (req, res) => {
+  try {
+    const { name, phoneNo } = req.body;
+
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (phoneNo !== undefined) updates.phoneNo = phoneNo;
+
+    if (Object.keys(updates).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Nothing to update" });
+    }
+
+    const user = await userModel
+      .findByIdAndUpdate(req.user.id, updates, {
+        new: true,
+        runValidators: true,
+      })
+      .select("-password -otp -otpExpire");
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Change password: requires the current password and a min-length new one.
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters",
+      });
+    }
+
+    const user = await userModel.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  verifyOTP,
+  logoutUser,
+  getMe,
+  updateProfile,
+  changePassword,
+};

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FiRefreshCw, FiArrowLeft, FiEdit3, FiSliders, FiEye, FiUploadCloud } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
+import Api from '../api/api';
 
 const UpdateProduct = () => {
   const { id } = useParams();
@@ -41,7 +41,7 @@ const UpdateProduct = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const { data } = await axios.get(`${BACKEND_URL}/api/product/${id}`);
+        const { data } = await Api.get(`/product/${id}`);
         if (data.success && data.product) {
           const prod = data.product;
           
@@ -115,7 +115,7 @@ const UpdateProduct = () => {
         formData.append("images", file);
       });
 
-      const { data } = await axios.put(`${BACKEND_URL}/api/product/update/${id}`, formData, {
+      const { data } = await Api.put(`/product/update/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

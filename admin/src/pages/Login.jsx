@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
-import { adminLogin } from '../api';
+import { adminLogin } from '../utils/api/api';
 import { FiLock, FiMail, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
-  const { setAdmin, setIsAuthenticated } = useAdmin();
+  const [submitting, setSubmitting] = useState(false);
+
+  const { login } = useAdmin();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      const data = await adminLogin(email, password);
+      const data = await adminLogin({ email, password });
       if (data.success) {
-        setAdmin(data.user);
-        setIsAuthenticated(true);
+        login(data.token, data.admin);
         navigate("/admin/dashboard");
+      } else {
+        alert(data.message || "Invalid Credentials");
       }
     } catch (err) {
-      alert(err.message || "Invalid Credentials");
+      alert(err.response?.data?.message || "Invalid Credentials");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -80,11 +85,12 @@ const Login = () => {
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-sm hover:bg-neutral-800 transition-all active:scale-[0.98] shadow-xl shadow-black/20"
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-sm hover:bg-neutral-800 transition-all active:scale-[0.98] shadow-xl shadow-black/20 disabled:opacity-60"
           >
-            Authenticate
+            {submitting ? "Authenticating..." : "Authenticate"}
           </button>
         </form>
 

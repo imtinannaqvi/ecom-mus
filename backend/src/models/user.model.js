@@ -20,7 +20,15 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     otp: { type: String },
+    otpExpire: { type: Date },
     isVerified: { type: Boolean, default: false },
+
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "product",
+      },
+    ],
 
     cart: [
       {
