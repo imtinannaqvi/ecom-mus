@@ -1,6 +1,7 @@
 import React from 'react'
 import Button from './Button';
 import {Link} from 'react-router-dom'
+import { BACKEND_URL } from "../api/api";
 
 function TopCategories({ mainCategory, subCategories }) {
  
@@ -18,7 +19,7 @@ function TopCategories({ mainCategory, subCategories }) {
           >
             <img
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              src={`http://localhost:3000${elem.image}`}
+              src={`${BACKEND_URL}${elem.image}`}
               alt={elem.name}
             />
             <div className="w-full px-4 py-2 absolute left-0 top-0 bg-black/60">

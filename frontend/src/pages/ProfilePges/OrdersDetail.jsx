@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
 import { getOrderById } from "../../services/orderService";
+import { BACKEND_URL } from "../../api/api";
 
 function OrdersDetail() {
   const { id } = useParams();
@@ -68,7 +69,7 @@ function OrdersDetail() {
     <div className="flex items-center gap-4">
       {/* Product Image (Optional) */}
       <img 
-        src={item.productId?.images?.[0]?.url?.startsWith("http") ? item.productId?.images?.[0]?.url : `http://localhost:3000${item.productId?.images?.[0]?.url}`} 
+        src={item.productId?.images?.[0]?.url?.startsWith("http") ? item.productId?.images?.[0]?.url : `${BACKEND_URL}${item.productId?.images?.[0]?.url}`} 
         className="w-12 h-12 object-cover rounded" 
         alt="" 
       />

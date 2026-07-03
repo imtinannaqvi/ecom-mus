@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { Mail, Phone } from "lucide-react";
 import { IoMdMail } from "react-icons/io";
+import { BACKEND_URL } from "../api/api";
 import useProduct from "../hooks/productService";
 
 function LandinPage() {
@@ -82,7 +83,7 @@ function LandinPage() {
               {/* Image */}
               <img
                 className="w-full h-full object-cover object-top"
-                src={`http://localhost:3000${item.image}`}
+                src={`${BACKEND_URL}${item.image}`}
                 alt={item.title}
               />
 

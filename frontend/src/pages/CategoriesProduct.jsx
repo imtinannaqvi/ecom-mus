@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
+import { BACKEND_URL } from "../api/api";
 
 const FilterIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,7 +18,7 @@ const ChevronDown = () => (
   </svg>
 );
 
-const BACKEND_URL = "http://localhost:3000";
+
 
 const getImageUrl = (images) => {
   if (!images || (Array.isArray(images) && images.length === 0)) return "/placeholder.jpg";

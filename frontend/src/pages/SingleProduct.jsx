@@ -12,6 +12,7 @@ import CoustomerReviews from "./CoustomerReviews";
 import API from '../api/api'
 import { getCartApi } from '../services/cartServices'
 import { CartContext } from "../context/CartContext";
+import { BACKEND_URL } from "../api/api";
 function SingleProduct() {
   const { id } = useParams();
   // Context se products nikal rahe hain
@@ -75,7 +76,7 @@ function SingleProduct() {
 
  
 
-  const BACKEND_URL = "http://localhost:3000";
+
   const { addToCart } = useContext(CartContext);
 
   const handleAddToCart = async () => {

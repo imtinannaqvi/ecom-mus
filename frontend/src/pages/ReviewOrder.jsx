@@ -5,12 +5,13 @@ import Footer from "../components/Footer";
 import { CartContext } from "../context/CartContext";
 import { AppContext } from "../context/AppContextProvider"; // Address aur Payment ke liye
 import { placeOrder } from "../services/orderService";
+import { BACKEND_URL } from "../api/api";
 
 const ReviewOrder = () => {
   const { cartItems, cartLoading, setCartItems } = useContext(CartContext);
   const { selectedAddress, paymentMethod } = useContext(AppContext); // Dynamic Data
   const navigate = useNavigate();
-  const BACKEND_URL = "http://localhost:3000";
+
 
   const [agreed, setAgreed] = useState(true);
   const [isOrdering, setIsOrdering] = useState(false); // Loading state

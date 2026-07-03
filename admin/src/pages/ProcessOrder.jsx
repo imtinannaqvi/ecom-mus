@@ -6,7 +6,7 @@ import {
 } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Api from '../api/api'; // Aapka setup kiya hua Axios instance
+import Api, { BACKEND_URL } from '../api/api'; // Aapka setup kiya hua Axios instance
 
 const ProcessOrder = () => {
   const { id } = useParams();
@@ -18,7 +18,7 @@ const ProcessOrder = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [status, setStatus] = useState("");
 
-  const BACKEND_URL = "http://localhost:3000"; // Images stream source address
+
 
   // 🔌 Operation 1: Fetch Order Details Workflow Node
   const fetchOrderDetails = async () => {

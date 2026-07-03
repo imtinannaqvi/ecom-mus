@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiSliders, FiEye, FiPlus } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import Api from "../api/api";
+import Api, { BACKEND_URL } from "../api/api";
 
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -148,7 +148,7 @@ const ProductList = () => {
                       <td className="p-4 font-medium text-[#1E293B]">
                         <div className="flex items-center gap-3">
                           <img
-                            src={`http://localhost:3000${product.images?.[0]?.url || ''}`}
+                            src={`${BACKEND_URL}${product.images?.[0]?.url || ''}`}
                             alt={product.name}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-100 bg-gray-50"
                             onError={(e) => {

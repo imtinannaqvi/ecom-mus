@@ -9,6 +9,7 @@ import { CiHeart } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
 import { CartContext } from "../context/CartContext";
 import useProduct from "../hooks/productService";
+import { BACKEND_URL } from "../api/api";
 
 // --- MEGA MENU COMPONENT ---
 const MegaMenu = ({ mainCat, closeMenu }) => {
@@ -56,8 +57,6 @@ function Header() {
 
   const { cartItems, removeFromCart } = useContext(CartContext);
   const { fetchMainCategory } = useProduct();
-
-  const BACKEND_URL = 'http://localhost:3000';
 
   useEffect(() => {
     const loadNavData = async () => {

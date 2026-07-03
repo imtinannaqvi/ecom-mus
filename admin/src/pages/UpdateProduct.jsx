@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FiRefreshCw, FiArrowLeft, FiEdit3, FiSliders, FiEye, FiUploadCloud } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Api from '../api/api';
+import Api, { BACKEND_URL } from '../api/api';
 
 const UpdateProduct = () => {
   const { id } = useParams();
@@ -11,7 +11,7 @@ const UpdateProduct = () => {
 
   const availableSizes = ["S", "M", "L", "XL", "XXL"];
   const availableColors = ["Black", "White", "Red", "Grey", "Navy", "Beige"];
-  const BACKEND_URL = "http://localhost:3000";
+
 
   // 1. Subcategory Mapping Repository (Fixed Database Matrix)
   const subCategoryMapping = {

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
+import { BACKEND_URL } from "../api/api";
 
 // Categories are now dynamically filtered from AppContext based on the category prop
 // Previously: static array defined here - now fetched from context products
@@ -108,7 +109,7 @@ function HeroBanner({ subCategories, mainCategory }) {
                   }}
                 >
                   <img
-                    src={`http://localhost:3000${cat.image}`}
+                    src={`${BACKEND_URL}${cat.image}`}
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />

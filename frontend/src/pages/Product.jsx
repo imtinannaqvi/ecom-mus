@@ -4,10 +4,11 @@ import { CiHeart } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
 import Button from "../components/Button";
+import { BACKEND_URL } from "../api/api";
 
 // 1. Reusable Product Card
 const ProductCard = ({ item, itemsToShow }) => {
-  const BACKEND_URL = "http://localhost:3000";
+
 
   // Logic to get the image URL correctly
   // Agar images array hai to pehli image ka url lo, warna check karo fallback

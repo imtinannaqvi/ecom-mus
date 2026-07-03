@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiTrash2, FiFolder, FiLayers, FiAlertCircle, FiPlus } from "react-icons/fi";
-import Api from "../api/api";
+import Api, { BACKEND_URL } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -10,8 +10,7 @@ const CategoryList = () => {
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Apka Backend Base URL
-  const BACKEND_URL = "http://localhost:3000"; 
+
 
   useEffect(() => {
     let isMounted = true;

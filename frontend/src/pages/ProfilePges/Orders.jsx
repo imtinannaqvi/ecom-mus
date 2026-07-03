@@ -5,10 +5,11 @@ import { getOrder } from "../../services/orderService";
 import { useEffect } from "react";
 import { useState } from "react";
 import { cancelOrder } from "../../services/orderService";
+import { BACKEND_URL } from "../../api/api";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
-  const BACKEND_URL = "http://localhost:3000";
+
 
   const getOrders = async () => {
     try {
