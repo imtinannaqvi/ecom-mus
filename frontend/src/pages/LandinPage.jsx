@@ -10,11 +10,16 @@ import {
 } from "react-icons/fa";
 import { Mail, Phone } from "lucide-react";
 import { IoMdMail } from "react-icons/io";
-import { BACKEND_URL } from "../api/api";
 import useProduct from "../hooks/productService";
 
 function LandinPage() {
   const [items, setItems] = useState([]);
+
+  const categoryImages = {
+    Men: "/images/mens.png",
+    Women: "/images/womens.png",
+    Kids: "/images/kids.png",
+  };
 
   const { fetchMainCategory } = useProduct();
 
@@ -22,8 +27,11 @@ function LandinPage() {
     try {
       const res = await fetchMainCategory();
       setItems(res.data);
-      console.log(res.data);
-    } catch (err) {
+console.log("Categories:", res.data);
+
+res.data.forEach(item => {
+  console.log("Image:", item.image);
+});    } catch (err) {
       console.log(err.message);
     }
   };
@@ -80,12 +88,11 @@ function LandinPage() {
               key={idx}
               className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-screen overflow-hidden "
             >
-              {/* Image */}
-              <img
-                className="w-full h-full object-cover object-top"
-                src={`${BACKEND_URL}${item.image}`}
-                alt={item.title}
-              />
+     <img
+    src={categoryImages[item.name] || "/images/no-image.png"}
+    alt={item.title}
+/>
+
 
               {/* Overlay Content */}
               <div className="w-full flex items-center gap-4 flex-col justify-center bottom-0 h-[30%] bg-black/60 absolute backdrop-blur-sm">
