@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FiShoppingBag,
   FiDollarSign,
   FiBox,
   FiUsers,
   FiAlertCircle,
-  FiCheckCircle,
   FiShoppingCart,
   FiUserPlus,
-  FiMessageSquare
+  FiMessageSquare,
+  FiRefreshCw
 } from 'react-icons/fi';
 import {
   ResponsiveContainer,
-  AreaChart,
+  ComposedChart,
   Area,
+  Bar,
   XAxis,
   YAxis,
   Tooltip
@@ -23,6 +24,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const REFRESH_INTERVAL_MS = 30000; // auto-refresh every 30s for a "live" feel
+
+const STATUS_COLORS = {
+  Pending: "#F59E0B",
+  Processing: "#0EA5E9",
+  Shipped: "#635BFF",
+  Delivered: "#10B981",
+  Cancelled: "#EF4444",
+};
 
 const timeAgo = (dateString) => {
   const diffMs = Date.now() - new Date(dateString).getTime();
@@ -42,7 +52,6 @@ const ACTIVITY_CONFIG = {
   system: { icon: <FiAlertCircle />, color: "text-emerald-500 bg-emerald-50", badge: "bg-[#DCFCE7] text-[#15803D]", tag: "System" },
 };
 
-// Percentage change between the last two entries of a monthly series.
 const monthOverMonthChange = (series) => {
   if (series.length < 2) return null;
   const prev = series[series.length - 2];
@@ -51,29 +60,88 @@ const monthOverMonthChange = (series) => {
   return (((curr - prev) / prev) * 100).toFixed(1);
 };
 
+// Lightweight count-up animation for KPI numbers — no extra library needed.
+const useCountUp = (target, duration = 800) => {
+  const [value, setValue] = useState(0);
+  const startRef = useRef(null);
+  const fromRef = useRef(0);
+
+  useEffect(() => {
+    fromRef.current = value;
+    startRef.current = null;
+    let frameId;
+
+    const step = (timestamp) => {
+      if (startRef.current === null) startRef.current = timestamp;
+      const progress = Math.min((timestamp - startRef.current) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(fromRef.current + (target - fromRef.current) * eased));
+      if (progress < 1) frameId = requestAnimationFrame(step);
+    };
+
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, duration]);
+
+  return value;
+};
+
+const KpiCard = ({ icon, iconColor, label, value, prefix = "", suffix = "", change, sub }) => {
+  const animated = useCountUp(value);
+  return (
+    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between h-28">
+      <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
+        <span className={iconColor}>{icon}</span> {label}
+      </span>
+      <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">
+        {prefix}{animated.toLocaleString()}{suffix}
+      </span>
+      {change !== null && change !== undefined ? (
+        <span className={`text-[11px] font-bold ${change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+          {change >= 0 ? "↑" : "↓"} {Math.abs(change)}% <span className="text-gray-400 font-medium">vs last month</span>
+        </span>
+      ) : (
+        <span className="text-[11px] text-gray-400 font-medium">{sub}</span>
+      )}
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const loadData = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
+
+      const [statsRes, notifRes] = await Promise.all([
+        Api.get("/admin/stats"),
+        Api.get("/notifications"),
+      ]);
+      setStats(statsRes.data.stats);
+      setNotifications((notifRes.data.notifications || []).slice(0, 5));
+      setLastUpdated(new Date());
+    } catch (err) {
+      if (!silent) {
+        toast.error("Failed to load dashboard: " + (err.response?.data?.message || err.message));
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [statsRes, notifRes] = await Promise.all([
-          Api.get("/admin/stats"),
-          Api.get("/notifications"),
-        ]);
-        setStats(statsRes.data.stats);
-        setNotifications((notifRes.data.notifications || []).slice(0, 5));
-      } catch (err) {
-        toast.error("Failed to load dashboard: " + (err.response?.data?.message || err.message));
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+    loadData(false);
+    const interval = setInterval(() => loadData(true), REFRESH_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -97,6 +165,7 @@ const Dashboard = () => {
     totalProducts = 0,
     totalOrders = 0,
     totalRevenue = 0,
+    statusBreakdown = {},
     monthlySales = [],
     topProducts = [],
   } = stats;
@@ -112,8 +181,8 @@ const Dashboard = () => {
   const revenueChange = monthOverMonthChange(revenueSeries);
   const orderChange = monthOverMonthChange(orderSeries);
 
-  // Recharts needs an array of { value } objects for the mini sparklines.
-  const toSparkline = (arr) => arr.map((v) => ({ value: v }));
+  const statusEntries = Object.entries(statusBreakdown);
+  const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
 
   return (
     <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
@@ -121,6 +190,17 @@ const Dashboard = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold text-[#1E1B4B]">Maurish Overview</h1>
+        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          Live
+          {lastUpdated && (
+            <span className="ml-1">&middot; updated {timeAgo(lastUpdated)}</span>
+          )}
+          <FiRefreshCw className={`ml-1 ${refreshing ? "animate-spin" : ""}`} size={12} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -130,107 +210,70 @@ const Dashboard = () => {
 
           {/* Top Row Quad Micro Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-
-            {/* Card 1: Total Orders */}
-            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center h-28">
-              <div className="flex flex-col justify-between h-full">
-                <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
-                  <FiShoppingBag className="text-cyan-500 text-sm" /> Total Orders
-                </span>
-                <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{totalOrders.toLocaleString()}</span>
-                {orderChange !== null ? (
-                  <span className={`text-[11px] font-bold ${orderChange >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                    {orderChange >= 0 ? "↑" : "↓"} {Math.abs(orderChange)}% <span className="text-gray-400 font-medium">vs last month</span>
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-gray-400 font-medium">all-time total</span>
-                )}
-              </div>
-              {orderSeries.length > 1 && (
-                <div className="w-20 h-12">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={toSparkline(orderSeries)}>
-                      <Area type="monotone" dataKey="value" stroke="#0EA5E9" fill="transparent" strokeWidth={1.5} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-
-            {/* Card 2: Total Revenue */}
-            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center h-28">
-              <div className="flex flex-col justify-between h-full">
-                <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
-                  <FiDollarSign className="text-purple-500 text-sm" /> Total Revenue
-                </span>
-                <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">Rs. {totalRevenue.toLocaleString()}</span>
-                {revenueChange !== null ? (
-                  <span className={`text-[11px] font-bold ${revenueChange >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                    {revenueChange >= 0 ? "↑" : "↓"} {Math.abs(revenueChange)}% <span className="text-gray-400 font-medium">vs last month</span>
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-gray-400 font-medium">from non-cancelled orders</span>
-                )}
-              </div>
-              {revenueSeries.length > 1 && (
-                <div className="w-20 h-12">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={toSparkline(revenueSeries)}>
-                      <Area type="monotone" dataKey="value" stroke="#635BFF" fill="transparent" strokeWidth={1.5} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-
-            {/* Card 3: Total Products */}
-            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center h-28">
-              <div className="flex flex-col justify-between h-full">
-                <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
-                  <FiBox className="text-teal-500 text-sm" /> Total Products
-                </span>
-                <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{totalProducts.toLocaleString()}</span>
-                <span className="text-[11px] text-gray-400 font-medium">live in catalog</span>
-              </div>
-            </div>
-
-            {/* Card 4: Total Customers */}
-            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center h-28">
-              <div className="flex flex-col justify-between h-full">
-                <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
-                  <FiUsers className="text-indigo-500 text-sm" /> Total Customers
-                </span>
-                <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{totalUsers.toLocaleString()}</span>
-                <span className="text-[11px] text-gray-400 font-medium">registered accounts</span>
-              </div>
-            </div>
-
+            <KpiCard
+              icon={<FiShoppingBag className="text-sm" />}
+              iconColor="text-cyan-500"
+              label="Total Orders"
+              value={totalOrders}
+              change={orderChange}
+              sub="all-time total"
+            />
+            <KpiCard
+              icon={<FiDollarSign className="text-sm" />}
+              iconColor="text-purple-500"
+              label="Total Revenue"
+              value={totalRevenue}
+              prefix="Rs. "
+              change={revenueChange}
+              sub="from non-cancelled orders"
+            />
+            <KpiCard
+              icon={<FiBox className="text-sm" />}
+              iconColor="text-teal-500"
+              label="Total Products"
+              value={totalProducts}
+              change={null}
+              sub="live in catalog"
+            />
+            <KpiCard
+              icon={<FiUsers className="text-sm" />}
+              iconColor="text-indigo-500"
+              label="Total Customers"
+              value={totalUsers}
+              change={null}
+              sub="registered accounts"
+            />
           </div>
 
-          {/* Central Sales Performance Graph Block */}
+          {/* Combined Revenue + Orders Dual-Axis Chart */}
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-base text-[#1E1B4B]">Sales Performance</h3>
+              <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#635BFF]"></span> Revenue</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#0EA5E9]"></span> Orders</span>
+              </div>
             </div>
 
             {salesPerformanceData.length > 0 ? (
-              <div className="w-full h-60 text-xs text-gray-400">
+              <div className="w-full h-64 text-xs text-gray-400">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={salesPerformanceData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
+                  <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
                     <defs>
-                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#635BFF" stopOpacity={0.15}/>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#635BFF" stopOpacity={0.25}/>
                         <stop offset="95%" stopColor="#635BFF" stopOpacity={0.0}/>
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                    <YAxis tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="left" tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
                     <Tooltip
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const p = payload[0].payload;
                           return (
-                            <div className="bg-black text-white p-2 rounded shadow-xl text-center text-[11px] font-bold">
+                            <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5">
                               <div>{p.orders} orders</div>
                               <div className="text-gray-300">Rs. {p.revenue.toLocaleString()}</div>
                             </div>
@@ -239,14 +282,44 @@ const Dashboard = () => {
                         return null;
                       }}
                     />
-                    <Area type="monotone" dataKey="revenue" stroke="#635BFF" strokeWidth={2.5} fillOpacity={1} fill="url(#colorSales)" />
-                  </AreaChart>
+                    <Bar yAxisId="right" dataKey="orders" fill="#0EA5E9" radius={[4, 4, 0, 0]} barSize={14} opacity={0.85} />
+                    <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#635BFF" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-60 flex items-center justify-center text-xs text-gray-400 font-medium">
+              <div className="h-64 flex items-center justify-center text-xs text-gray-400 font-medium">
                 No sales recorded yet
               </div>
+            )}
+          </div>
+
+          {/* Order Status Breakdown — horizontal progress bars (kept distinct from the Report page's donut) */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-base text-[#1E1B4B] mb-5">Order Pipeline</h3>
+            {statusEntries.length > 0 ? (
+              <div className="space-y-4">
+                {statusEntries.map(([status, count]) => {
+                  const pct = totalStatusCount > 0 ? Math.round((count / totalStatusCount) * 100) : 0;
+                  const color = STATUS_COLORS[status] || "#94A3B8";
+                  return (
+                    <div key={status}>
+                      <div className="flex justify-between items-center mb-1.5 text-xs">
+                        <span className="font-semibold text-gray-600">{status}</span>
+                        <span className="font-bold text-gray-800">{count} <span className="text-gray-400 font-medium">({pct}%)</span></span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700 ease-out"
+                          style={{ width: `${pct}%`, backgroundColor: color }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400 font-medium text-center py-6">No orders yet</div>
             )}
           </div>
 
