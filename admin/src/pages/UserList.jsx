@@ -1,29 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiTrash2, FiSearch, FiUsers, FiShield } from 'react-icons/fi';
+import Api from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserList = () => {
-  // Dummy Users Data (Admin aur Users mixed)
-  const [users, setUsers] = useState([
-    { _id: "u1", name: "Hamza Ahmed", email: "hamza@example.com", role: "admin" },
-    { _id: "u2", name: "Zeeshan Ali", email: "zeeshan@test.com", role: "user" },
-    { _id: "u3", name: "Sana Khan", email: "sana@maurish.com", role: "user" },
-    { _id: "u4", name: "Ayesha Malik", email: "ayesha@example.com", role: "user" },
-  ]);
-
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Logic: Filter out admin first, then apply search queries
+  useEffect(() => {
+    let isMounted = true;
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const res = await Api.get("/admin/users");
+        if (isMounted) {
+          setUsers(res.data.users || []);
+        }
+      } catch (err) {
+        toast.error(
+          "Failed to load customers: " + (err.response?.data?.message || err.message)
+        );
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    fetchUsers();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Logic: exclude any admin accounts, then apply search
   const filteredUsers = users
     .filter((user) => user.role !== "admin")
-    .filter((user) => 
-       user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-       user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter((user) =>
+      (user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-  const deleteUserHandler = (id) => {
-    if (window.confirm("Are you sure you want to delete this customer account permanently?")) {
-      console.log("Deleting User ID:", id);
-      // Apka Axios / API delete trigger call yahan aayega
+  const deleteUserHandler = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this customer account permanently?")) return;
+    try {
+      await Api.delete(`/admin/users/${id}`);
+      toast.success("Customer account deleted successfully!");
+      setUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (err) {
+      toast.error(
+        "Error deleting: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -35,14 +59,17 @@ const UserList = () => {
       "bg-amber-50 text-amber-700",
       "bg-rose-50 text-rose-700"
     ];
-    const index = name.charCodeAt(0) % colors.length;
+    const safeName = name || "?";
+    const index = safeName.charCodeAt(0) % colors.length;
     return colors[index];
   };
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
-        
+
+        <ToastContainer />
+
         {/* Modern Unified Header Layout */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -60,9 +87,9 @@ const UserList = () => {
           {/* Premium Search input structure wrapper */}
           <div className="relative w-full sm:w-80">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-            <input 
-              type="text" 
-              placeholder="Search by name or email..." 
+            <input
+              type="text"
+              placeholder="Search by name or email..."
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none text-xs font-medium transition-all shadow-sm placeholder:text-gray-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -83,18 +110,24 @@ const UserList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-xs font-medium">
-                {filteredUsers.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="4" className="py-20 text-center text-gray-400 font-semibold">
+                      Loading customers...
+                    </td>
+                  </tr>
+                ) : filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-slate-50/50 transition-all group">
-                      
+
                       {/* Customer Avatar & Name Group */}
                       <td className="p-4 pl-6 flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm tracking-wide ${getAvatarStyle(user.name)}`}>
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || "?").charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-bold text-gray-700 text-sm tracking-tight">{user.name}</span>
+                        <span className="font-bold text-gray-700 text-sm tracking-tight">{user.name || "Unnamed"}</span>
                       </td>
-                      
+
                       {/* Email Identity */}
                       <td className="p-4 text-gray-500 font-normal select-all">
                         {user.email}
@@ -102,14 +135,18 @@ const UserList = () => {
 
                       {/* Account Class Privilege Status Tag */}
                       <td className="p-4">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-50 border border-gray-200/60 text-gray-500 font-bold uppercase text-[9px] tracking-wider">
-                          Verified Buyer
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border font-bold uppercase text-[9px] tracking-wider ${
+                          user.isVerified
+                            ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                            : "bg-slate-50 border-gray-200/60 text-gray-500"
+                        }`}>
+                          {user.isVerified ? "Verified Buyer" : "Unverified"}
                         </span>
                       </td>
-                      
+
                       {/* Action Trigger control links */}
                       <td className="p-4 pr-6 text-center">
-                        <button 
+                        <button
                           type="button"
                           onClick={() => deleteUserHandler(user._id)}
                           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
