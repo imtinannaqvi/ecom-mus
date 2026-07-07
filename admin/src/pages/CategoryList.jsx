@@ -9,6 +9,7 @@ const CategoryList = () => {
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [togglingId, setTogglingId] = useState(null);
 
 
 
@@ -47,29 +48,53 @@ const CategoryList = () => {
     }
   }, []);
 
+  const toggleCategoryStatusHandler = useCallback(async (categoryId, currentStatus) => {
+    setTogglingId(categoryId);
+    try {
+      const res = await Api.patch(`/admin/toggle-status/${categoryId}`);
+      const updated = res.data.data;
+      setAllCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat._id === categoryId ? { ...cat, isActive: updated.isActive } : cat
+        )
+      );
+      toast.success(
+        updated.isActive
+          ? `${updated.name} is now visible on the storefront`
+          : `${updated.name} is now hidden from the storefront`
+      );
+    } catch (err) {
+      toast.error("Error updating visibility: " + (err.response?.data?.message || err.message));
+    } finally {
+      setTogglingId(null);
+    }
+  }, []);
+
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
-
+        
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Manage Categories</h1>
             <p className="text-xs text-gray-400 mt-0.5">Overview of your store's structure.</p>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/category/new")}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98]"
-          >
-            <FiPlus size={16} /> ADD SUB-CATEGORY
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/category/main")}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98]"
-          >
-            <FiPlus size={16} /> MAIN CATEGORY
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/admin/category/main")}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98]"
+            >
+              <FiPlus size={16} /> MAIN CATEGORY
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/admin/category/new")}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98]"
+            >
+              <FiPlus size={16} /> ADD SUB-CATEGORY
+            </button>
+          </div>
         </header>
 
         <ToastContainer />
@@ -84,14 +109,41 @@ const CategoryList = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allCategories.map((category) => (
+            {allCategories.map((category) => {
+              const isActive = category.isActive !== false; // default true if field absent
+              return (
               <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                
+                <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF]"><FiFolder className="text-base" /></div>
+                    <div>
+                      <h3 className="font-bold text-sm text-[#1E1B4B]">{category.name}</h3>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{category.subCategories?.length || 0} Sub-Branches</p>
+                    </div>
+                  </div>
 
-                <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF]"><FiFolder className="text-base" /></div>
-                  <div>
-                    <h3 className="font-bold text-sm text-[#1E1B4B]">{category.name}</h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{category.subCategories?.length || 0} Sub-Branches</p>
+                  {/* Visibility Toggle */}
+                  <div className="flex flex-col items-end gap-1">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isActive}
+                      disabled={togglingId === category._id}
+                      onClick={() => toggleCategoryStatusHandler(category._id, isActive)}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 disabled:opacity-50 ${
+                        isActive ? "bg-emerald-500" : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                          isActive ? "translate-x-4.5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? "text-emerald-600" : "text-gray-400"}`}>
+                      {isActive ? "Visible" : "Hidden"}
+                    </span>
                   </div>
                 </div>
 
@@ -99,12 +151,12 @@ const CategoryList = () => {
                   {category.subCategories && category.subCategories.length > 0 ? (
                     <div className="space-y-2">
                       {category.subCategories.map((sub) => {
-
+                        
                         // 🛠️ SMART IMAGE URL GENERATOR
                         let imageSrc = "";
                         if (sub.image) {
                           const rawPath = sub.image.url || sub.image.secure_url || sub.image.path || sub.image;
-
+                          
                           if (typeof rawPath === "string") {
                             if (rawPath.startsWith("http")) {
                               imageSrc = rawPath;
@@ -118,14 +170,14 @@ const CategoryList = () => {
                             }
                           }
                         }
-
+                        
                         return (
                           <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-xl border border-gray-50 bg-slate-50/20 hover:bg-slate-50 transition duration-150 group">
                             <div className="flex items-center gap-3">
                               {imageSrc ? (
-                                <img
-                                  src={imageSrc}
-                                  alt={sub.name}
+                                <img 
+                                  src={imageSrc} 
+                                  alt={sub.name} 
                                   className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm animate-fade-in"
                                 />
                               ) : (
@@ -153,7 +205,8 @@ const CategoryList = () => {
                 </div>
 
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
