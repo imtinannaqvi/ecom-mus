@@ -1,12 +1,10 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom'; // ✅ Import Outlet for switching pages
-import { FiMoreVertical } from 'react-icons/fi';
 import Sidebar from './components/Sidebar';
 import { useAdmin } from './context/AdminContext';
 
 function DashboardLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const menuRef = useRef(null);
   const { admin, logout } = useAdmin();
   const navigate = useNavigate();
@@ -29,34 +27,13 @@ function DashboardLayout() {
 
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen">
-      {/* Sidebar slides in/out; kept mounted so its own state doesn't reset */}
-      <div
-        className={`fixed top-0 left-0 h-full z-30 transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar />
-      </div>
+      <Sidebar />
 
-      <main
-        className={`flex-1 min-h-screen flex flex-col transition-[padding] duration-300 ease-in-out ${
-          sidebarOpen ? "pl-64" : "pl-0"
-        }`}
-      >
-
+      <main className="flex-1 pl-64 min-h-screen flex flex-col">
+        
         <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-8 justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((prev) => !prev)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-[#1E1B4B] transition"
-              title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              <FiMoreVertical size={18} />
-            </button>
-            <div className="text-sm font-medium text-gray-400">
-              Admin Panel / Control Desk
-            </div>
+          <div className="text-sm font-medium text-gray-400">
+            Admin Panel / Control Desk
           </div>
 
           <div className="relative" ref={menuRef}>
