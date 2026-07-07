@@ -51,7 +51,7 @@ function DashboardLayout() {
 
         <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-8 justify-between">
           <div className="text-sm font-medium text-gray-400">
-            Admin Panel / Control Desk
+            Admin Panel 
           </div>
 
           <div className="relative" ref={menuRef}>
