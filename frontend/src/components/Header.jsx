@@ -65,8 +65,8 @@ function Header() {
   useEffect(() => {
     const loadNavData = async () => {
       try {
-        const res = await fetchMainCategory();
-        setAllCategories(res.data);
+       const res = await fetchMainCategory();
+setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
       } catch (err) {
         console.error("Failed to load nav categories", err);
       }

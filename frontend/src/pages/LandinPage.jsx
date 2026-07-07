@@ -25,8 +25,8 @@ function LandinPage() {
 
   const fetchCategory = async () => {
     try {
-      const res = await fetchMainCategory();
-      setItems(res.data);
+     const res = await fetchMainCategory();
+setItems((res.data || []).filter((cat) => cat.isActive !== false));
 console.log("Categories:", res.data);
 
 res.data.forEach(item => {
