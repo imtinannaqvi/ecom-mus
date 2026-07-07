@@ -2,14 +2,15 @@ import React, { useContext, useState, useEffect } from "react";
 import { FaPhoneAlt, FaFacebookF, FaInstagram, FaTwitter, FaBars } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
 import { AiOutlineClose } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GoPerson } from "react-icons/go";
 import { CiHeart } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
 import { CartContext } from "../context/CartContext";
+import { AppContext } from "../context/AppContextProvider";
 import useProduct from "../hooks/productService";
-import { BACKEND_URL } from "../api/api";
+import API, { BACKEND_URL } from "../api/api";
 
 // --- MEGA MENU COMPONENT ---
 const MegaMenu = ({ mainCat, closeMenu }) => {
@@ -52,11 +53,14 @@ function Header() {
   const [activeMenu, setActiveMenu] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [bagHovered, setBagHovered] = useState(false);
+  const [profileHovered, setProfileHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
 
   const { cartItems, removeFromCart } = useContext(CartContext);
+  const { user, setUser } = useContext(AppContext);
   const { fetchMainCategory } = useProduct();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadNavData = async () => {
@@ -73,6 +77,18 @@ function Header() {
   const handleRemove = async (id) => {
     if (window.confirm("Are you sure?")) {
       await removeFromCart(id);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await API.post("/auth/logout");
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setUser(null);
+      setProfileHovered(false);
+      navigate("/login");
     }
   };
 
@@ -115,8 +131,8 @@ function Header() {
               <Link
                 to={`/shop/${cat.name.toLowerCase()}`}
                 className={`text-[12px] font-bold uppercase tracking-[0.2em] transition-all pb-1 border-b-2 ${activeMenu?._id === cat._id
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-700 hover:text-black"
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-700 hover:text-black"
                   }`}
               >
                 {cat.name}
@@ -137,8 +153,48 @@ function Header() {
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </button>
+          {/* PROFILE ICON WITH LOGIN/LOGOUT DROPDOWN */}
+          <div
+            className="relative h-full flex items-center"
+            onMouseEnter={() => setProfileHovered(true)}
+            onMouseLeave={() => setProfileHovered(false)}
+          >
+            <Link to={user ? "/profile/orders" : "/login"}>
+              <GoPerson size={22} className="text-gray-600 hover:text-black" />
+            </Link>
 
-          <Link to="/profile/orders"><GoPerson size={22} className="text-gray-600 hover:text-black" /></Link>
+            {profileHovered && (
+              <div className="hidden md:flex flex-col absolute right-0 top-full w-48 bg-white shadow-2xl border border-gray-100 z-[110]">
+                {user ? (
+                  <>
+                    <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b truncate">
+                      {user.name || user.email}
+                    </div>
+                    <Link
+                      to="/profile/orders"
+                      className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50"
+                    >
+                      My Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 text-red-500"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50"
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+
           <Link to="/profile/wishlist" className="relative">
             <CiHeart size={24} className="text-gray-600 hover:text-black" />
           </Link>
@@ -220,6 +276,18 @@ function Header() {
               </div>
             ))}
             <div className="p-6 space-y-4">
+              {user ? (
+                <button
+                  onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                  className="block text-[10px] uppercase tracking-widest font-bold text-red-500"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">
+                  Login
+                </Link>
+              )}
               <Link to="/profile/track" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">Track Order</Link>
               <Link to="/profile/support" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">Support</Link>
             </div>

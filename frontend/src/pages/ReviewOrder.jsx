@@ -9,7 +9,7 @@ import { BACKEND_URL } from "../api/api";
 
 const ReviewOrder = () => {
   const { cartItems, cartLoading, setCartItems } = useContext(CartContext);
-  const { selectedAddress, paymentMethod } = useContext(AppContext); // Dynamic Data
+  const { selectedAddress, paymentMethod, user } = useContext(AppContext); // Dynamic Data + user
   const navigate = useNavigate();
 
 
@@ -30,6 +30,13 @@ const ReviewOrder = () => {
 
   // --- Complete Order Logic ---
   const completeOrder = async () => {
+    // 0. Require login only at the point of actually placing the order.
+    // Guests can freely view/manage their bag up to this point.
+    if (!user) {
+      alert("Please log in or sign up to complete your order.");
+      return navigate('/login');
+    }
+
     // 1. Validations
     if (!selectedAddress) {
       alert("Shipping address is missing. Please select one.");
@@ -63,7 +70,7 @@ const ReviewOrder = () => {
         // Clear logic
         localStorage.removeItem("selectedAddress");
         if(setCartItems) setCartItems([]); // Context clear
-        
+
         navigate(`/profile/orders`);
       } else {
         alert(res.message || "Failed to place order.");
@@ -88,11 +95,21 @@ const ReviewOrder = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 grid grid-cols-1 lg:grid-cols-3 gap-12">
-        
+
         <div className="lg:col-span-2">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold tracking-tight uppercase">Payment Method</h1>
-            <p className="text-sm">Have An Account? <span className="font-bold underline cursor-pointer">Log In</span></p>
+            {!user && (
+              <p className="text-sm">
+                Have An Account?{" "}
+                <span
+                  onClick={() => navigate('/login')}
+                  className="font-bold underline cursor-pointer"
+                >
+                  Log In
+                </span>
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-between mb-12 px-2 relative">
@@ -127,13 +144,13 @@ const ReviewOrder = () => {
             {cartItems.map((item) => {
               const product = item.productId || {};
               const imgSource = product.images?.[0]?.url || product.images?.[0] || "";
-              
+
               return (
                 <div key={item._id} className="flex gap-4 items-start">
                   <div className="w-20 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <img 
-                      src={imgSource.startsWith("http") ? imgSource : `${BACKEND_URL}${imgSource}`} 
-                      alt="" className="w-full h-full object-cover" 
+                    <img
+                      src={imgSource.startsWith("http") ? imgSource : `${BACKEND_URL}${imgSource}`}
+                      alt="" className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1 py-1">
@@ -196,9 +213,9 @@ const ReviewOrder = () => {
                 <button className="text-[10px] font-bold underline">View Offers</button>
               </div>
               <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Have a code? type it here..." 
+                <input
+                  type="text"
+                  placeholder="Have a code? type it here..."
                   className="w-full bg-gray-50 border-none rounded-xl py-4 px-4 text-xs font-medium placeholder:text-gray-400 focus:ring-1 focus:ring-black outline-none"
                 />
                 <button className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600 font-bold text-xs">Validate</button>
@@ -216,18 +233,18 @@ const ReviewOrder = () => {
             </div>
 
             <div className="flex items-start gap-3 mb-8">
-              <input 
-                type="checkbox" 
-                checked={agreed} 
-                onChange={() => setAgreed(!agreed)} 
-                className="mt-1 accent-black h-4 w-4" 
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={() => setAgreed(!agreed)}
+                className="mt-1 accent-black h-4 w-4"
               />
               <label className="text-[10px] leading-relaxed text-gray-500">
                 I agree to <span className="font-bold underline text-black cursor-pointer">Terms and conditions</span>
               </label>
             </div>
 
-            <button 
+            <button
               onClick={completeOrder}
               disabled={!agreed || isOrdering}
               className={`w-full py-5 rounded-xl font-bold text-sm tracking-widest uppercase transition ${agreed && !isOrdering ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}

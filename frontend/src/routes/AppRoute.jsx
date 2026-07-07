@@ -44,14 +44,19 @@ function AppRoute() {
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<OTPVerification />} />
 
+      {/* Cart / order review is public so guests can view and manage
+          their bag before being asked to log in. Login is only required
+          at the moment they click "Place My Order" (handled inside
+          ReviewOrder.jsx), and again for checkout/address/payment steps. */}
+      <Route path="/shopping-bag" element={<ShoppingBag />} />
+
       {/* --- Protected Routes (Login Required) --- */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/shopping-bag" element={<ShoppingBag />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/address" element={<ShippingAddress />} />
         <Route path="/payment" element={<AddPayment />} />
         <Route path="/payment-successfull" element={<PaymentSuccessfull />} />
-        
+
         {/* Profile and its nested routes */}
         <Route path="/profile" element={<Profile />}>
           <Route path="orders" element={<Orders />} />
