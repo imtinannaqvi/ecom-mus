@@ -1,68 +1,82 @@
-import React, { useState } from 'react';
-import { 
-  FiBell, 
-  FiCheck, 
-  FiTrash2, 
-  FiShoppingBag, 
-  FiUserPlus, 
-  FiAlertTriangle, 
+import React, { useState, useEffect } from 'react';
+import {
+  FiBell,
+  FiCheck,
+  FiTrash2,
+  FiShoppingBag,
+  FiUserPlus,
+  FiAlertTriangle,
   FiMessageSquare,
   FiCircle
 } from 'react-icons/fi';
+import Api from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Converts an ISO timestamp into a short "x mins/hours/days ago" label.
+const timeAgo = (dateString) => {
+  const diffMs = Date.now() - new Date(dateString).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min${mins === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+};
 
 const Notification = () => {
-  // Dummy Dynamic Notifications Stream
-  const [notifications, setNotifications] = useState([
-    {
-      _id: "n1",
-      title: "New Premium Order Received",
-      description: "Customer Hamza Ahmed placed order #MAU-8801 for Rs. 4,500.",
-      type: "order",
-      time: "2 mins ago",
-      isUnread: true
-    },
-    {
-      _id: "n2",
-      title: "New Customer Registration",
-      description: "Sana Khan created a verified buyer account on Maurish portal.",
-      type: "user",
-      time: "45 mins ago",
-      isUnread: true
-    },
-    {
-      _id: "n3",
-      title: "Database Backup Completed",
-      description: "Automated daily systems storage snapshot sync completed securely.",
-      type: "system",
-      time: "4 hours ago",
-      isUnread: false
-    },
-    {
-      _id: "n4",
-      title: "Support Ticket Escalation",
-      description: "Zeeshan Ali requested assistance regarding refund workflow status.",
-      type: "support",
-      time: "1 day ago",
-      isUnread: false
-    }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Action Handlers
-  const markAllReadHandler = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isUnread: false })));
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const res = await Api.get("/notifications");
+      setNotifications(res.data.notifications || []);
+    } catch (err) {
+      toast.error(
+        "Failed to load notifications: " + (err.response?.data?.message || err.message)
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const clearAllHandler = () => {
-    if (window.confirm("Are you sure you want to clear all notifications logs?")) {
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const markAllReadHandler = async () => {
+    try {
+      await Api.patch("/notifications/mark-all-read");
+      setNotifications((prev) => prev.map((n) => ({ ...n, isUnread: false })));
+    } catch (err) {
+      toast.error("Failed to mark all as read");
+    }
+  };
+
+  const clearAllHandler = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications logs?")) return;
+    try {
+      await Api.delete("/notifications/clear-all");
       setNotifications([]);
+    } catch (err) {
+      toast.error("Failed to clear notifications");
     }
   };
 
-  const toggleSingleRead = (id) => {
-    setNotifications(prev => prev.map(n => n._id === id ? { ...n, isUnread: false } : n));
+  const toggleSingleRead = async (id) => {
+    try {
+      await Api.patch(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isUnread: false } : n))
+      );
+    } catch (err) {
+      // Silent — marking read is a soft action, not worth an error toast
+    }
   };
 
-  // Helper Configuration for Contextual Icons and Color Palettes
   const getTypeConfig = (type) => {
     switch (type) {
       case "order":
@@ -91,8 +105,9 @@ const Notification = () => {
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-4xl mx-auto">
-        
-        {/* Modern Header Layout with Control Links */}
+
+        <ToastContainer />
+
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -108,7 +123,6 @@ const Notification = () => {
             </p>
           </div>
 
-          {/* Top Quick Actions Trigger Bar */}
           {notifications.length > 0 && (
             <div className="flex items-center gap-3 self-start sm:self-center">
               <button
@@ -131,26 +145,27 @@ const Notification = () => {
           )}
         </header>
 
-        {/* Notifications Sheet Feed Container */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
-          {notifications.length > 0 ? (
+          {loading ? (
+            <div className="py-20 text-center text-gray-400 font-semibold text-xs">
+              Loading notifications...
+            </div>
+          ) : notifications.length > 0 ? (
             notifications.map((item) => {
               const config = getTypeConfig(item.type);
 
               return (
-                <div 
+                <div
                   key={item._id}
-                  onClick={() => toggleSingleRead(item._id)}
+                  onClick={() => item.isUnread && toggleSingleRead(item._id)}
                   className={`p-4 flex items-start gap-4 transition-all relative cursor-pointer group ${
                     item.isUnread ? "bg-slate-50/70 hover:bg-slate-50" : "hover:bg-slate-50/30"
                   }`}
                 >
-                  {/* Left Custom Visual Context Icon Badge */}
                   <div className={`p-2.5 rounded-xl border flex-shrink-0 shadow-sm ${config.style}`}>
                     {config.icon}
                   </div>
 
-                  {/* Center Content Stream Body */}
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h3 className={`text-xs font-bold tracking-tight truncate ${
@@ -166,11 +181,10 @@ const Notification = () => {
                       {item.description}
                     </p>
                     <span className="text-[10px] text-gray-400 font-normal mt-1.5 inline-block">
-                      {item.time}
+                      {timeAgo(item.createdAt)}
                     </span>
                   </div>
 
-                  {/* Soft Action Shortcut Trigger Appear On Hover */}
                   {item.isUnread && (
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-[10px] bg-white border border-gray-200 text-gray-500 font-bold px-2 py-1 rounded-md shadow-sm">
@@ -182,7 +196,6 @@ const Notification = () => {
               );
             })
           ) : (
-            /* Fallback Clean Slate State Matrix Grid representation */
             <div className="py-20 flex flex-col items-center justify-center text-center text-gray-400">
               <div className="p-3 bg-slate-50 border border-gray-100 text-gray-300 rounded-xl mb-3">
                 <FiBell size={22} />
