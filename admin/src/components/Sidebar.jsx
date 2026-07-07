@@ -1,50 +1,67 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LuLayoutDashboard, 
-  LuPackage, 
-  LuTag, 
-  LuUsers, 
-  LuTrendingUp, 
-  LuBell, 
-  LuSettings, 
-  LuChevronUp, 
-  LuChevronDown 
+import {
+  LuLayoutDashboard,
+  LuPackage,
+  LuTag,
+  LuUsers,
+  LuTrendingUp,
+  LuBell,
+  LuSettings,
+  LuChevronUp,
+  LuChevronDown
 } from 'react-icons/lu';
+import { FiMoreVertical } from 'react-icons/fi';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen = true, onToggle }) => {
   const [isProductsOpen, setIsProductsOpen] = useState(true); // Dropdown state (default open)
   const location = useLocation();
 
   // Logo text or image can be adjusted here
-  const logoText = "Maurish"; 
+  const logoText = "Maurish";
 
   // Check if current route belongs to products section to highlight parent
   const isProductsActive = location.pathname.includes('/admin/products') || location.pathname.includes('/admin/product/new');
 
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-100 text-[#5D6B82] p-6 fixed left-0 top-0 flex flex-col font-sans select-none">
-      
+    <div
+      className={`w-64 h-screen bg-white border-r border-gray-100 text-[#5D6B82] p-6 fixed left-0 top-0 flex flex-col font-sans select-none z-30 transition-transform duration-300 ease-in-out ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+
       {/* Logo Section */}
-      <div className="mb-8 px-2 flex  items-center gap-2">
-        {/* Custom SVG icon similar to the interlocking loops in image */}
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF]">
-          <path d="M12 20C14.2091 20 16 18.2091 16 16C16 13.7909 14.2091 12 12 12C9.79086 12 8 13.7909 8 16C8 18.2091 9.79086 20 12 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M20 20C22.2091 20 24 18.2091 24 16C24 13.7909 22.2091 12 20 12C17.7909 12 16 13.7909 16 16C16 18.2091 17.7909 20 20 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{logoText}</span>
+      <div className="mb-8 px-2 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {/* Custom SVG icon similar to the interlocking loops in image */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF]">
+            <path d="M12 20C14.2091 20 16 18.2091 16 16C16 13.7909 14.2091 12 12 12C9.79086 12 8 13.7909 8 16C8 18.2091 9.79086 20 12 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M20 20C22.2091 20 24 18.2091 24 16C24 13.7909 22.2091 12 20 12C17.7909 12 16 13.7909 16 16C16 18.2091 17.7909 20 20 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{logoText}</span>
+        </div>
+
+        {/* Collapse toggle — sits right in the sidebar itself */}
+        <button
+          type="button"
+          onClick={onToggle}
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition"
+          title="Collapse sidebar"
+        >
+          <FiMoreVertical size={16} />
+        </button>
       </div>
-      
+
       {/* Navigation Links */}
       <nav className="flex-1 space-y-1">
-        
+
         {/* Dashboard */}
         <NavLink
           to="/admin/dashboard"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 group ${
-              isActive 
-              ? "text-[#635BFF] font-semibold" 
+              isActive
+              ? "text-[#635BFF] font-semibold"
               : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
           }
@@ -58,8 +75,8 @@ const Sidebar = () => {
           <button
             onClick={() => setIsProductsOpen(!isProductsOpen)}
             className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-150 ${
-              isProductsActive 
-              ? "text-[#635BFF] font-semibold" 
+              isProductsActive
+              ? "text-[#635BFF] font-semibold"
               : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`}
           >
@@ -76,10 +93,10 @@ const Sidebar = () => {
               {/* Product List */}
               <NavLink
                 to="/admin/products"
-                className={({ isActive }) => 
+                className={({ isActive }) =>
                   `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
-                    isActive 
-                    ? "bg-[#F5F3FF] text-[#635BFF]" 
+                    isActive
+                    ? "bg-[#F5F3FF] text-[#635BFF]"
                     : "text-[#5D6B82] hover:text-[#1E1B4B]"
                   }`
                 }
@@ -90,10 +107,10 @@ const Sidebar = () => {
               {/* Categories */}
               <NavLink
                 to="/admin/category"
-                className={({ isActive }) => 
+                className={({ isActive }) =>
                   `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
-                    isActive 
-                    ? "bg-[#F5F3FF] text-[#635BFF]" 
+                    isActive
+                    ? "bg-[#F5F3FF] text-[#635BFF]"
                     : "text-[#5D6B82] hover:text-[#1E1B4B]"
                   }`
                 }
@@ -101,7 +118,7 @@ const Sidebar = () => {
                 Category List
               </NavLink>
 
-            
+
             </div>
           )}
         </div>
@@ -109,7 +126,7 @@ const Sidebar = () => {
         {/* Sales / Orders */}
         <NavLink
           to="/admin/orders"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
               isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
@@ -122,7 +139,7 @@ const Sidebar = () => {
         {/* Customers / Users */}
         <NavLink
           to="/admin/users"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
               isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
@@ -133,7 +150,7 @@ const Sidebar = () => {
         </NavLink>
         <NavLink
           to="/admin/report"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
               isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
@@ -144,7 +161,7 @@ const Sidebar = () => {
         </NavLink>
         <NavLink
           to="/admin/notification"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
               isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
@@ -155,7 +172,7 @@ const Sidebar = () => {
         </NavLink>
         <NavLink
           to="/admin/setting"
-          className={({ isActive }) => 
+          className={({ isActive }) =>
             `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
               isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
             }`
@@ -164,11 +181,6 @@ const Sidebar = () => {
           <LuSettings className="text-xl" />
           <span className="text-[15px]">Setting</span>
         </NavLink>
-
-      
-
-
-       
 
       </nav>
     </div>
