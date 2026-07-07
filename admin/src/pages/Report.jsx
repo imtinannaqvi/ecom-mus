@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
   FiMoreHorizontal,
-  FiArrowUpRight,
-  FiArrowDownRight,
-  FiSliders,
-  FiMoreVertical
+  FiTrendingUp,
 } from 'react-icons/fi';
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  ComposedChart,
+  Bar,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
-  PieChart,
-  Pie,
-  Cell
+  RadialBarChart,
+  RadialBar,
+  Legend,
 } from 'recharts';
 import Api, { BACKEND_URL } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -90,20 +88,29 @@ function Report() {
     orders: m.orders,
   }));
 
-  // Turn the status breakdown object into an array for the donut chart.
-  const statusDistribution = Object.entries(statusBreakdown).map(([name, value]) => ({
-    name,
-    value,
-    color: STATUS_COLORS[name] || "#94A3B8",
-  }));
-  const totalStatusCount = statusDistribution.reduce((sum, s) => sum + s.value, 0);
+  // Real, calculated insight: average value per order.
+  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
+  // Build radial-bar-friendly rows: each status becomes its own ring,
+  // sized as a percentage of the largest status count so rings are comparable.
+  const statusEntries = Object.entries(statusBreakdown);
+  const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
+  const maxStatusCount = Math.max(...statusEntries.map(([, v]) => v), 1);
+  const radialData = statusEntries
+    .map(([name, value], idx) => ({
+      name,
+      value,
+      pct: Math.round((value / maxStatusCount) * 100),
+      fill: STATUS_COLORS[name] || "#94A3B8",
+    }))
+    .sort((a, b) => b.value - a.value);
 
   return (
     <div className="p-6 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <ToastContainer />
 
       {/* ================= TOP METRIC CARDS ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
 
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
@@ -121,6 +128,15 @@ function Report() {
           </div>
           <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">{totalOrders.toLocaleString()}</h2>
           <span className="text-gray-400 text-xs font-medium">all-time orders placed</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+          <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
+            <span>Avg. Order Value</span>
+            <FiTrendingUp className="text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Rs. {avgOrderValue.toLocaleString()}</h2>
+          <span className="text-gray-400 text-xs font-medium">revenue &divide; orders</span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
@@ -146,62 +162,78 @@ function Report() {
       {/* ================= MIDDLE SECTION: CHARTS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
-        {/* Revenue Analytics Curve Chart */}
+        {/* Revenue + Orders Combo Bar/Line Chart */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm lg:col-span-8 flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue</h3>
+            <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue vs Orders</h3>
+            <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#635BFF]"></span> Revenue</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span> Orders</span>
+            </div>
           </div>
 
           {revenueData.length > 0 ? (
-            <div className="w-full h-64 text-xs text-gray-400">
+            <div className="w-full h-72 text-xs text-gray-400">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <ComposedChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(val, key) => key === "revenue" ? [`Rs. ${val}`, "Revenue"] : [val, "Orders"]} />
-                  <Area type="monotone" dataKey="revenue" stroke="#635BFF" strokeWidth={2.5} fill="transparent" />
-                </AreaChart>
+                  <YAxis yAxisId="left" tickLine={false} axisLine={false} />
+                  <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const p = payload[0].payload;
+                        return (
+                          <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5">
+                            <div>Rs. {p.revenue.toLocaleString()}</div>
+                            <div className="text-gray-300">{p.orders} orders</div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar yAxisId="left" dataKey="revenue" fill="#635BFF" radius={[6, 6, 0, 0]} barSize={22} />
+                  <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#F59E0B" strokeWidth={2.5} dot={{ r: 4, fill: "#F59E0B" }} />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-xs text-gray-400 font-medium">
+            <div className="h-72 flex items-center justify-center text-xs text-gray-400 font-medium">
               No sales recorded yet
             </div>
           )}
         </div>
 
-        {/* Order Status Breakdown Donut Chart */}
+        {/* Order Status — Radial Ring Chart */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm lg:col-span-4 flex flex-col justify-between">
-          <h3 className="font-bold text-base text-[#1E1B4B]">Order Status</h3>
+          <h3 className="font-bold text-base text-[#1E1B4B] mb-1">Order Status</h3>
 
-          {statusDistribution.length > 0 ? (
+          {radialData.length > 0 ? (
             <>
-              <div className="relative h-32 my-2 flex items-center justify-center">
+              <div className="relative h-52 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statusDistribution}
-                      innerRadius={36}
-                      outerRadius={50}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {statusDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
+                  <RadialBarChart
+                    innerRadius="25%"
+                    outerRadius="100%"
+                    data={radialData}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <RadialBar background dataKey="pct" cornerRadius={8} />
+                  </RadialBarChart>
                 </ResponsiveContainer>
-                <div className="absolute bg-[#1E293B] text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-md bottom-3">
-                  {totalStatusCount} orders
+                <div className="absolute flex flex-col items-center">
+                  <span className="text-xl font-bold text-[#1E293B]">{totalStatusCount}</span>
+                  <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Orders</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-y-2 text-xs">
-                {statusDistribution.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between pr-2">
+              <div className="space-y-2 mt-2">
+                {radialData.map((item) => (
+                  <div key={item.name} className="flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1.5 text-gray-500 font-medium">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.fill }}></span>
                       {item.name}
                     </span>
                     <span className="font-semibold text-gray-800">{item.value}</span>
@@ -210,7 +242,7 @@ function Report() {
               </div>
             </>
           ) : (
-            <div className="h-32 flex items-center justify-center text-xs text-gray-400 font-medium">
+            <div className="h-52 flex items-center justify-center text-xs text-gray-400 font-medium">
               No orders yet
             </div>
           )}
