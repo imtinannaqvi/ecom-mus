@@ -59,7 +59,25 @@ const colorOptions = [
 
 const CategoriesProduct = () => {
   const { subCategory } = useParams();
-  const { products } = useContext(AppContext);
+  const { mainCategory, subCategory } = useParams();
+const [products, setProducts] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await API.get(`/product/get-products/${mainCategory}`);
+      if (res.data.success) setProducts(res.data.data);
+    } catch (err) {
+      console.error(err.message);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (mainCategory) load();
+}, [mainCategory]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
