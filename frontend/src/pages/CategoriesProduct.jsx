@@ -1,10 +1,9 @@
-import { useContext, useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { IoIosClose } from "react-icons/io";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContextProvider";
-import { BACKEND_URL } from "../api/api";
+import Api, { BACKEND_URL } from "../api/api";
 
 const FilterIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,8 +16,6 @@ const ChevronDown = () => (
     <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
-
-
 
 const getImageUrl = (images) => {
   if (!images || (Array.isArray(images) && images.length === 0)) return "/placeholder.jpg";
@@ -34,7 +31,6 @@ const getImageUrl = (images) => {
   return `${BACKEND_URL}${imgPath}`;
 };
 
-// Safely normalize any field to a lowercase string array for comparison
 const toStringArray = (value) => {
   if (!value) return [];
   if (Array.isArray(value)) return value.map((v) => String(v).toLowerCase().trim());
@@ -58,26 +54,25 @@ const colorOptions = [
 ];
 
 const CategoriesProduct = () => {
-  const { subCategory } = useParams();
   const { mainCategory, subCategory } = useParams();
-const [products, setProducts] = useState([]);
-const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const load = async () => {
-    setLoading(true);
-    try {
-      const res = await API.get(`/product/get-products/${mainCategory}`);
-      if (res.data.success) setProducts(res.data.data);
-    } catch (err) {
-      console.error(err.message);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  if (mainCategory) load();
-}, [mainCategory]);
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await Api.get(`/product/get-products/${mainCategory}`);
+        if (res.data.success) setProducts(res.data.data);
+      } catch (err) {
+        console.error(err.message);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (mainCategory) load();
+  }, [mainCategory]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
