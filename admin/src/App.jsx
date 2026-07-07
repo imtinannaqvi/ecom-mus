@@ -13,6 +13,7 @@ import NewProduct from "./pages/NewProduct";
 import UserList from "./pages/UserList";
 import UpdateProduct from "./pages/UpdateProduct";
 import NewCategory from "./pages/NewCategory";
+import NewMainCategory from "./pages/NewMainCategory";
 import Report from "./pages/Report";
 import DashboardLayout from "./DashboardLayout";
 import CategoryList from "./pages/CategoryList";
@@ -43,6 +44,7 @@ function App() {
   <Route path="product/:id" element={<UpdateProduct />} />
   <Route path="category"   element={<CategoryList/>} />
   <Route path="category/new" element={<NewCategory />} />
+  <Route path="category/main" element={<NewMainCategory />} />
   <Route path="orders" element={<OrderList />} />
   <Route path="order/:id" element={<ProcessOrder />} />
   <Route path="report" element={<Report />} />

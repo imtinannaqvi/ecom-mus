@@ -50,7 +50,7 @@ const CategoryList = () => {
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
-        
+
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Manage Categories</h1>
@@ -62,6 +62,13 @@ const CategoryList = () => {
             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98]"
           >
             <FiPlus size={16} /> ADD SUB-CATEGORY
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/admin/category/main")}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98]"
+          >
+            <FiPlus size={16} /> MAIN CATEGORY
           </button>
         </header>
 
@@ -79,7 +86,7 @@ const CategoryList = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allCategories.map((category) => (
               <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between">
-                
+
                 <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF]"><FiFolder className="text-base" /></div>
                   <div>
@@ -92,12 +99,12 @@ const CategoryList = () => {
                   {category.subCategories && category.subCategories.length > 0 ? (
                     <div className="space-y-2">
                       {category.subCategories.map((sub) => {
-                        
+
                         // 🛠️ SMART IMAGE URL GENERATOR
                         let imageSrc = "";
                         if (sub.image) {
                           const rawPath = sub.image.url || sub.image.secure_url || sub.image.path || sub.image;
-                          
+
                           if (typeof rawPath === "string") {
                             if (rawPath.startsWith("http")) {
                               imageSrc = rawPath;
@@ -111,14 +118,14 @@ const CategoryList = () => {
                             }
                           }
                         }
-                        
+
                         return (
                           <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-xl border border-gray-50 bg-slate-50/20 hover:bg-slate-50 transition duration-150 group">
                             <div className="flex items-center gap-3">
                               {imageSrc ? (
-                                <img 
-                                  src={imageSrc} 
-                                  alt={sub.name} 
+                                <img
+                                  src={imageSrc}
+                                  alt={sub.name}
                                   className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm animate-fade-in"
                                 />
                               ) : (
