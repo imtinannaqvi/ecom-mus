@@ -1,6 +1,8 @@
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
 const userModel = require("../models/user.model");
+const { createNotification } = require("./notification.controller");
+const { redeemCoupon } = require("./coupon.controller");
 
 // 1. Create New Order
 // @desc    Create new order
@@ -11,7 +13,8 @@ exports.createOrder = async (req, res) => {
       orderItems,
       shippingAddress,
       paymentMethod,
-      totalPrice
+      totalPrice, // treated as the pre-discount subtotal sent by the client
+      couponCode,
     } = req.body;
 
     // 1. Basic Validation
@@ -19,13 +22,33 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: "No order items" });
     }
 
-    // 2. Prevent Duplicate Order (Logic)
+    const subtotal = totalPrice;
+    let discountAmount = 0;
+    let appliedCouponCode = null;
+
+    // 2. If a coupon was supplied, re-validate and redeem it server-side —
+    // never trust a discount amount sent from the client.
+    if (couponCode) {
+      try {
+        discountAmount = await redeemCoupon(couponCode, subtotal);
+        appliedCouponCode = couponCode.toUpperCase().trim();
+      } catch (couponErr) {
+        return res.status(couponErr.status || 400).json({
+          success: false,
+          message: couponErr.message || "Failed to apply coupon",
+        });
+      }
+    }
+
+    const finalTotal = Math.max(subtotal - discountAmount, 0);
+
+    // 3. Prevent Duplicate Order (Logic)
     // Hum check kar rahe hain ke pichle 1 minute mein same user ne same price ka order to nahi kiya?
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
 
     const isDuplicate = await orderModel.findOne({
       user: req.user._id,
-      totalPrice: totalPrice,
+      totalPrice: finalTotal,
       createdAt: { $gte: oneMinuteAgo }
     });
 
@@ -36,18 +59,30 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // 3. Create Order if not duplicate
+    // 4. Create Order if not duplicate
     const order = new orderModel({
       user: req.user._id,
       orderItems,
       shippingAddress,
       paymentMethod,
-      totalPrice,
+      subtotal,
+      couponCode: appliedCouponCode,
+      discountAmount,
+      totalPrice: finalTotal,
       isPaid: paymentMethod === 'COD' ? false : true,
       paidAt: paymentMethod === 'COD' ? null : Date.now() // PaidAt bhi set kar diya payment ke liye
     });
 
     const createdOrder = await order.save();
+
+    // Notify admins that a new order came in — who placed it and how much.
+    await createNotification({
+      title: "New Order Received",
+      description: `${req.user.name || req.user.email} placed order #${createdOrder._id.toString().slice(-6).toUpperCase()} for Rs. ${finalTotal}.`,
+      type: "order",
+      relatedOrder: createdOrder._id,
+      relatedUser: req.user._id,
+    });
 
     res.status(201).json({
       success: true,
@@ -133,7 +168,7 @@ exports.myOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // 💡 .populate lagane se user aur address ki raw IDs poore object mein convert ho jayengi
     const order = await orderModel.findById(id)
       .populate("user", "name email phone") // User schema se fields nikalega
@@ -157,9 +192,9 @@ exports.getAllOrder = async (req, res) => {
     // kyunki aapke schema mein field ka naam "user: { type: ... }" hai.
     const orders = await orderModel.find()
       .populate("user", "name email") // ✅ Fixed path case-sensitivity
-      .populate("orderItems.productId", "name price images") 
-      .populate("shippingAddress") 
-      .sort({ createdAt: -1 }); 
+      .populate("orderItems.productId", "name price images")
+      .populate("shippingAddress")
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
@@ -169,12 +204,12 @@ exports.getAllOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ BACKEND ERROR IN GET_ALL_ORDERS:", error); 
+    console.error("❌ BACKEND ERROR IN GET_ALL_ORDERS:", error);
 
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: "Internal server data stream error.",
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -236,7 +271,7 @@ exports.updateOrderStatus = async (req, res) => {
 
     // 4. Status update karein aur agar status "Delivered" ho toh payment status bhi auto-complete karein
     order.orderStatus = orderStatus;
-    
+
     if (orderStatus === "Delivered") {
       order.isPaid = true;
       order.paidAt = Date.now();

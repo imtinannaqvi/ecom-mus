@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import { CartContext } from "../context/CartContext";
 import { AppContext } from "../context/AppContextProvider"; // Address aur Payment ke liye
 import { placeOrder } from "../services/orderService";
-import { BACKEND_URL } from "../api/api";
+import Api, { BACKEND_URL } from "../api/api";
 
 const ReviewOrder = () => {
   const { cartItems, cartLoading, setCartItems } = useContext(CartContext);
@@ -17,6 +17,12 @@ const ReviewOrder = () => {
   const [isOrdering, setIsOrdering] = useState(false); // Loading state
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
+  // --- Coupon State ---
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, discountAmount }
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener("resize", handleResize);
@@ -27,6 +33,44 @@ const ReviewOrder = () => {
     const price = item.productId?.price || 0;
     return sum + price * item.quantity;
   }, 0);
+
+  const discountAmount = appliedCoupon?.discountAmount || 0;
+  const grandTotal = Math.max(subtotal - discountAmount, 0);
+
+  // Re-check the coupon whenever the cart total changes, so the discount
+  // shown always matches the current subtotal (e.g. if items were removed).
+  useEffect(() => {
+    if (appliedCoupon) {
+      handleApplyCoupon(appliedCoupon.code, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
+
+  const handleApplyCoupon = async (codeOverride, silent = false) => {
+    const code = (codeOverride || couponInput).trim();
+    if (!code) return;
+
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await Api.post("/coupons/validate", { code, cartTotal: subtotal });
+      if (res.data.success) {
+        setAppliedCoupon({ code: res.data.coupon.code, discountAmount: res.data.discountAmount });
+        if (!silent) setCouponInput("");
+      }
+    } catch (err) {
+      setAppliedCoupon(null);
+      setCouponError(err.response?.data?.message || "Invalid coupon code");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError("");
+  };
 
   // --- Complete Order Logic ---
   const completeOrder = async () => {
@@ -58,8 +102,9 @@ const ReviewOrder = () => {
       })),
       shippingAddress: selectedAddress._id,
       paymentMethod: paymentMethod || 'COD',
-      totalPrice: subtotal,
-      deliveryCharge: 0
+      totalPrice: subtotal, // backend re-validates the coupon and computes the final total itself
+      deliveryCharge: 0,
+      couponCode: appliedCoupon?.code || undefined,
     };
 
     try {
@@ -76,7 +121,7 @@ const ReviewOrder = () => {
         alert(res.message || "Failed to place order.");
       }
     } catch (err) {
-      alert("Something went wrong. Please try again.");
+      alert(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsOrdering(false);
     }
@@ -210,17 +255,55 @@ const ReviewOrder = () => {
                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 011.026-.14c.445.03.94.18 1.435.413.484.23.94.542 1.314.933a3.524 3.524 0 01.811 1.171c.16.39.243.834.243 1.313 0 1.206-.494 2.27-1.337 3.007a4.534 4.534 0 01-3.04 1.054 4.4 4.4 0 01-2.974-1.098c-.76-.695-1.163-1.635-1.163-2.652 0-.25.02-.5.059-.745a3.5 3.5 0 01.59-1.692c.38-.527.844-1.022 1.305-1.485.46-.463.92-.89 1.32-1.246.63-.56 1.088-.9 1.348-1.066.204-.13.328-.21.414-.27a.5.5 0 00.115-.708z" clipRule="evenodd" /></svg>
                    Coupon Code
                 </span>
-                <button className="text-[10px] font-bold underline">View Offers</button>
               </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Have a code? type it here..."
-                  className="w-full bg-gray-50 border-none rounded-xl py-4 px-4 text-xs font-medium placeholder:text-gray-400 focus:ring-1 focus:ring-black outline-none"
-                />
-                <button className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600 font-bold text-xs">Validate</button>
-              </div>
+
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+                  <div>
+                    <p className="text-xs font-bold text-emerald-700">{appliedCoupon.code} applied</p>
+                    <p className="text-[10px] text-emerald-600">You saved ₹{appliedCoupon.discountAmount}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="text-[10px] font-bold uppercase text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Have a code? type it here..."
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
+                      className="w-full bg-gray-50 border-none rounded-xl py-4 px-4 text-xs font-medium placeholder:text-gray-400 focus:ring-1 focus:ring-black outline-none uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleApplyCoupon()}
+                      disabled={couponLoading || !couponInput.trim()}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600 font-bold text-xs disabled:opacity-40"
+                    >
+                      {couponLoading ? "..." : "Apply"}
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p className="text-[10px] text-red-500 font-semibold mt-2">{couponError}</p>
+                  )}
+                </>
+              )}
             </div>
+
+            {discountAmount > 0 && (
+              <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
+                <span className="text-sm font-medium text-emerald-600 tracking-tight">Discount</span>
+                <span className="text-sm font-bold text-emerald-600">- ₹{discountAmount}</span>
+              </div>
+            )}
 
             <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
               <span className="text-sm font-medium text-gray-500 tracking-tight">Delivery Charge</span>
@@ -229,7 +312,7 @@ const ReviewOrder = () => {
 
             <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
               <span className="text-xl font-extrabold">Grand Total</span>
-              <span className="text-xl font-extrabold tracking-tighter">₹{subtotal}</span>
+              <span className="text-xl font-extrabold tracking-tighter">₹{grandTotal}</span>
             </div>
 
             <div className="flex items-start gap-3 mb-8">

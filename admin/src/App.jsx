@@ -21,6 +21,7 @@ import Notification from "./pages/Notification";
 import Setting from "./pages/Setting";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Coupons from './pages/Coupons'
 // Baki pages bhi import karein...
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
   <Route path="category"   element={<CategoryList/>} />
   <Route path="category/new" element={<NewCategory />} />
   <Route path="category/main" element={<NewMainCategory />} />
+  <Route path="coupons" element={<Coupons />} />
   <Route path="orders" element={<OrderList />} />
   <Route path="order/:id" element={<ProcessOrder />} />
   <Route path="report" element={<Report />} />

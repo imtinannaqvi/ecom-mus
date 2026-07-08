@@ -6,6 +6,7 @@ import {
   LuTag,
   LuUsers,
   LuTrendingUp,
+  FiTag,
   LuBell,
   LuSettings,
   LuChevronUp,
@@ -181,6 +182,11 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
           <LuSettings className="text-xl" />
           <span className="text-[15px]">Setting</span>
         </NavLink>
+
+        <NavLink to="/admin/coupons" className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
+  <FiTag className="text-xl" />
+  <span className="text-[15px]">Coupons</span>
+</NavLink>
 
       </nav>
     </div>

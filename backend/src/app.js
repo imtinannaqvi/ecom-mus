@@ -18,6 +18,7 @@ const orderRoute = require('../src/routes/order.route')
 const adminRoute = require('../src/routes/admin.route')
 const addressRoute = require('../src/routes/address.route')
 const wishlistRoute = require('../src/routes/wishlist.route')
+const couponRoute = require('./routes/copons.route')
 
 // uses all files here
 
@@ -28,6 +29,8 @@ app.use('/api/order' , orderRoute)
 app.use('/api/admin' , adminRoute)
 app.use('/api/address' , addressRoute)
 app.use('/api/wishlist' , wishlistRoute)
+app.use("/api/coupons", couponRoute);
+
 
 app.get("/", (req, res) => {
   res.send("hello world");
