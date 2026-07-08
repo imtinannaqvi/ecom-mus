@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FiMoreHorizontal,
-  FiTrendingUp,
-} from 'react-icons/fi';
+import { FiMoreHorizontal, FiTrendingUp } from 'react-icons/fi';
 import {
   ResponsiveContainer,
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
   RadialBarChart,
   RadialBar,
 } from 'recharts';
+import Chart from 'react-apexcharts';
 import Api, { BACKEND_URL } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -80,39 +72,55 @@ function Report() {
     recentOrders = [],
   } = stats;
 
-  // Map monthlySales ({_id:{year,month}, total, orders}) into chart-friendly rows.
-  const revenueData = monthlySales.map((m) => ({
-    name: MONTH_NAMES[(m._id.month - 1 + 12) % 12],
-    revenue: m.total,
-    orders: m.orders,
-  }));
+  const monthLabels = monthlySales.map((m) => MONTH_NAMES[(m._id.month - 1 + 12) % 12]);
+  const revenueSeries = monthlySales.map((m) => m.total);
+  const orderSeries = monthlySales.map((m) => m.orders);
 
-  // Real, calculated insight: average value per order.
   const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
-  // Build radial-bar-friendly rows: each status becomes its own ring,
-  // sized as a percentage of the largest status count so rings are comparable.
   const statusEntries = Object.entries(statusBreakdown);
   const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
   const maxStatusCount = Math.max(...statusEntries.map(([, v]) => v), 1);
   const radialData = statusEntries
-    .map(([name, value], idx) => ({
-      name,
-      value,
+    .map(([name, value]) => ({
+      name, value,
       pct: Math.round((value / maxStatusCount) * 100),
       fill: STATUS_COLORS[name] || "#94A3B8",
     }))
     .sort((a, b) => b.value - a.value);
 
+  // ApexCharts: bar for revenue, smooth spline line for orders — distinct
+  // styling from the Dashboard's combo chart (solid columns, no gradient area).
+  const chartOptions = {
+    chart: { toolbar: { show: false }, animations: { easing: "easeinout", speed: 700 }, fontFamily: "inherit" },
+    stroke: { curve: "smooth", width: [0, 3] },
+    colors: ["#635BFF", "#F59E0B"],
+    dataLabels: { enabled: false },
+    xaxis: { categories: monthLabels, axisBorder: { show: false }, axisTicks: { show: false } },
+    yaxis: [
+      { labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+      { opposite: true, labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+    ],
+    grid: { borderColor: "#F1F5F9", strokeDashArray: 4 },
+    legend: { show: false },
+    plotOptions: { bar: { columnWidth: "45%", borderRadius: 6 } },
+    tooltip: {
+      shared: true,
+      y: { formatter: (val, { seriesIndex }) => seriesIndex === 0 ? `Rs. ${val.toLocaleString()}` : `${val} orders` },
+    },
+  };
+
+  const chartSeries = [
+    { name: "Revenue", type: "column", data: revenueSeries },
+    { name: "Orders", type: "line", data: orderSeries },
+  ];
+
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <ToastContainer />
 
-      {/* ================= TOP METRIC CARDS ================= */}
-      {/* Optimized grid columns tracking for md layout transitions to avoid squishing */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-6">
-
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
             <span className="truncate pr-2">Total Revenue</span>
             <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
@@ -123,7 +131,7 @@ function Report() {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
             <span className="truncate pr-2">Total Orders</span>
             <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
@@ -134,7 +142,7 @@ function Report() {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
             <span className="truncate pr-2">Avg. Order Value</span>
             <FiTrendingUp className="text-gray-400 shrink-0" />
@@ -145,7 +153,7 @@ function Report() {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
             <span className="truncate pr-2">Total Products</span>
             <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
@@ -156,7 +164,7 @@ function Report() {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
             <span className="truncate pr-2">Total Customers</span>
             <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
@@ -166,15 +174,11 @@ function Report() {
             <p className="text-gray-400 text-xs font-medium truncate">registered accounts</p>
           </div>
         </div>
-
       </div>
 
-      {/* ================= MIDDLE SECTION: CHARTS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-
-        {/* Revenue + Orders Combo Bar/Line Chart */}
         <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-8 flex flex-col min-w-0">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
             <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue vs Orders</h3>
             <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500 shrink-0">
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#635BFF]"></span> Revenue</span>
@@ -182,40 +186,15 @@ function Report() {
             </div>
           </div>
 
-          {revenueData.length > 0 ? (
-            <div className="w-full h-72 text-xs text-gray-400 min-w-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                  <YAxis yAxisId="left" tickLine={false} axisLine={false} />
-                  <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const p = payload[0].payload;
-                        return (
-                          <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5 z-50">
-                            <div>Rs. {p.revenue.toLocaleString()}</div>
-                            <div className="text-gray-300">{p.orders} orders</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar yAxisId="left" dataKey="revenue" fill="#635BFF" radius={[6, 6, 0, 0]} barSize={22} />
-                  <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#F59E0B" strokeWidth={2.5} dot={{ r: 4, fill: "#F59E0B" }} />
-                </ComposedChart>
-              </ResponsiveContainer>
+          {monthLabels.length > 0 ? (
+            <div className="w-full min-w-0">
+              <Chart options={chartOptions} series={chartSeries} type="line" height={290} />
             </div>
           ) : (
-            <div className="h-72 flex items-center justify-center text-xs text-gray-400 font-medium">
-              No sales recorded yet
-            </div>
+            <div className="h-72 flex items-center justify-center text-xs text-gray-400 font-medium">No sales recorded yet</div>
           )}
         </div>
 
-        {/* Order Status — Radial Ring Chart */}
         <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-4 flex flex-col justify-between min-w-0">
           <h3 className="font-bold text-base text-[#1E1B4B] mb-3 lg:mb-1">Order Status</h3>
 
@@ -223,13 +202,7 @@ function Report() {
             <>
               <div className="relative h-52 flex items-center justify-center min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadialBarChart
-                    innerRadius="25%"
-                    outerRadius="100%"
-                    data={radialData}
-                    startAngle={90}
-                    endAngle={-270}
-                  >
+                  <RadialBarChart innerRadius="25%" outerRadius="100%" data={radialData} startAngle={90} endAngle={-270}>
                     <RadialBar background dataKey="pct" cornerRadius={8} />
                   </RadialBarChart>
                 </ResponsiveContainer>
@@ -238,7 +211,6 @@ function Report() {
                   <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Orders</span>
                 </div>
               </div>
-
               <div className="space-y-2 mt-4 lg:mt-2">
                 {radialData.map((item) => (
                   <div key={item.name} className="flex items-center justify-between text-xs">
@@ -252,25 +224,17 @@ function Report() {
               </div>
             </>
           ) : (
-            <div className="h-52 flex items-center justify-center text-xs text-gray-400 font-medium">
-              No orders yet
-            </div>
+            <div className="h-52 flex items-center justify-center text-xs text-gray-400 font-medium">No orders yet</div>
           )}
         </div>
-
       </div>
 
-      {/* ================= BOTTOM SECTION: TOP PRODUCTS & RECENT ORDERS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        {/* Top Selling Products List */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm lg:col-span-7 overflow-hidden flex flex-col justify-between min-w-0">
           <div>
             <div className="p-5 pb-3 flex justify-between items-center">
               <h3 className="font-bold text-base text-[#1E1B4B]">Top Selling Products</h3>
             </div>
-
-            {/* Added scroll preservation wrapper with smart desktop width adaptations */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse min-w-[500px] md:min-w-0">
                 <thead>
@@ -295,11 +259,7 @@ function Report() {
                       </tr>
                     ))
                   ) : (
-                    <tr>
-                      <td colSpan="3" className="p-8 text-center text-gray-400 font-medium">
-                        No product sales yet
-                      </td>
-                    </tr>
+                    <tr><td colSpan="3" className="p-8 text-center text-gray-400 font-medium">No product sales yet</td></tr>
                   )}
                 </tbody>
               </table>
@@ -307,10 +267,8 @@ function Report() {
           </div>
         </div>
 
-        {/* Recent Orders */}
         <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-5 flex flex-col min-w-0">
           <h3 className="font-bold text-base text-[#1E1B4B] mb-4">Recent Orders</h3>
-
           {recentOrders.length > 0 ? (
             <div className="space-y-4">
               {recentOrders.map((order) => (
@@ -327,10 +285,7 @@ function Report() {
                     <p className="text-xs font-bold text-[#1E293B] whitespace-nowrap">Rs. {order.totalPrice?.toLocaleString()}</p>
                     <span
                       className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full inline-block mt-1 whitespace-nowrap"
-                      style={{
-                        backgroundColor: `${STATUS_COLORS[order.orderStatus] || "#94A3B8"}20`,
-                        color: STATUS_COLORS[order.orderStatus] || "#64748B",
-                      }}
+                      style={{ backgroundColor: `${STATUS_COLORS[order.orderStatus] || "#94A3B8"}20`, color: STATUS_COLORS[order.orderStatus] || "#64748B" }}
                     >
                       {order.orderStatus}
                     </span>
@@ -339,14 +294,10 @@ function Report() {
               ))}
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-10">
-              No orders yet
-            </div>
+            <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-10">No orders yet</div>
           )}
         </div>
-
       </div>
-
     </div>
   );
 }

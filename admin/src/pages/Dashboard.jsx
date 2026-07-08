@@ -10,21 +10,13 @@ import {
   FiMessageSquare,
   FiRefreshCw
 } from 'react-icons/fi';
-import {
-  ResponsiveContainer,
-  ComposedChart,
-  Area,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip
-} from 'recharts';
+import Chart from 'react-apexcharts';
 import Api from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const REFRESH_INTERVAL_MS = 30000; // auto-refresh every 30s for a "live" feel
+const REFRESH_INTERVAL_MS = 30000;
 
 const STATUS_COLORS = {
   Pending: "#F59E0B",
@@ -60,7 +52,6 @@ const monthOverMonthChange = (series) => {
   return (((curr - prev) / prev) * 100).toFixed(1);
 };
 
-// Lightweight count-up animation for KPI numbers — no extra library needed.
 const useCountUp = (target, duration = 800) => {
   const [value, setValue] = useState(0);
   const startRef = useRef(null);
@@ -70,15 +61,13 @@ const useCountUp = (target, duration = 800) => {
     fromRef.current = value;
     startRef.current = null;
     let frameId;
-
     const step = (timestamp) => {
       if (startRef.current === null) startRef.current = timestamp;
       const progress = Math.min((timestamp - startRef.current) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(fromRef.current + (target - fromRef.current) * eased));
       if (progress < 1) frameId = requestAnimationFrame(step);
     };
-
     frameId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +76,7 @@ const useCountUp = (target, duration = 800) => {
   return value;
 };
 
-const KpiCard = ({ icon, iconColor, label, value, prefix = "", suffix = "", change, sub }) => {
+const KpiCard = ({ icon, iconColor, label, value, prefix = "", change, sub }) => {
   const animated = useCountUp(value);
   return (
     <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between h-28">
@@ -95,7 +84,7 @@ const KpiCard = ({ icon, iconColor, label, value, prefix = "", suffix = "", chan
         <span className={iconColor}>{icon}</span> {label}
       </span>
       <span className="text-xl sm:text-2xl font-bold text-[#1E1B4B] tracking-tight truncate">
-        {prefix}{animated.toLocaleString()}{suffix}
+        {prefix}{animated.toLocaleString()}
       </span>
       {change !== null && change !== undefined ? (
         <span className={`text-[10px] sm:text-[11px] font-bold truncate ${change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
@@ -119,7 +108,6 @@ const Dashboard = () => {
     try {
       if (!silent) setLoading(true);
       else setRefreshing(true);
-
       const [statsRes, notifRes] = await Promise.all([
         Api.get("/admin/stats"),
         Api.get("/notifications"),
@@ -128,9 +116,7 @@ const Dashboard = () => {
       setNotifications((notifRes.data.notifications || []).slice(0, 5));
       setLastUpdated(new Date());
     } catch (err) {
-      if (!silent) {
-        toast.error("Failed to load dashboard: " + (err.response?.data?.message || err.message));
-      }
+      if (!silent) toast.error("Failed to load dashboard: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -170,12 +156,7 @@ const Dashboard = () => {
     topProducts = [],
   } = stats;
 
-  const salesPerformanceData = monthlySales.map((m) => ({
-    name: MONTH_NAMES[(m._id.month - 1 + 12) % 12],
-    revenue: m.total,
-    orders: m.orders,
-  }));
-
+  const monthLabels = monthlySales.map((m) => MONTH_NAMES[(m._id.month - 1 + 12) % 12]);
   const revenueSeries = monthlySales.map((m) => m.total);
   const orderSeries = monthlySales.map((m) => m.orders);
   const revenueChange = monthOverMonthChange(revenueSeries);
@@ -183,6 +164,42 @@ const Dashboard = () => {
 
   const statusEntries = Object.entries(statusBreakdown);
   const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
+
+  // ApexCharts config: smooth curved area for revenue + slim column for orders,
+  // gradient fill and soft animation give it a "live flow" feel.
+  const chartOptions = {
+    chart: {
+      toolbar: { show: false },
+      animations: { easing: "easeinout", speed: 600 },
+      fontFamily: "inherit",
+    },
+    stroke: { curve: "smooth", width: [0, 3] },
+    fill: {
+      type: ["gradient", "solid"],
+      gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 90, 100] },
+    },
+    colors: ["#0EA5E9", "#635BFF"],
+    dataLabels: { enabled: false },
+    xaxis: { categories: monthLabels, axisBorder: { show: false }, axisTicks: { show: false } },
+    yaxis: [
+      { title: { text: "" }, labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+      { opposite: true, labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+    ],
+    grid: { borderColor: "#F1F5F9", strokeDashArray: 4 },
+    legend: { show: false },
+    tooltip: {
+      shared: true,
+      y: {
+        formatter: (val, { seriesIndex }) => seriesIndex === 1 ? `Rs. ${val.toLocaleString()}` : `${val} orders`,
+      },
+    },
+    plotOptions: { bar: { columnWidth: "35%", borderRadius: 4 } },
+  };
+
+  const chartSeries = [
+    { name: "Orders", type: "column", data: orderSeries },
+    { name: "Revenue", type: "area", data: revenueSeries },
+  ];
 
   return (
     <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
@@ -196,59 +213,24 @@ const Dashboard = () => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           Live
-          {lastUpdated && (
-            <span className="ml-1">&middot; updated {timeAgo(lastUpdated)}</span>
-          )}
+          {lastUpdated && <span className="ml-1">&middot; updated {timeAgo(lastUpdated)}</span>}
           <FiRefreshCw className={`ml-1 ${refreshing ? "animate-spin" : ""}`} size={12} />
         </div>
       </div>
 
-      {/* Main Grid Wrapper with min-w-0 applied to prevent responsive calculation breakdowns */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-        {/* ================= LEFT COMPONENT SECTION (8 Cols on md/lg, full-width on mobile) ================= */}
         <div className="md:col-span-8 space-y-6 min-w-0">
 
-          {/* Top Row Quad Micro Metrics Cards (Adaptive layout for 2x2 grid on mobile/large, 4x1 row on medium layout) */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 gap-4">
-            <KpiCard
-              icon={<FiShoppingBag className="text-sm" />}
-              iconColor="text-cyan-500"
-              label="Total Orders"
-              value={totalOrders}
-              change={orderChange}
-              sub="all-time total"
-            />
-            <KpiCard
-              icon={<FiDollarSign className="text-sm" />}
-              iconColor="text-purple-500"
-              label="Total Revenue"
-              value={totalRevenue}
-              prefix="Rs. "
-              change={revenueChange}
-              sub="from non-cancelled orders"
-            />
-            <KpiCard
-              icon={<FiBox className="text-sm" />}
-              iconColor="text-teal-500"
-              label="Total Products"
-              value={totalProducts}
-              change={null}
-              sub="live in catalog"
-            />
-            <KpiCard
-              icon={<FiUsers className="text-sm" />}
-              iconColor="text-indigo-500"
-              label="Total Customers"
-              value={totalUsers}
-              change={null}
-              sub="registered accounts"
-            />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 gap-4">
+            <KpiCard icon={<FiShoppingBag className="text-sm" />} iconColor="text-cyan-500" label="Total Orders" value={totalOrders} change={orderChange} sub="all-time total" />
+            <KpiCard icon={<FiDollarSign className="text-sm" />} iconColor="text-purple-500" label="Total Revenue" value={totalRevenue} prefix="Rs. " change={revenueChange} sub="from non-cancelled orders" />
+            <KpiCard icon={<FiBox className="text-sm" />} iconColor="text-teal-500" label="Total Products" value={totalProducts} change={null} sub="live in catalog" />
+            <KpiCard icon={<FiUsers className="text-sm" />} iconColor="text-indigo-500" label="Total Customers" value={totalUsers} change={null} sub="registered accounts" />
           </div>
 
-          {/* Combined Revenue + Orders Dual-Axis Chart with fix for width container calculations */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm min-w-0">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
               <h3 className="font-bold text-base text-[#1E1B4B]">Sales Performance</h3>
               <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#635BFF]"></span> Revenue</span>
@@ -256,37 +238,9 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {salesPerformanceData.length > 0 ? (
-              <div className="w-full h-64 text-xs text-gray-400 min-w-0 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#635BFF" stopOpacity={0.25}/>
-                        <stop offset="95%" stopColor="#635BFF" stopOpacity={0.0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="left" tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const p = payload[0].payload;
-                          return (
-                            <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5">
-                              <div>{p.orders} orders</div>
-                              <div className="text-gray-300">Rs. {p.revenue.toLocaleString()}</div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Bar yAxisId="right" dataKey="orders" fill="#0EA5E9" radius={[4, 4, 0, 0]} barSize={14} opacity={0.85} />
-                    <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#635BFF" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
-                  </ComposedChart>
-                </ResponsiveContainer>
+            {monthLabels.length > 0 ? (
+              <div className="w-full min-w-0">
+                <Chart options={chartOptions} series={chartSeries} type="line" height={260} />
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-xs text-gray-400 font-medium">
@@ -295,7 +249,6 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Order Status Breakdown — horizontal progress bars */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <h3 className="font-bold text-base text-[#1E1B4B] mb-5">Order Pipeline</h3>
             {statusEntries.length > 0 ? (
@@ -310,10 +263,7 @@ const Dashboard = () => {
                         <span className="font-bold text-gray-800">{count} <span className="text-gray-400 font-medium">({pct}%)</span></span>
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700 ease-out"
-                          style={{ width: `${pct}%`, backgroundColor: color }}
-                        ></div>
+                        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%`, backgroundColor: color }}></div>
                       </div>
                     </div>
                   );
@@ -326,7 +276,6 @@ const Dashboard = () => {
 
         </div>
 
-        {/* ================= RIGHT COMPONENT SECTION (4 Cols on md/lg, full-width on mobile) ================= */}
         <div className="md:col-span-4 w-full min-w-0">
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full justify-between">
             <div className="flex justify-between items-center mb-5">
@@ -340,38 +289,30 @@ const Dashboard = () => {
                   return (
                     <div key={n._id} className="flex items-center justify-between gap-2 group transition">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`p-2.5 rounded-xl ${config.color} text-base shrink-0`}>
-                          {config.icon}
-                        </div>
+                        <div className={`p-2.5 rounded-xl ${config.color} text-base shrink-0`}>{config.icon}</div>
                         <div className="min-w-0">
                           <h4 className="text-xs font-bold text-[#1E293B] truncate max-w-[140px] sm:max-w-[180px]">{n.title}</h4>
                           <p className="text-[11px] text-gray-400 mt-0.5 whitespace-nowrap">{timeAgo(n.createdAt)}</p>
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ${config.badge}`}>
-                        {config.tag}
-                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ${config.badge}`}>{config.tag}</span>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-6">
-                No recent activity
-              </div>
+              <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-6">No recent activity</div>
             )}
           </div>
         </div>
 
       </div>
 
-      {/* ================= LOWER WIDE GRID BLOCK: TOP PRODUCTS ================= */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mt-6 overflow-hidden">
         <div className="p-4 sm:p-5 flex justify-between items-center border-b border-gray-50">
           <h3 className="font-bold text-base text-[#1E1B4B]">Top Selling Products</h3>
         </div>
-
-        <div className="overflow-x-auto-md overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse min-w-[500px] sm:min-w-0">
             <thead>
               <tr className="border-b border-gray-50 text-gray-400 font-semibold bg-gray-50/30">
@@ -390,11 +331,7 @@ const Dashboard = () => {
                   </tr>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3" className="p-8 text-center text-gray-400 font-medium">
-                    No product sales yet
-                  </td>
-                </tr>
+                <tr><td colSpan="3" className="p-8 text-center text-gray-400 font-medium">No product sales yet</td></tr>
               )}
             </tbody>
           </table>

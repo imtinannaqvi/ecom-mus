@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom'; // ✅ Import Outlet for switching pages
+import { Outlet, useNavigate } from 'react-router-dom';
 import { FiMoreVertical } from 'react-icons/fi';
 import Sidebar from './components/Sidebar';
 import { useAdmin } from './context/AdminContext';
 
 function DashboardLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Default: open on desktop (md+), closed (overlay) on mobile.
+  const [sidebarOpen, setSidebarOpen] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 768 : true
+  );
   const menuRef = useRef(null);
   const { admin, logout } = useAdmin();
   const navigate = useNavigate();
@@ -31,30 +34,32 @@ function DashboardLayout() {
     <div className="flex bg-[#F8FAFC] min-h-screen">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
 
-      {/* Small floating reopen button — appears only when the sidebar is collapsed */}
+      {/* Floating reopen button — only needed when collapsed, on any screen size */}
       {!sidebarOpen && (
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="fixed left-3 top-3 z-40 w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 shadow-md text-gray-500 hover:text-[#1E1B4B] hover:bg-gray-50 transition"
+          className="fixed left-3 top-3 z-[60] w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 shadow-md text-gray-500 hover:text-[#1E1B4B] hover:bg-gray-50 transition"
           title="Expand sidebar"
         >
           <FiMoreVertical size={18} />
         </button>
       )}
 
+      {/* Padding only applies at md+ — on mobile the sidebar is an overlay,
+          so content must always stay full-width regardless of sidebarOpen */}
       <main
         className={`flex-1 min-h-screen flex flex-col transition-[padding] duration-300 ease-in-out ${
-          sidebarOpen ? "pl-64" : "pl-0"
+          sidebarOpen ? "md:pl-64" : "md:pl-0"
         }`}
       >
 
-        <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-8 justify-between">
-          <div className="text-sm font-medium text-gray-400">
-            Admin Panel 
+        <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-4 sm:px-8 justify-between">
+          <div className="text-sm font-medium text-gray-400 truncate">
+            Admin Panel / Control Desk
           </div>
 
-          <div className="relative" ref={menuRef}>
+          <div className="relative shrink-0" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               className="w-8 h-8 rounded-full bg-[#635BFF] text-white flex items-center justify-center font-bold text-xs shadow-sm hover:opacity-90 transition"
@@ -80,7 +85,7 @@ function DashboardLayout() {
           </div>
         </header>
 
-        <div className="flex-1 p-6 lg:p-8">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </div>
 
