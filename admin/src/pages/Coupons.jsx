@@ -107,19 +107,19 @@ const Coupons = () => {
     c.discountType === "fixed" ? `Rs. ${c.discountValue} off` : `${c.discountValue}% off`;
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
-      <div className="max-w-5xl mx-auto">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
+      <div className="max-w-5xl mx-auto min-w-0">
         <ToastContainer />
 
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Coupons</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Create and manage discount codes for checkout.</p>
+            <p className="text-xs text-gray-400 mt-0.5 truncate">Create and manage discount codes for checkout.</p>
           </div>
           <button
             type="button"
             onClick={() => setShowForm((prev) => !prev)}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98]"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] shrink-0 w-full sm:w-auto"
           >
             {showForm ? <FiX size={16} /> : <FiPlus size={16} />}
             {showForm ? "Cancel" : "New Coupon"}
@@ -130,9 +130,9 @@ const Coupons = () => {
         {showForm && (
           <form
             onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6 space-y-5"
+            className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-6 space-y-5 transition-all"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
                   Coupon Code
@@ -244,7 +244,7 @@ const Coupons = () => {
         )}
 
         {/* Coupons List */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-w-0">
           {loading ? (
             <div className="p-16 text-center text-gray-400 font-medium text-sm">Loading coupons...</div>
           ) : coupons.length === 0 ? (
@@ -253,8 +253,8 @@ const Coupons = () => {
               No coupons created yet.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left border-collapse min-w-[700px] md:min-w-0">
                 <thead>
                   <tr className="border-b border-gray-100 text-[#8A94A6] text-xs font-semibold bg-gray-50/50">
                     <th className="p-4 font-medium text-[11px]">Code</th>
@@ -269,16 +269,16 @@ const Coupons = () => {
                 <tbody className="divide-y divide-gray-50 text-[13px] font-medium">
                   {coupons.map((c) => (
                     <tr key={c._id} className="hover:bg-gray-50/40 transition-colors">
-                      <td className="p-4 font-bold text-[#1E293B] tracking-wide">{c.code}</td>
-                      <td className="p-4 text-gray-600">{formatDiscount(c)}</td>
-                      <td className="p-4 text-gray-500">{c.minOrderAmount > 0 ? `Rs. ${c.minOrderAmount}` : "None"}</td>
-                      <td className="p-4 text-gray-500">
+                      <td className="p-4 font-bold text-[#1E293B] tracking-wide whitespace-nowrap">{c.code}</td>
+                      <td className="p-4 text-gray-600 whitespace-nowrap">{formatDiscount(c)}</td>
+                      <td className="p-4 text-gray-500 whitespace-nowrap">{c.minOrderAmount > 0 ? `Rs. ${c.minOrderAmount}` : "None"}</td>
+                      <td className="p-4 text-gray-500 whitespace-nowrap">
                         {c.usedCount}{c.usageLimit ? ` / ${c.usageLimit}` : " / ∞"}
                       </td>
-                      <td className="p-4 text-gray-500">
+                      <td className="p-4 text-gray-500 whitespace-nowrap">
                         {c.expiryDate ? new Date(c.expiryDate).toLocaleDateString() : "Never"}
                       </td>
-                      <td className="p-4">
+                      <td className="p-4 whitespace-nowrap">
                         <button
                           type="button"
                           disabled={togglingId === c._id}
@@ -292,7 +292,7 @@ const Coupons = () => {
                           {c.isActive ? "Active" : "Inactive"}
                         </button>
                       </td>
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right whitespace-nowrap">
                         <button
                           type="button"
                           onClick={() => deleteCoupon(c._id)}

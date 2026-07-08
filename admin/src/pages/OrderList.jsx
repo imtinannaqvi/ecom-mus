@@ -80,7 +80,7 @@ const OrderList = () => {
         return {
           style: "bg-slate-50 text-slate-700 border-slate-200/60",
           icon: null,
-        };
+         };
     }
   };
 
@@ -103,12 +103,12 @@ const OrderList = () => {
   }
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
+      <div className="max-w-6xl mx-auto min-w-0">
         
         {/* Modern Unified Header Layout */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Maurish Orders</h1>
             <p className="text-xs text-gray-400 mt-0.5">
               Fulfillment pipeline. Monitor customer checkouts, invoices, and shipping statuses.
@@ -116,7 +116,7 @@ const OrderList = () => {
           </div>
 
           {/* Premium Rounded Search Bar */}
-          <div className="relative w-full sm:w-80">
+          <div className="relative w-full sm:w-80 shrink-0">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
             <input
               type="text"
@@ -128,44 +128,46 @@ const OrderList = () => {
         </header>
 
         {/* Clean Pill Layout Tabs Control Bar */}
-        <div className="flex flex-wrap gap-2 mb-6 bg-slate-200/50 p-1 rounded-xl w-fit border border-gray-100 shadow-inner">
-          {["All", "Processing", "Shipped", "Delivered"].map((status) => {
-            const isActive = statusFilter === status;
-            return (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold tracking-wide flex items-center gap-2 transition-all ${
-                  isActive
-                    ? "bg-white text-[#1E1B4B] shadow-sm border border-slate-100"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                {status}
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold ${
-                    isActive ? "bg-[#1E1B4B] text-white" : "bg-slate-200 text-gray-500"
+        <div className="overflow-x-auto no-scrollbar mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex gap-1 bg-slate-200/50 p-1 rounded-xl w-max border border-gray-100 shadow-inner">
+            {["All", "Processing", "Shipped", "Delivered"].map((status) => {
+              const isActive = statusFilter === status;
+              return (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold tracking-wide flex items-center gap-2 transition-all whitespace-nowrap ${
+                    isActive
+                      ? "bg-white text-[#1E1B4B] shadow-sm border border-slate-100"
+                      : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
-                  {getCount(status)}
-                </span>
-              </button>
-            );
-          })}
+                  {status}
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold ${
+                      isActive ? "bg-[#1E1B4B] text-white" : "bg-slate-200 text-gray-500"
+                    }`}
+                  >
+                    {getCount(status)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Orders Data Table Sheet Container */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[750px] md:min-w-0">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="p-4 pl-6">Order Reference</th>
-                  <th className="p-4">Customer Name</th>
-                  <th className="p-4">Purchase Date</th>
-                  <th className="p-4">Gross Amount</th>
-                  <th className="p-4">Logistics Status</th>
-                  <th className="p-4 pr-6 text-right">Actions</th>
+                  <th className="p-4 pl-6 whitespace-nowrap">Order Reference</th>
+                  <th className="p-4 whitespace-nowrap">Customer Name</th>
+                  <th className="p-4 whitespace-nowrap">Purchase Date</th>
+                  <th className="p-4 whitespace-nowrap">Gross Amount</th>
+                  <th className="p-4 whitespace-nowrap">Logistics Status</th>
+                  <th className="p-4 pr-6 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-xs font-medium">
@@ -175,22 +177,22 @@ const OrderList = () => {
                   return (
                     <tr key={order._id} className="hover:bg-slate-50/50 transition-all group">
                       {/* Order Code Reference */}
-                      <td className="p-4 pl-6 font-mono font-bold text-[#635BFF] tracking-wide">
+                      <td className="p-4 pl-6 font-mono font-bold text-[#635BFF] tracking-wide whitespace-nowrap">
                         #{order._id?.substring(0, 8).toUpperCase()}...
                       </td>
                       
                       {/* Customer Name and Sub-Email Payload */}
-                      <td className="p-4">
+                      <td className="p-4 min-w-[150px]">
                         <div className="flex flex-col">
                           {/* ✅ FIX: Render name property safely */}
-                          <span className="text-gray-700 font-semibold">{order.user?.name || "Guest User"}</span>
+                          <span className="text-gray-700 font-semibold truncate">{order.user?.name || "Guest User"}</span>
                           {/* Optional details addition */}
-                          <span className="text-[10px] text-gray-400 font-normal mt-0.5">{order.user?.email || "No email profile"}</span>
+                          <span className="text-[10px] text-gray-400 font-normal mt-0.5 truncate">{order.user?.email || "No email profile"}</span>
                         </div>
                       </td>
                       
                       {/* Formatted Creation Date */}
-                      <td className="p-4 text-gray-400 font-normal">
+                      <td className="p-4 text-gray-400 font-normal whitespace-nowrap">
                         {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -199,12 +201,12 @@ const OrderList = () => {
                       </td>
                       
                       {/* Gross Pricing Counter */}
-                      <td className="p-4 text-[#1E1B4B] font-bold text-sm">
+                      <td className="p-4 text-[#1E1B4B] font-bold text-sm whitespace-nowrap">
                         Rs. {order.totalPrice?.toLocaleString() || "0"}
                       </td>
                       
                       {/* Dynamic Tracking Status Badge */}
-                      <td className="p-4">
+                      <td className="p-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${badge.style}`}
                         >
@@ -214,7 +216,7 @@ const OrderList = () => {
                       </td>
                       
                       {/* Navigation Detail Trigger Link */}
-                      <td className="p-4 pr-6 text-right">
+                      <td className="p-4 pr-6 text-right whitespace-nowrap">
                         <Link
                           to={`/admin/order/${order._id}`}
                           className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 border border-gray-200 hover:border-[#1E1B4B] rounded-lg text-gray-600 hover:text-[#1E1B4B] font-bold transition-colors bg-white shadow-sm"

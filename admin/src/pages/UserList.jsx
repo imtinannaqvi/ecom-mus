@@ -65,17 +65,17 @@ const UserList = () => {
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
+      <div className="max-w-6xl mx-auto min-w-0">
 
         <ToastContainer />
 
         {/* Modern Unified Header Layout */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Registered Customers</h1>
-              <span className="text-[10px] bg-indigo-50 text-[#635BFF] px-2 py-0.5 rounded-md font-extrabold border border-indigo-100">
+              <span className="text-[10px] bg-indigo-50 text-[#635BFF] px-2 py-0.5 rounded-md font-extrabold border border-indigo-100 shrink-0">
                 {users.filter(u => u.role !== "admin").length} Total
               </span>
             </div>
@@ -85,7 +85,7 @@ const UserList = () => {
           </div>
 
           {/* Premium Search input structure wrapper */}
-          <div className="relative w-full sm:w-80">
+          <div className="relative w-full sm:w-80 shrink-0">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
             <input
               type="text"
@@ -98,15 +98,15 @@ const UserList = () => {
         </header>
 
         {/* Consumers Data Sheets Grid Layout container */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[650px] md:min-w-0">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="p-4 pl-6">Profile Identity</th>
-                  <th className="p-4">Email Address</th>
-                  <th className="p-4">Account Tier</th>
-                  <th className="p-4 pr-6 text-center">Terminate</th>
+                  <th className="p-4 pl-6 whitespace-nowrap">Profile Identity</th>
+                  <th className="p-4 whitespace-nowrap">Email Address</th>
+                  <th className="p-4 whitespace-nowrap">Account Tier</th>
+                  <th className="p-4 pr-6 text-center whitespace-nowrap">Terminate</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-xs font-medium">
@@ -121,20 +121,20 @@ const UserList = () => {
                     <tr key={user._id} className="hover:bg-slate-50/50 transition-all group">
 
                       {/* Customer Avatar & Name Group */}
-                      <td className="p-4 pl-6 flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm tracking-wide ${getAvatarStyle(user.name)}`}>
+                      <td className="p-4 pl-6 flex items-center gap-3 whitespace-nowrap">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm tracking-wide shrink-0 ${getAvatarStyle(user.name)}`}>
                           {(user.name || "?").charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-bold text-gray-700 text-sm tracking-tight">{user.name || "Unnamed"}</span>
+                        <span className="font-bold text-gray-700 text-sm tracking-tight truncate max-w-[180px] sm:max-w-xs">{user.name || "Unnamed"}</span>
                       </td>
 
                       {/* Email Identity */}
-                      <td className="p-4 text-gray-500 font-normal select-all">
+                      <td className="p-4 text-gray-500 font-normal select-all whitespace-nowrap truncate max-w-[200px] sm:max-w-xs">
                         {user.email}
                       </td>
 
                       {/* Account Class Privilege Status Tag */}
-                      <td className="p-4">
+                      <td className="p-4 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border font-bold uppercase text-[9px] tracking-wider ${
                           user.isVerified
                             ? "bg-emerald-50 border-emerald-100 text-emerald-600"
@@ -145,7 +145,7 @@ const UserList = () => {
                       </td>
 
                       {/* Action Trigger control links */}
-                      <td className="p-4 pr-6 text-center">
+                      <td className="p-4 pr-6 text-center whitespace-nowrap">
                         <button
                           type="button"
                           onClick={() => deleteUserHandler(user._id)}

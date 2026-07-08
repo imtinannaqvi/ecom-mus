@@ -31,7 +31,7 @@ const Setting = () => {
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
-    setLoading(true);
+    loading(true);
 
     // Mock Save Pipeline Action
     setTimeout(() => {
@@ -41,14 +41,14 @@ const Setting = () => {
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-12">
+      <div className="max-w-4xl mx-auto min-w-0">
         
-        {/* Modern Header Layout */}
+        {/* Modern Header Layout — Optimized for md and lg Viewports */}
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">System Settings</h1>
-            <p className="text-xs text-gray-400 mt-0.5">
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">System Settings</h1>
+            <p className="text-xs md:text-sm text-gray-400 mt-0.5">
               Control center. Calibrate core platform parameters, checkout values, and keys access.
             </p>
           </div>
@@ -57,7 +57,7 @@ const Setting = () => {
             type="submit"
             form="admin-settings-form"
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#635BFF] hover:bg-[#5149E4] disabled:bg-indigo-400 text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] self-start sm:self-center"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#635BFF] hover:bg-[#5149E4] disabled:bg-indigo-400 text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] self-start sm:self-center shrink-0"
           >
             {loading ? <FiRefreshCw className="animate-spin" size={14} /> : <FiSave size={14} />}
             {loading ? "SAVING CONFIGS..." : "SAVE CHANGES"}
@@ -69,38 +69,38 @@ const Setting = () => {
         <form id="admin-settings-form" onSubmit={handleSaveSettings} className="space-y-6">
           
           {/* SECTION 1: CORE STORE DATA */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
             <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF]">
+              <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF] shrink-0">
                 <FiGlobe className="text-base" />
               </div>
-              <div>
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#1E1B4B]">Store Identity</h3>
-                <p className="text-[10px] text-gray-400">Public profile and metadata configurations</p>
+              <div className="min-w-0">
+                <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Store Identity</h3>
+                <p className="text-[10px] md:text-xs text-gray-400">Public profile and metadata configurations</p>
               </div>
             </div>
 
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Brand Name</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">Brand Name</label>
                 <input 
                   type="text" 
                   name="storeName"
                   value={formData.storeName}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
                   required
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Support Gateway Email</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">Support Gateway Email</label>
                 <input 
                   type="email" 
                   name="supportEmail"
                   value={formData.supportEmail}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
                   required
                 />
               </div>
@@ -108,25 +108,25 @@ const Setting = () => {
           </div>
 
           {/* SECTION 2: REGIONAL & CURRENCY ARRAYS */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
             <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-amber-50 text-amber-700">
+              <div className="p-2 rounded-xl bg-amber-50 text-amber-700 shrink-0">
                 <FiSliders className="text-base" />
               </div>
-              <div>
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#1E1B4B]">Regional & Finances</h3>
-                <p className="text-[10px] text-gray-400">Manage transactional variables and pricing matrix parameters</p>
+              <div className="min-w-0">
+                <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Regional & Finances</h3>
+                <p className="text-[10px] md:text-xs text-gray-400">Manage transactional variables and pricing matrix parameters</p>
               </div>
             </div>
 
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Base Currency Symbol</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">Base Currency Symbol</label>
                 <select 
                   name="currency"
                   value={formData.currency}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition cursor-pointer"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition cursor-pointer"
                 >
                   <option value="PKR">PKR (Rs.)</option>
                   <option value="USD">USD ($)</option>
@@ -135,13 +135,13 @@ const Setting = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Standard GST Rate (%)</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">Standard GST Rate (%)</label>
                 <input 
                   type="number" 
                   name="taxRate"
                   value={formData.taxRate}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
                   min="0"
                   max="100"
                 />
@@ -150,39 +150,39 @@ const Setting = () => {
           </div>
 
           {/* SECTION 3: SYSTEM SECURITY KEYHOLDS */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
             <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700">
+              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 shrink-0">
                 <FiLock className="text-base" />
               </div>
-              <div>
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#1E1B4B]">Security Guardrails</h3>
-                <p className="text-[10px] text-gray-400">Update root administrative passwords access tokens</p>
+              <div className="min-w-0">
+                <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Security Guardrails</h3>
+                <p className="text-[10px] md:text-xs text-gray-400">Update root administrative passwords access tokens</p>
               </div>
             </div>
 
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Current Admin Key</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">Current Admin Key</label>
                 <input 
                   type="password" 
                   name="currentPassword"
                   placeholder="••••••••"
                   value={formData.currentPassword}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition placeholder:text-gray-300"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition placeholder:text-gray-300"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">New Secure Identity Password</label>
+                <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">New Secure Identity Password</label>
                 <input 
                   type="password" 
                   name="newPassword"
                   placeholder="Min 8 secure chars"
                   value={formData.newPassword}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition placeholder:text-gray-300"
+                  className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition placeholder:text-gray-300"
                 />
               </div>
             </div>
