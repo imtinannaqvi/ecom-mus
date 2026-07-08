@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiTrash2 } from "react-icons/fi";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { CartContext } from "../context/CartContext";
@@ -8,7 +9,7 @@ import { placeOrder } from "../services/orderService";
 import Api, { BACKEND_URL } from "../api/api";
 
 const ReviewOrder = () => {
-  const { cartItems, cartLoading, setCartItems } = useContext(CartContext);
+  const { cartItems, cartLoading, setCartItems, removeFromCart } = useContext(CartContext);
   const { selectedAddress, paymentMethod, user } = useContext(AppContext); // Dynamic Data + user
   const navigate = useNavigate();
 
@@ -16,6 +17,7 @@ const ReviewOrder = () => {
   const [agreed, setAgreed] = useState(true);
   const [isOrdering, setIsOrdering] = useState(false); // Loading state
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [removingId, setRemovingId] = useState(null);
 
   // --- Coupon State ---
   const [couponInput, setCouponInput] = useState("");
@@ -70,6 +72,16 @@ const ReviewOrder = () => {
     setAppliedCoupon(null);
     setCouponInput("");
     setCouponError("");
+  };
+
+  const handleRemoveItem = async (id) => {
+    if (!window.confirm("Remove this item from your bag?")) return;
+    setRemovingId(id);
+    try {
+      await removeFromCart(id);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   // --- Complete Order Logic ---
@@ -186,28 +198,45 @@ const ReviewOrder = () => {
           </div>
 
           <div className="space-y-6 mb-10">
-            {cartItems.map((item) => {
-              const product = item.productId || {};
-              const imgSource = product.images?.[0]?.url || product.images?.[0] || "";
+            {cartItems.length === 0 ? (
+              <div className="py-12 text-center text-gray-400 text-sm font-bold uppercase tracking-widest border-2 border-dashed border-gray-100 rounded-xl">
+                Your bag is empty
+              </div>
+            ) : (
+              cartItems.map((item) => {
+                const product = item.productId || {};
+                const imgSource = product.images?.[0]?.url || product.images?.[0] || "";
 
-              return (
-                <div key={item._id} className="flex gap-4 items-start">
-                  <div className="w-20 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <img
-                      src={imgSource.startsWith("http") ? imgSource : `${BACKEND_URL}${imgSource}`}
-                      alt="" className="w-full h-full object-cover"
-                    />
+                return (
+                  <div key={item._id} className="flex gap-4 items-start group">
+                    <div className="w-20 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={imgSource.startsWith("http") ? imgSource : `${BACKEND_URL}${imgSource}`}
+                        alt="" className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 py-1">
+                      <div className="flex justify-between items-start gap-3">
+                        <h3 className="font-bold text-base leading-tight">{product.name || "Product Name"}</h3>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(item._id)}
+                          disabled={removingId === item._id}
+                          title="Remove from bag"
+                          className="text-gray-300 hover:text-red-500 transition-colors p-1 -m-1 disabled:opacity-40 shrink-0"
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1 uppercase font-bold">
+                        Size: <span className="text-black">{item.size}</span> | Color: <span className="text-black">{item.color}</span>
+                      </p>
+                      <p className="text-lg font-extrabold mt-2 tracking-tight">₹{product.price * item.quantity}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 py-1">
-                    <h3 className="font-bold text-base leading-tight">{product.name || "Product Name"}</h3>
-                    <p className="text-xs text-gray-400 mt-1 uppercase font-bold">
-                      Size: <span className="text-black">{item.size}</span> | Color: <span className="text-black">{item.color}</span>
-                    </p>
-                    <p className="text-lg font-extrabold mt-2 tracking-tight">₹{product.price * item.quantity}</p>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           <hr className="border-gray-100 mb-8" />
