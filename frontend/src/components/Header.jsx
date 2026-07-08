@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import { FaPhoneAlt, FaFacebookF, FaInstagram, FaTwitter, FaBars } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
 import { AiOutlineClose } from "react-icons/ai";
@@ -7,6 +7,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { GoPerson } from "react-icons/go";
 import { CiHeart } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
+import { FiSearch } from "react-icons/fi";
 import { CartContext } from "../context/CartContext";
 import { AppContext } from "../context/AppContextProvider";
 import useProduct from "../hooks/productService";
@@ -49,9 +50,20 @@ const MegaMenu = ({ mainCat, closeMenu }) => {
   );
 };
 
+const getProductImage = (item) => {
+  const img = item?.images?.[0];
+  if (!img) return "/images/placeholder.png";
+  const path = typeof img === "string" ? img : img.url;
+  if (!path) return "/images/placeholder.png";
+  return path.startsWith("http") ? path : `${BACKEND_URL}${path}`;
+};
+
 function Header() {
   const [activeMenu, setActiveMenu] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("All");
+  const [allProducts, setAllProducts] = useState([]);
   const [bagHovered, setBagHovered] = useState(false);
   const [profileHovered, setProfileHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -65,14 +77,45 @@ function Header() {
   useEffect(() => {
     const loadNavData = async () => {
       try {
-       const res = await fetchMainCategory();
-setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
+        const res = await fetchMainCategory();
+        setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
       } catch (err) {
         console.error("Failed to load nav categories", err);
       }
     };
     loadNavData();
+
+    // Fetch the full product catalog once, used for client-side search.
+    const loadAllProducts = async () => {
+      try {
+        const res = await API.get("/product/all");
+        setAllProducts(res.data.products || []);
+      } catch (err) {
+        console.error("Failed to load products for search", err);
+      }
+    };
+    loadAllProducts();
   }, []);
+
+  // Live search results: filter by category scope + text match on name or subCategory.
+  const searchResults = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    return allProducts
+      .filter((p) => searchCategory === "All" || p.mainCategory === searchCategory)
+      .filter((p) => {
+        const name = (p.name || "").toLowerCase();
+        const sub = (p.subCategory || "").toLowerCase();
+        return name.includes(query) || sub.includes(query);
+      })
+      .slice(0, 12);
+  }, [searchQuery, searchCategory, allProducts]);
+
+  const handleResultClick = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
 
   const handleRemove = async (id) => {
     if (window.confirm("Are you sure?")) {
@@ -100,10 +143,10 @@ setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
       {/* TOP BAR */}
       <div className="hidden md:flex w-full h-10 items-center justify-between text-white px-8 bg-black relative z-[110]">
         <div className="flex items-center gap-6">
-          <span className="flex items-center gap-2 text-[10px] tracking-widest font-light">
+          <span className="flex items-center gap-2 text-[11px] tracking-widest font-light">
             <FaPhoneAlt size={10} /> 1-888-923-8044
           </span>
-          <span className="flex items-center gap-2 text-[10px] tracking-widest font-light">
+          <span className="flex items-center gap-2 text-[11px] tracking-widest font-light">
             <IoMdMail size={12} /> HELP@MAURISH.COM
           </span>
         </div>
@@ -148,7 +191,7 @@ setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
 
         {/* ICONS */}
         <div className="flex items-center gap-5">
-          <button onClick={() => setSearchOpen(!searchOpen)} className="hover:text-black text-gray-600">
+          <button onClick={() => setSearchOpen((prev) => !prev)} className="hover:text-black text-gray-600">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -217,7 +260,12 @@ setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {cartItems.map((item, idx) => (
                     <div key={idx} className="flex gap-3 items-center">
-                      <img className="w-14 h-16 object-cover bg-gray-100" src={`${BACKEND_URL}${item.productId?.images?.[0]}`} alt="" />
+                      <img
+                        className="w-14 h-16 object-cover bg-gray-100"
+                        src={getProductImage(item.productId)}
+                        alt=""
+                        onError={(e) => { e.target.src = "/images/placeholder.png"; }}
+                      />
                       <div className="flex-1">
                         <h4 className="text-[10px] font-bold uppercase truncate w-40">{item.productId?.name}</h4>
                         <p className="text-[9px] text-gray-400 uppercase tracking-tighter">Size: {item.size} | Qty: {item.quantity}</p>
@@ -300,12 +348,75 @@ setAllCategories((res.data || []).filter((cat) => cat.isActive !== false));
         {activeMenu && <MegaMenu mainCat={activeMenu} closeMenu={() => setActiveMenu(null)} />}
       </div>
 
-      {/* SEARCH BOX */}
+      {/* SEARCH PANEL — category scope + live text search */}
       {searchOpen && (
-        <div className="absolute top-full left-0 w-full bg-white border-b p-6 shadow-xl z-[120] animate-in slide-in-from-top duration-300">
-          <div className="max-w-3xl mx-auto relative">
-            <input autoFocus type="text" placeholder="WHAT ARE YOU LOOKING FOR?" className="w-full border-b-2 border-black py-4 outline-none text-lg font-light tracking-widest uppercase" />
-            <AiOutlineClose className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400" onClick={() => setSearchOpen(false)} />
+        <div className="absolute top-full left-0 w-full bg-white border-b shadow-xl z-[120] animate-in slide-in-from-top duration-300">
+          <div className="max-w-3xl mx-auto p-6">
+            <div className="flex items-center gap-3">
+              {/* Category scope dropdown: All / Men / Women / Kids */}
+              <select
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value)}
+                className="border-b-2 border-black py-4 pr-2 outline-none text-sm font-bold uppercase tracking-wider bg-white shrink-0"
+              >
+                <option value="All">All</option>
+                {allCategories.map((cat) => (
+                  <option key={cat._id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
+
+              <div className="relative flex-1">
+                <FiSearch className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="SEARCH FOR PRODUCTS, E.G. T-SHIRTS, HOODIES..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full border-b-2 border-black py-4 pl-8 outline-none text-lg font-light tracking-widest uppercase"
+                />
+              </div>
+
+              <AiOutlineClose
+                className="cursor-pointer text-gray-400 shrink-0"
+                size={20}
+                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+              />
+            </div>
+
+            {/* Live Results */}
+            {searchQuery.trim() && (
+              <div className="mt-6 max-h-[60vh] overflow-y-auto">
+                {searchResults.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {searchResults.map((item) => (
+                      <Link
+                        key={item._id}
+                        to={`/product/${item._id}`}
+                        onClick={handleResultClick}
+                        className="group"
+                      >
+                        <div className="aspect-[3/4] bg-gray-100 overflow-hidden rounded-sm">
+                          <img
+                            src={getProductImage(item)}
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => { e.target.src = "/images/placeholder.png"; }}
+                          />
+                        </div>
+                        <p className="text-[9px] text-gray-400 uppercase mt-2">{item.mainCategory} &middot; {item.subCategory}</p>
+                        <h4 className="text-xs font-bold uppercase truncate">{item.name}</h4>
+                        <p className="text-xs font-semibold">${item.price}</p>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 text-center py-10">
+                    No products found for "{searchQuery}"{searchCategory !== "All" ? ` in ${searchCategory}` : ""}.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
