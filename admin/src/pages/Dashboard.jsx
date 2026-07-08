@@ -90,19 +90,19 @@ const useCountUp = (target, duration = 800) => {
 const KpiCard = ({ icon, iconColor, label, value, prefix = "", suffix = "", change, sub }) => {
   const animated = useCountUp(value);
   return (
-    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between h-28">
-      <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5">
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between h-28">
+      <span className="text-xs text-gray-400 font-semibold flex items-center gap-1.5 truncate">
         <span className={iconColor}>{icon}</span> {label}
       </span>
-      <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">
+      <span className="text-xl sm:text-2xl font-bold text-[#1E1B4B] tracking-tight truncate">
         {prefix}{animated.toLocaleString()}{suffix}
       </span>
       {change !== null && change !== undefined ? (
-        <span className={`text-[11px] font-bold ${change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+        <span className={`text-[10px] sm:text-[11px] font-bold truncate ${change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
           {change >= 0 ? "↑" : "↓"} {Math.abs(change)}% <span className="text-gray-400 font-medium">vs last month</span>
         </span>
       ) : (
-        <span className="text-[11px] text-gray-400 font-medium">{sub}</span>
+        <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium truncate">{sub}</span>
       )}
     </div>
   );
@@ -145,7 +145,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
+      <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
         Loading dashboard...
       </div>
     );
@@ -153,7 +153,7 @@ const Dashboard = () => {
 
   if (!stats) {
     return (
-      <div className="p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
+      <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
         <ToastContainer />
         Unable to load dashboard data.
       </div>
@@ -185,10 +185,10 @@ const Dashboard = () => {
   const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+    <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <ToastContainer />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
         <h1 className="text-xl font-bold text-[#1E1B4B]">Maurish Overview</h1>
         <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
           <span className="relative flex h-2 w-2">
@@ -203,13 +203,14 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Main Grid Wrapper with min-w-0 applied to prevent responsive calculation breakdowns */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-        {/* ================= LEFT 8-COLUMNS COMPONENT SECTION ================= */}
-        <div className="lg:col-span-8 space-y-6">
+        {/* ================= LEFT COMPONENT SECTION (8 Cols on md/lg, full-width on mobile) ================= */}
+        <div className="md:col-span-8 space-y-6 min-w-0">
 
-          {/* Top Row Quad Micro Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* Top Row Quad Micro Metrics Cards (Adaptive layout for 2x2 grid on mobile/large, 4x1 row on medium layout) */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 gap-4">
             <KpiCard
               icon={<FiShoppingBag className="text-sm" />}
               iconColor="text-cyan-500"
@@ -245,9 +246,9 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Combined Revenue + Orders Dual-Axis Chart */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+          {/* Combined Revenue + Orders Dual-Axis Chart with fix for width container calculations */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm min-w-0">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
               <h3 className="font-bold text-base text-[#1E1B4B]">Sales Performance</h3>
               <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#635BFF]"></span> Revenue</span>
@@ -256,9 +257,9 @@ const Dashboard = () => {
             </div>
 
             {salesPerformanceData.length > 0 ? (
-              <div className="w-full h-64 text-xs text-gray-400">
+              <div className="w-full h-64 text-xs text-gray-400 min-w-0 relative">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
+                  <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#635BFF" stopOpacity={0.25}/>
@@ -294,8 +295,8 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Order Status Breakdown — horizontal progress bars (kept distinct from the Report page's donut) */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          {/* Order Status Breakdown — horizontal progress bars */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <h3 className="font-bold text-base text-[#1E1B4B] mb-5">Order Pipeline</h3>
             {statusEntries.length > 0 ? (
               <div className="space-y-4">
@@ -325,9 +326,9 @@ const Dashboard = () => {
 
         </div>
 
-        {/* ================= RIGHT 4-COLUMNS COMPONENT SECTION ================= */}
-        <div className="lg:col-span-4">
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full justify-between">
+        {/* ================= RIGHT COMPONENT SECTION (4 Cols on md/lg, full-width on mobile) ================= */}
+        <div className="md:col-span-4 w-full min-w-0">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full justify-between">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold text-base text-[#1E1B4B]">Recent Activity</h3>
             </div>
@@ -337,17 +338,17 @@ const Dashboard = () => {
                 {notifications.map((n) => {
                   const config = ACTIVITY_CONFIG[n.type] || ACTIVITY_CONFIG.system;
                   return (
-                    <div key={n._id} className="flex items-center justify-between group transition">
-                      <div className="flex items-center gap-3">
+                    <div key={n._id} className="flex items-center justify-between gap-2 group transition">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className={`p-2.5 rounded-xl ${config.color} text-base shrink-0`}>
                           {config.icon}
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-[#1E293B] truncate max-w-[180px]">{n.title}</h4>
-                          <p className="text-[11px] text-gray-400 mt-0.5">{timeAgo(n.createdAt)}</p>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-[#1E293B] truncate max-w-[140px] sm:max-w-[180px]">{n.title}</h4>
+                          <p className="text-[11px] text-gray-400 mt-0.5 whitespace-nowrap">{timeAgo(n.createdAt)}</p>
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${config.badge}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ${config.badge}`}>
                         {config.tag}
                       </span>
                     </div>
@@ -355,7 +356,7 @@ const Dashboard = () => {
                 })}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium">
+              <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-6">
                 No recent activity
               </div>
             )}
@@ -366,12 +367,12 @@ const Dashboard = () => {
 
       {/* ================= LOWER WIDE GRID BLOCK: TOP PRODUCTS ================= */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mt-6 overflow-hidden">
-        <div className="p-5 flex justify-between items-center border-b border-gray-50">
+        <div className="p-4 sm:p-5 flex justify-between items-center border-b border-gray-50">
           <h3 className="font-bold text-base text-[#1E1B4B]">Top Selling Products</h3>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+        <div className="overflow-x-auto-md overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse min-w-[500px] sm:min-w-0">
             <thead>
               <tr className="border-b border-gray-50 text-gray-400 font-semibold bg-gray-50/30">
                 <th className="p-4 pl-6 font-medium text-[11px]">Product Name</th>
