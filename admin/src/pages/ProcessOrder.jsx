@@ -157,14 +157,26 @@ const ProcessOrder = () => {
                   <span className="text-gray-400 uppercase text-[9px] block mb-0.5 tracking-wider">Communication Node</span>
                   <span className="text-gray-800 font-bold text-sm">{order.user?.email || "No Email Bound"}</span>
                 </div>
-                <div className="md:col-span-2 border-t border-gray-50 pt-3">
-                  <span className="text-gray-400 uppercase text-[9px] block mb-1 tracking-wider flex items-center gap-1">
-                    <FiMapPin size={10} /> Fulfillment Drop-off Location
-                  </span>
-                  <span className="text-gray-800 font-bold leading-relaxed text-xs">
-                    {order.shippingAddress?.address || "Address registry data field empty in database."}
-                  </span>
-                </div>
+               <div className="md:col-span-2 border-t border-gray-50 pt-3">
+  <span className="text-gray-400 uppercase text-[9px] block mb-1 tracking-wider flex items-center gap-1">
+    <FiMapPin size={10} /> Fulfillment Drop-off Location
+  </span>
+  {order.shippingAddress ? (
+    <div className="text-gray-800 font-bold leading-relaxed text-xs space-y-0.5">
+      <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
+      <p className="font-medium text-gray-600">
+        {order.shippingAddress.flatColony}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}, {order.shippingAddress.country}
+      </p>
+      {order.shippingAddress.mobileNumber?.number && (
+        <p className="font-medium text-gray-600">
+          {order.shippingAddress.mobileNumber.countryCode} {order.shippingAddress.mobileNumber.number}
+        </p>
+      )}
+    </div>
+  ) : (
+    <span className="text-gray-400 italic text-xs">No shipping address on file.</span>
+  )}
+</div>
               </div>
             </div>
 
