@@ -11,8 +11,6 @@ const CategoryList = () => {
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
 
-
-
   useEffect(() => {
     let isMounted = true;
     const fetchCategories = async () => {
@@ -71,26 +69,27 @@ const CategoryList = () => {
   }, []);
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-10">
       <div className="max-w-6xl mx-auto">
         
+        {/* Responsive Header Setup */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Manage Categories</h1>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Manage Categories</h1>
             <p className="text-xs text-gray-400 mt-0.5">Overview of your store's structure.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
             <button
               type="button"
               onClick={() => navigate("/admin/category/main")}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98]"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98] whitespace-nowrap"
             >
               <FiPlus size={16} /> MAIN CATEGORY
             </button>
             <button
               type="button"
               onClick={() => navigate("/admin/category/new")}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98]"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] whitespace-nowrap"
             >
               <FiPlus size={16} /> ADD SUB-CATEGORY
             </button>
@@ -108,23 +107,31 @@ const CategoryList = () => {
             <FiAlertCircle className="mx-auto text-xl mb-2 text-gray-300" /> No categories found.
           </div>
         ) : (
+          /* Structured Grid Layout for dynamic cross-viewport alignment */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allCategories.map((category) => {
-              const isActive = category.isActive !== false; // default true if field absent
+              const isActive = category.isActive !== false;
               return (
-              <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between">
+              <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between w-full">
                 
+                {/* Card Header Section with overflow protection */}
                 <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF]"><FiFolder className="text-base" /></div>
-                    <div>
-                      <h3 className="font-bold text-sm text-[#1E1B4B]">{category.name}</h3>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{category.subCategories?.length || 0} Sub-Branches</p>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF] shrink-0">
+                      <FiFolder className="text-base" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-sm text-[#1E1B4B] truncate" title={category.name}>
+                        {category.name}
+                      </h3>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
+                        {category.subCategories?.length || 0} Sub-Branches
+                      </p>
                     </div>
                   </div>
 
-                  {/* Visibility Toggle */}
-                  <div className="flex flex-col items-end gap-1">
+                  {/* Visibility Toggle Controls */}
+                  <div className="flex flex-col items-end gap-1 shrink-0">
                     <button
                       type="button"
                       role="switch"
@@ -147,12 +154,12 @@ const CategoryList = () => {
                   </div>
                 </div>
 
+                {/* Subcategories list wrapper */}
                 <div className="p-4 flex-1">
                   {category.subCategories && category.subCategories.length > 0 ? (
                     <div className="space-y-2">
                       {category.subCategories.map((sub) => {
                         
-                        // 🛠️ SMART IMAGE URL GENERATOR
                         let imageSrc = "";
                         if (sub.image) {
                           const rawPath = sub.image.url || sub.image.secure_url || sub.image.path || sub.image;
@@ -165,33 +172,35 @@ const CategoryList = () => {
                             } else if (rawPath.startsWith("/uploads/")) {
                               imageSrc = `${BACKEND_URL}${rawPath}`;
                             } else {
-                              // Agar database mein sirf filename hai (e.g. "img_123.png"), toh uploads folder manually add karein
                               imageSrc = `${BACKEND_URL}/uploads/${rawPath}`;
                             }
                           }
                         }
                         
                         return (
-                          <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-xl border border-gray-50 bg-slate-50/20 hover:bg-slate-50 transition duration-150 group">
-                            <div className="flex items-center gap-3">
+                          <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-xl border border-gray-50 bg-slate-50/20 hover:bg-slate-50 transition duration-150 group gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
                               {imageSrc ? (
                                 <img 
                                   src={imageSrc} 
                                   alt={sub.name} 
-                                  className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm animate-fade-in"
+                                  className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm animate-fade-in shrink-0"
                                 />
                               ) : (
-                                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs shrink-0">
                                   <FiLayers />
                                 </div>
                               )}
-                              <span className="text-xs font-semibold text-gray-700">{sub.name}</span>
+                              <span className="text-xs font-semibold text-gray-700 truncate" title={sub.name}>
+                                {sub.name}
+                              </span>
                             </div>
 
+                            {/* Self-centering responsive action button */}
                             <button
                               type="button"
                               onClick={() => deleteSubCategoryHandler(sub._id)}
-                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 shrink-0"
                             >
                               <FiTrash2 size={14} />
                             </button>

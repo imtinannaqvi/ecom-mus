@@ -57,22 +57,22 @@ const NewCategory = () => {
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-12">
       <div className="max-w-3xl mx-auto">
         
-        {/* Unified Dashboard Header Theme */}
-        <header className="mb-6 flex items-center justify-between">
+        {/* Unified Dashboard Header Theme — Adjusted for smaller to larger screens */}
+        <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
             <p className="text-xs text-gray-400 mt-0.5">Configure sub-branches for your primary storefront departments</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.1</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 self-start sm:self-center shrink-0">V2.1</span>
         </header>
 
         <ToastContainer />
 
-        {/* Form Container Container */}
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+        {/* Form Container Container — Dynamic interior padding across screen tiers */}
+        <form onSubmit={handleSubmit} className="bg-white p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl border border-gray-100 shadow-sm space-y-6">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Main Category Dropdown Selector */}
@@ -80,15 +80,17 @@ const NewCategory = () => {
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
                 Main Department
               </label>
-              <select
-                value={mainCategoryName}
-                onChange={(e) => setMainCategoryName(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold appearance-none transition-all"
-              >
-                <option value="Men">Men</option>
-                <option value="Women">Women</option>
-                <option value="Kids">Kids</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={mainCategoryName}
+                  onChange={(e) => setMainCategoryName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold transition-all"
+                >
+                  <option value="Men">Men</option>
+                  <option value="Women">Women</option>
+                  <option value="Kids">Kids</option>
+                </select>
+              </div>
             </div>
 
             {/* Sub-Category Name Input Field */}
@@ -114,8 +116,8 @@ const NewCategory = () => {
             </label>
 
             {!preview ? (
-              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group">
-                <FiUploadCloud className="text-2xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
+              <label className="flex flex-col items-center justify-center w-full h-48 md:h-56 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group p-4 text-center">
+                <FiUploadCloud className="text-2xl md:text-3xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
                 <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">Click to upload image</span>
                 <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG up to 5MB</p>
                 <input
@@ -126,7 +128,7 @@ const NewCategory = () => {
                 />
               </label>
             ) : (
-              <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
+              <div className="relative w-full h-48 md:h-56 rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
                 <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -142,7 +144,7 @@ const NewCategory = () => {
             
             {preview && (
               <p className="text-[10px] text-emerald-600 mt-2.5 flex items-center gap-1 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded-md border border-emerald-100">
-                <FiCheckCircle /> 1 ASSET SELECTED
+                <FiCheckCircle className="shrink-0" /> <span>1 ASSET SELECTED</span>
               </p>
             )}
           </div>

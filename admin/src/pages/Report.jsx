@@ -13,7 +13,6 @@ import {
   Tooltip,
   RadialBarChart,
   RadialBar,
-  Legend,
 } from 'recharts';
 import Api, { BACKEND_URL } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -106,55 +105,66 @@ function Report() {
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div className="p-6 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+    <div className="p-4 sm:p-6 md:p-8 lg:p-10 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <ToastContainer />
 
       {/* ================= TOP METRIC CARDS ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
+      {/* Optimized grid columns tracking for md layout transitions to avoid squishing */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-6">
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
-            <span>Total Revenue</span>
-            <FiMoreHorizontal className="cursor-pointer text-gray-500" />
+            <span className="truncate pr-2">Total Revenue</span>
+            <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Rs. {totalRevenue.toLocaleString()}</h2>
-          <span className="text-gray-400 text-xs font-medium">from non-cancelled orders</span>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] mb-2 truncate">Rs. {totalRevenue.toLocaleString()}</h2>
+            <p className="text-gray-400 text-xs font-medium truncate">from non-cancelled orders</p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
-            <span>Total Orders</span>
-            <FiMoreHorizontal className="cursor-pointer text-gray-500" />
+            <span className="truncate pr-2">Total Orders</span>
+            <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">{totalOrders.toLocaleString()}</h2>
-          <span className="text-gray-400 text-xs font-medium">all-time orders placed</span>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] mb-2 truncate">{totalOrders.toLocaleString()}</h2>
+            <p className="text-gray-400 text-xs font-medium truncate">all-time orders placed</p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
-            <span>Avg. Order Value</span>
-            <FiTrendingUp className="text-gray-400" />
+            <span className="truncate pr-2">Avg. Order Value</span>
+            <FiTrendingUp className="text-gray-400 shrink-0" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">Rs. {avgOrderValue.toLocaleString()}</h2>
-          <span className="text-gray-400 text-xs font-medium">revenue &divide; orders</span>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] mb-2 truncate">Rs. {avgOrderValue.toLocaleString()}</h2>
+            <p className="text-gray-400 text-xs font-medium truncate">revenue &divide; orders</p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
-            <span>Total Products</span>
-            <FiMoreHorizontal className="cursor-pointer text-gray-500" />
+            <span className="truncate pr-2">Total Products</span>
+            <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">{totalProducts.toLocaleString()}</h2>
-          <span className="text-gray-400 text-xs font-medium">live in catalog</span>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] mb-2 truncate">{totalProducts.toLocaleString()}</h2>
+            <p className="text-gray-400 text-xs font-medium truncate">live in catalog</p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative min-w-0 flex flex-col justify-between">
           <div className="flex justify-between items-center text-gray-400 text-sm font-medium mb-2">
-            <span>Total Customers</span>
-            <FiMoreHorizontal className="cursor-pointer text-gray-500" />
+            <span className="truncate pr-2">Total Customers</span>
+            <FiMoreHorizontal className="cursor-pointer text-gray-500 shrink-0" />
           </div>
-          <h2 className="text-2xl font-bold text-[#1E1B4B] mb-3">{totalUsers.toLocaleString()}</h2>
-          <span className="text-gray-400 text-xs font-medium">registered accounts</span>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] mb-2 truncate">{totalUsers.toLocaleString()}</h2>
+            <p className="text-gray-400 text-xs font-medium truncate">registered accounts</p>
+          </div>
         </div>
 
       </div>
@@ -163,17 +173,17 @@ function Report() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
         {/* Revenue + Orders Combo Bar/Line Chart */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm lg:col-span-8 flex flex-col">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-8 flex flex-col min-w-0">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6">
             <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue vs Orders</h3>
-            <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
+            <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500 shrink-0">
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#635BFF]"></span> Revenue</span>
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span> Orders</span>
             </div>
           </div>
 
           {revenueData.length > 0 ? (
-            <div className="w-full h-72 text-xs text-gray-400">
+            <div className="w-full h-72 text-xs text-gray-400 min-w-0">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <XAxis dataKey="name" tickLine={false} axisLine={false} />
@@ -184,7 +194,7 @@ function Report() {
                       if (active && payload && payload.length) {
                         const p = payload[0].payload;
                         return (
-                          <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5">
+                          <div className="bg-black text-white p-2.5 rounded-lg shadow-xl text-center text-[11px] font-bold space-y-0.5 z-50">
                             <div>Rs. {p.revenue.toLocaleString()}</div>
                             <div className="text-gray-300">{p.orders} orders</div>
                           </div>
@@ -206,12 +216,12 @@ function Report() {
         </div>
 
         {/* Order Status — Radial Ring Chart */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm lg:col-span-4 flex flex-col justify-between">
-          <h3 className="font-bold text-base text-[#1E1B4B] mb-1">Order Status</h3>
+        <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-4 flex flex-col justify-between min-w-0">
+          <h3 className="font-bold text-base text-[#1E1B4B] mb-3 lg:mb-1">Order Status</h3>
 
           {radialData.length > 0 ? (
             <>
-              <div className="relative h-52 flex items-center justify-center">
+              <div className="relative h-52 flex items-center justify-center min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadialBarChart
                     innerRadius="25%"
@@ -229,14 +239,14 @@ function Report() {
                 </div>
               </div>
 
-              <div className="space-y-2 mt-2">
+              <div className="space-y-2 mt-4 lg:mt-2">
                 {radialData.map((item) => (
                   <div key={item.name} className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5 text-gray-500 font-medium">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.fill }}></span>
+                    <span className="flex items-center gap-1.5 text-gray-500 font-medium truncate pr-2">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.fill }}></span>
                       {item.name}
                     </span>
-                    <span className="font-semibold text-gray-800">{item.value}</span>
+                    <span className="font-semibold text-gray-800 shrink-0">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -254,33 +264,34 @@ function Report() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* Top Selling Products List */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm lg:col-span-7 overflow-hidden flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm lg:col-span-7 overflow-hidden flex flex-col justify-between min-w-0">
           <div>
             <div className="p-5 pb-3 flex justify-between items-center">
               <h3 className="font-bold text-base text-[#1E1B4B]">Top Selling Products</h3>
             </div>
 
+            {/* Added scroll preservation wrapper with smart desktop width adaptations */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-xs border-collapse min-w-[500px] md:min-w-0">
                 <thead>
                   <tr className="border-b border-gray-50 text-gray-400 font-semibold bg-gray-50/40">
                     <th className="p-3 pl-5 font-medium">Product</th>
-                    <th className="p-3 font-medium">Units Sold</th>
-                    <th className="p-3 font-medium">Revenue</th>
+                    <th className="p-3 font-medium whitespace-nowrap">Units Sold</th>
+                    <th className="p-3 font-medium whitespace-nowrap">Revenue</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 text-[13px] font-medium text-gray-700">
                   {topProducts.length > 0 ? (
                     topProducts.map((p) => (
                       <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="p-3 pl-5 text-[#1E293B]">
-                          <div className="flex items-center gap-2.5">
-                            <img src={getProductImage(p.image)} alt={p.name} className="w-7 h-7 rounded-lg object-cover border border-gray-100 bg-gray-50" />
-                            <span>{p.name || "Deleted Product"}</span>
+                        <td className="p-3 pl-5 text-[#1E293B] min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <img src={getProductImage(p.image)} alt={p.name} className="w-7 h-7 rounded-lg object-cover border border-gray-100 bg-gray-50 shrink-0" />
+                            <span className="truncate max-w-[180px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-none">{p.name || "Deleted Product"}</span>
                           </div>
                         </td>
-                        <td className="p-3 text-gray-800">{p.sold}</td>
-                        <td className="p-3 text-[#1E293B] font-semibold">Rs. {p.revenue?.toLocaleString()}</td>
+                        <td className="p-3 text-gray-800 whitespace-nowrap">{p.sold}</td>
+                        <td className="p-3 text-[#1E293B] font-semibold whitespace-nowrap">Rs. {p.revenue?.toLocaleString()}</td>
                       </tr>
                     ))
                   ) : (
@@ -297,25 +308,25 @@ function Report() {
         </div>
 
         {/* Recent Orders */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm lg:col-span-5 flex flex-col">
+        <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-5 flex flex-col min-w-0">
           <h3 className="font-bold text-base text-[#1E1B4B] mb-4">Recent Orders</h3>
 
           {recentOrders.length > 0 ? (
             <div className="space-y-4">
               {recentOrders.map((order) => (
-                <div key={order._id} className="flex items-center justify-between border-b border-gray-50 pb-3 last:border-0 last:pb-0">
-                  <div>
-                    <p className="text-xs font-bold text-[#1E293B]">
+                <div key={order._id} className="flex items-center justify-between border-b border-gray-50 pb-3 last:border-0 last:pb-0 gap-3 min-w-0">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-[#1E293B] truncate max-w-[140px] sm:max-w-[200px] md:max-w-[320px] lg:max-w-[180px]">
                       {order.user?.name || order.user?.email || "Guest"}
                     </p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
+                    <p className="text-[10px] text-gray-400 mt-0.5 truncate">
                       #{order._id.toString().slice(-6).toUpperCase()} &middot; {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-[#1E293B]">Rs. {order.totalPrice?.toLocaleString()}</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs font-bold text-[#1E293B] whitespace-nowrap">Rs. {order.totalPrice?.toLocaleString()}</p>
                     <span
-                      className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full inline-block mt-1"
+                      className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full inline-block mt-1 whitespace-nowrap"
                       style={{
                         backgroundColor: `${STATUS_COLORS[order.orderStatus] || "#94A3B8"}20`,
                         color: STATUS_COLORS[order.orderStatus] || "#64748B",
@@ -328,7 +339,7 @@ function Report() {
               ))}
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium">
+            <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium py-10">
               No orders yet
             </div>
           )}

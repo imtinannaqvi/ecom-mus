@@ -111,31 +111,31 @@ const NewProduct = () => {
     } catch (err) {
       toast.error("Error: " + (err.response?.data?.message || err.message));
     } finally {
-      setLoading(false);
+      loading(false);
     }
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
         
         {/* Premium Dashboard Header */}
-        <header className="mb-6 flex items-center justify-between">
+        <header className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
             <p className="text-xs text-gray-400 mt-0.5">Add details, metrics, sizes and asset gallery for the inventory</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.1</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.1</span>
         </header>
         
         <ToastContainer />
 
-        {/* ✅ Form structure corrected to professional dual-column Grid layout */}
-        <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ✅ Form structure configured for seamless md and lg dual-column split setups */}
+        <form onSubmit={submitHandler} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           
-          {/* Left Column - Core Details (7 Columns) */}
-          <div className="lg:col-span-7 space-y-5">
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          {/* Left Column - Core Details (7 Columns on md and up) */}
+          <div className="md:col-span-7 space-y-5 w-full">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
               
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Product Title</label>
@@ -149,7 +149,7 @@ const NewProduct = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Price ($)</label>
                   <input
@@ -186,7 +186,7 @@ const NewProduct = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Gender Category</label>
                   <div className="relative">
@@ -225,9 +225,9 @@ const NewProduct = () => {
             </div>
           </div>
 
-          {/* Right Column - Attributes & Uploads (5 Columns) */}
-          <div className="lg:col-span-5 space-y-5">
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          {/* Right Column - Attributes & Uploads (5 Columns on md and up) */}
+          <div className="md:col-span-5 space-y-5 w-full">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               
               {/* Sizes Block */}
               <div>
@@ -238,7 +238,7 @@ const NewProduct = () => {
                       key={size}
                       type="button"
                       onClick={() => handleSizeChange(size)}
-                      className={`w-10 h-10 rounded-xl text-xs font-bold border transition-all duration-200 ${
+                      className={`w-10 h-10 rounded-xl text-xs font-bold border transition-all duration-200 shrink-0 ${
                         sizes.includes(size) 
                           ? "bg-[#1E1B4B] border-[#1E1B4B] text-white shadow-sm" 
                           : "bg-white border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600"
@@ -250,16 +250,16 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Colors Block */}
+              {/* Colors Block — Fluid grid structure ensuring labels stay intact across grid widths */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Product Colors</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {availableColors.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => handleColorChange(color)}
-                      className={`py-2 rounded-xl text-[11px] font-bold border transition-all duration-200 ${
+                      className={`py-2 px-1 rounded-xl text-[11px] font-bold border text-center transition-all duration-200 truncate ${
                         colors.includes(color) 
                           ? "bg-[#635BFF] border-[#635BFF] text-white shadow-sm" 
                           : "bg-slate-50 border-gray-200 text-gray-500 hover:border-gray-300"
@@ -271,10 +271,10 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Asset Media Gallery Uploader */}
+              {/* Asset Media Gallery Uploader — Self-balancing gallery grid configuration */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Media Gallery</label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {imagesPreview.map((img, index) => (
                     <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group shadow-sm">
                       <img src={img} alt="Preview" className="w-full h-full object-cover" />
@@ -297,7 +297,7 @@ const NewProduct = () => {
                 
                 {imageFiles.length > 0 && (
                   <p className="text-[10px] text-emerald-600 mt-2.5 flex items-center gap-1 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded-md border border-emerald-100">
-                    <FiCheckCircle /> {imageFiles.length} IMAGES SELECTED
+                    <FiCheckCircle className="shrink-0" /> <span className="truncate">{imageFiles.length} IMAGES SELECTED</span>
                   </p>
                 )}
               </div>

@@ -70,15 +70,15 @@ const ProductList = () => {
   };
 
   return (
-    <div className="p-8 bg-white min-h-screen font-sans">
+    <div className="p-4 sm:p-6 md:p-8 bg-white min-h-screen font-sans">
       
-      {/* Top Header Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-xl font-bold text-[#1E1B4B]">Products list</h1>
+      {/* Top Header Controls — Responsive adaptation for md and lg screen layouts */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-[#1E1B4B] shrink-0">Products list</h1>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {/* Custom Integrated Search bar matching UI theme */}
-          <div className="relative flex-1 sm:w-64">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Custom Integrated Search bar — Adaptive expansion across md/lg viewports */}
+          <div className="relative flex-1 min-w-[160px] sm:w-64 md:w-72 lg:w-80">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -89,30 +89,31 @@ const ProductList = () => {
             />
           </div>
           
-          <button className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+          <button className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition shrink-0">
             <FiSliders className="text-gray-400" /> Filter
           </button>
           
-          <button onClick={() => { setSelectedCategory(""); setSearchTerm(""); }} className="border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+          <button onClick={() => { setSelectedCategory(""); setSearchTerm(""); }} className="border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition shrink-0">
             See All
           </button>
           
-          <Link to="/admin/product/new" className="flex items-center gap-1.5 bg-[#635BFF] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition">
+          <Link to="/admin/product/new" className="flex items-center gap-1.5 bg-[#635BFF] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition shrink-0 ml-auto sm:ml-0">
             <FiPlus className="text-lg" /> Add Product
           </Link>
         </div>
       </div>
 
       {/* Main Container Layout */}
-      <div className="border border-gray-100 rounded-xl overflow-hidden bg-white">
+      <div className="border border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
         {loading ? (
           <div className="p-20 text-center text-gray-400 font-medium">Loading Products Data...</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          /* Preserves scroll containment below md, scales wide on md and lg without clipping content */
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[850px] md:min-w-0">
               <thead>
                 <tr className="border-b border-gray-100 text-[#8A94A6] text-xs font-semibold bg-gray-50/50">
-                  <th className="p-4 w-12 text-center">
+                  <th className="p-4 w-12 text-center shrink-0">
                     <input 
                       type="checkbox" 
                       className="rounded border-gray-300 text-[#635BFF] focus:ring-[#635BFF] w-4 h-4 cursor-pointer"
@@ -120,12 +121,12 @@ const ProductList = () => {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className="p-4 font-medium text-[13px]">Product Name</th>
-                  <th className="p-4 font-medium text-[13px]">Category</th>
-                  <th className="p-4 font-medium text-[13px]">Price</th>
-                  <th className="p-4 font-medium text-[13px]">Stock</th>
-                  <th className="p-4 font-medium text-[13px]">Status</th>
-                  <th className="p-4 font-medium text-[13px] text-right">Action</th>
+                  <th className="p-4 font-medium text-[13px] whitespace-nowrap">Product Name</th>
+                  <th className="p-4 font-medium text-[13px] whitespace-nowrap">Category</th>
+                  <th className="p-4 font-medium text-[13px] whitespace-nowrap">Price</th>
+                  <th className="p-4 font-medium text-[13px] whitespace-nowrap">Stock</th>
+                  <th className="p-4 font-medium text-[13px] whitespace-nowrap">Status</th>
+                  <th className="p-4 font-medium text-[13px] text-right whitespace-nowrap pr-6">Action</th>
                 </tr>
               </thead>
               
@@ -150,36 +151,37 @@ const ProductList = () => {
                           <img
                             src={`${BACKEND_URL}${product.images?.[0]?.url || ''}`}
                             alt={product.name}
-                            className="w-10 h-10 rounded-lg object-cover border border-gray-100 bg-gray-50"
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-100 bg-gray-50 shrink-0"
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = "https://placehold.co/40x40/f3f4f6/a1a1aa?text=Image";
                             }}
                           />
-                          <span>{product.name}</span>
+                          {/* Ensures product names wrap naturally or expand fully rather than forcing row clip */}
+                          <span className="break-words max-w-[220px] sm:max-w-xs md:max-w-none">{product.name}</span>
                         </div>
                       </td>
 
                       {/* Category Display */}
-                      <td className="p-4 text-[#5D6B82]">{product.mainCategory || "General"}</td>
+                      <td className="p-4 text-[#5D6B82] whitespace-nowrap">{product.mainCategory || "General"}</td>
 
                       {/* Clean currency formatting match */}
-                      <td className="p-4 font-medium text-[#1E293B]">
+                      <td className="p-4 font-medium text-[#1E293B] whitespace-nowrap">
                         ${parseFloat(product.price).toFixed(2)}
                       </td>
 
                       {/* Stock Counter item */}
-                      <td className="p-4 text-[#5D6B82]">{product.stock}</td>
+                      <td className="p-4 text-[#5D6B82] whitespace-nowrap">{product.stock}</td>
 
                       {/* Precise Status Pill matching image rules */}
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${getStatusStyles(product.status || (product.stock > 0 ? 'Active' : 'Draft'))}`}>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide inline-block ${getStatusStyles(product.status || (product.stock > 0 ? 'Active' : 'Draft'))}`}>
                           {product.status || (product.stock > 0 ? "Active" : "Draft")}
                         </span>
                       </td>
 
                       {/* Details View/Action Router link */}
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right pr-6 whitespace-nowrap">
                         <Link
                           to={`/admin/product/${product._id}`}
                           className="text-[#635BFF] hover:underline font-semibold text-xs inline-flex items-center gap-1 transition"
@@ -203,20 +205,20 @@ const ProductList = () => {
         )}
 
         {/* Dynamic Image-Accurate Pagination Panel */}
-        <div className="flex items-center justify-between border-t border-gray-100 p-4 bg-white text-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 bg-white gap-4 sm:gap-0 text-sm">
           <button 
             disabled={currentPage === 1}
-            className="border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed text-center"
           >
-            ← Previous
+            &larr; Previous
           </button>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto max-w-full no-scrollbar py-1">
             {[1, 2, 3, "...", 8, 9, 10].map((page, idx) => (
               <button
                 key={idx}
                 onClick={() => typeof page === 'number' && setCurrentPage(page)}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition ${
+                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition shrink-0 ${
                   page === currentPage
                     ? "bg-[#F5F3FF] text-[#635BFF]"
                     : "text-gray-500 hover:bg-gray-50"
@@ -228,9 +230,9 @@ const ProductList = () => {
           </div>
           
           <button 
-            className="border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition"
+            className="w-full sm:w-auto border border-gray-200 px-4 py-1.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 transition text-center"
           >
-            Next →
+            Next &rarr;
           </button>
         </div>
 
