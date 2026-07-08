@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Mail,
   Phone,
@@ -10,6 +10,7 @@ import {
 import { FaFacebookF, FaYoutube, FaTwitter } from "react-icons/fa";
 import { FaInstagram } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import useProduct from "../hooks/productService";
 
 // Colorful Payment Method Icons
 const VisaIcon = () => (
@@ -141,7 +142,27 @@ const ApplePayIcon = () => (
   </svg>
 );
 
+// Builds the exact same URL-safe slug used elsewhere (Header, TopCategories),
+// so footer links always land on a real, matching subcategory page.
+const toSlug = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+
 const Footer = () => {
+  const [categories, setCategories] = useState([]);
+  const { fetchMainCategory } = useProduct();
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetchMainCategory();
+        setCategories((res.data || []).filter((cat) => cat.isActive !== false));
+      } catch (err) {
+        console.error("Failed to load footer categories", err);
+      }
+    };
+    loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <footer className="w-full font-sans text-gray-300">
       {/* Promotional section with feature highlights like returns, shipping, etc */}
@@ -365,307 +386,32 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Sitemap with organized product categories and quick links */}
+        {/* Sitemap — dynamically built from real categories/subcategories,
+            so it never drifts out of sync with what's actually in the store. */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 py-12 text-gray-400 text-[13px]">
-          {/* Men's products category navigation */}
-          <div className="space-y-2">
-            <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
-              MEN'S
-            </h4>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Top Wear
-              </p>
-              <Link
-                to="/shop/men/all-top-wear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                All Top wear
-              </Link>
-              <Link
-                to="/shop/men/all-t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                All T-Shirts
-              </Link>
-              <Link
-                to="/shop/men/classic-fit-t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Classic Fit T-Shirts
-              </Link>
-              <Link
-                to="/shop/men/oversized-t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Oversized T-Shirts
-              </Link>
-              <Link
-                to="/shop/men/all-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                All Shirts
-              </Link>
-            </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Bottom Wear
-              </p>
-              <Link
-                to="/shop/men/all-bottom-wear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                All Bottom wear
-              </Link>
-              <Link
-                to="/shop/men/joggers"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Joggers
-              </Link>
-              <Link
-                to="/shop/men/trousers-pants"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Trousers & Pants
-              </Link>
-              <Link
-                to="/shop/men/jeans"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Jeans
-              </Link>
-              <Link
-                to="/shop/men/shorts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Shorts
-              </Link>
-            </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Footwear & Accessories
-              </p>
-              <Link
-                to="/shop/men/footwear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Maurish Sneakers
-              </Link>
-              <Link
-                to="/shop/men/footwear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Casual Shoes
-              </Link>
-              <Link
-                to="/shop/men/accessories"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Accessories
-              </Link>
-              <Link
-                to="/shop/men/accessories"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Caps
-              </Link>
-            </div>
-          </div>
 
-          {/* Women's products category navigation */}
-          <div className="space-y-2">
-            <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2">
-              WOMEN'S
-            </h4>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Ethnic Wear
-              </p>
-              <Link
-                to="/shop/women/kurtas-suits"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Kurtas & Suits
-              </Link>
-              <Link
-                to="/shop/women/sarees"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Sarees
-              </Link>
-              <Link
-                to="/shop/women/ethnic-dresses"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Ethnic Dresses
-              </Link>
-              <Link
-                to="/shop/women/lehenga-cholis"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Lehenga Cholis
-              </Link>
+          {categories.map((cat) => (
+            <div key={cat._id} className="space-y-2">
+              <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
+                {cat.name}
+              </h4>
+              <div className="space-y-2">
+                {cat.subCategories && cat.subCategories.length > 0 ? (
+                  cat.subCategories.map((sub) => (
+                    <Link
+                      key={sub._id}
+                      to={`/shop/${cat.name.toLowerCase()}/${toSlug(sub.name)}`}
+                      className="block text-xs text-gray-400 hover:text-white transition"
+                    >
+                      {sub.name}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-600 italic">Coming soon</p>
+                )}
+              </div>
             </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Western Wear
-              </p>
-              <Link
-                to="/shop/women/tops"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Tops
-              </Link>
-              <Link
-                to="/shop/women/dresses"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Dresses
-              </Link>
-              <Link
-                to="/shop/women/t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                T-shirts
-              </Link>
-              <Link
-                to="/shop/women/jeans"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Jeans
-              </Link>
-              <Link
-                to="/shop/women/trousers"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Trousers
-              </Link>
-            </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                More
-              </p>
-              <Link
-                to="/shop/women/footwear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Footwear
-              </Link>
-              <Link
-                to="/shop/women/lingerie"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Lingerie
-              </Link>
-              <Link
-                to="/shop/women/beauty"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Beauty & Fragrances
-              </Link>
-            </div>
-          </div>
-
-          {/* Children's products category navigation */}
-          <div className="space-y-2">
-            <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
-              Kids
-            </h4>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Boys Clothing
-              </p>
-              <Link
-                to="/shop/kids/boys-t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                T-Shirts
-              </Link>
-              <Link
-                to="/shop/kids/boys-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Shirts
-              </Link>
-              <Link
-                to="/shop/kids/boys-shorts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Shorts
-              </Link>
-              <Link
-                to="/shop/kids/boys-jeans"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Jeans
-              </Link>
-              <Link
-                to="/shop/kids/boys-trousers"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Trousers
-              </Link>
-            </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Girls Clothing
-              </p>
-              <Link
-                to="/shop/kids/girls-dresses"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Dresses
-              </Link>
-              <Link
-                to="/shop/kids/girls-tops"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Tops
-              </Link>
-              <Link
-                to="/shop/kids/girls-t-shirts"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                T-shirts
-              </Link>
-              <Link
-                to="/shop/kids/girls-lehenga"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Lehenga Choli
-              </Link>
-              <Link
-                to="/shop/kids/girls-kurta"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Kurta Sets
-              </Link>
-            </div>
-            <div className="space-y-2 mt-3">
-              <p className="text-xs font-semibold text-gray-300 uppercase">
-                Footwear & Infants
-              </p>
-              <Link
-                to="/shop/kids/footwear"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Casual Shoes
-              </Link>
-              <Link
-                to="/shop/kids/infants"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Infant Clothing
-              </Link>
-              <Link
-                to="/shop/kids/toys"
-                className="block text-xs text-gray-400 hover:text-white transition"
-              >
-                Toys
-              </Link>
-            </div>
-          </div>
+          ))}
 
           {/* Quick links and company information */}
           <div className="space-y-2">

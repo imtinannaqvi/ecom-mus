@@ -100,13 +100,13 @@ const CategoriesProduct = () => {
   const [tempFilters, setTempFilters] = useState({ ...appliedFilters });
 
   // All products matching this subCategory
-  const subCategoryProducts = useMemo(
-    () =>
-      products.filter(
-        (p) => p.subCategory?.toLowerCase() === subCategory?.toLowerCase()
-      ),
-    [products, subCategory]
-  );
+ const subCategoryProducts = useMemo(
+  () =>
+    products.filter(
+      (p) => p.subCategory?.toLowerCase() === subCategory?.toLowerCase().replace(/-/g, " ")
+    ),
+  [products, subCategory]
+);
 
   const outOfStockCount = subCategoryProducts.filter((p) => p.stock <= 0).length;
 
