@@ -26,12 +26,15 @@ const UpdateProduct = () => {
   
   const [name, setName] = useState(""); 
   const [price, setPrice] = useState("");
+  const [oldPrice, setOldPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("Men"); // Default node
   const [subCategory, setSubCategory] = useState("");
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
+  const [isTopTrend, setIsTopTrend] = useState(false);
+  const [isBuy2Get1, setIsBuy2Get1] = useState(false);
   
   // Image assets management
   const [imageFiles, setImageFiles] = useState([]);
@@ -48,12 +51,15 @@ const UpdateProduct = () => {
           // Old data variables population layer
           setName(prod.name);
           setPrice(prod.price);
+          setOldPrice(prod.oldPrice || "");
           setStock(prod.stock);
           setDescription(prod.description);
           setMainCategory(prod.mainCategory || "Men");
           setSubCategory(prod.subCategory || "");
           setColors(prod.colors || []);
           setSizes(prod.sizes || []);
+          setIsTopTrend(!!prod.isTopTrend);
+          setIsBuy2Get1(!!prod.isBuy2Get1);
           
           if (prod.images && prod.images.length > 0) {
             const structuralPreviews = prod.images.map(img => `${BACKEND_URL}${img.url}`);
@@ -98,18 +104,25 @@ const UpdateProduct = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (oldPrice && Number(oldPrice) <= Number(price)) {
+      toast.error("Old price must be higher than the current price to show a discount.");
+      return;
+    }
     setLoading(true);
 
     try {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
+      formData.append("oldPrice", oldPrice || "");
       formData.append("stock", stock);
       formData.append("description", description);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes)); 
       formData.append("colors", JSON.stringify(colors));
+      formData.append("isTopTrend", isTopTrend);
+      formData.append("isBuy2Get1", isBuy2Get1);
 
       imageFiles.forEach((file) => {
         formData.append("images", file);
@@ -186,8 +199,8 @@ const UpdateProduct = () => {
                 />
               </div>
 
-              {/* Price & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Price, Old Price & Stock */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Price Valuation (PKR)</label>
                   <input 
@@ -196,6 +209,16 @@ const UpdateProduct = () => {
                     value={price} 
                     onChange={(e) => setPrice(e.target.value)} 
                     required 
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Old Price (optional)</label>
+                  <input 
+                    type="number" 
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition" 
+                    placeholder="Leave blank for no discount"
+                    value={oldPrice} 
+                    onChange={(e) => setOldPrice(e.target.value)} 
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -208,6 +231,28 @@ const UpdateProduct = () => {
                     required 
                   />
                 </div>
+              </div>
+
+              {/* Storefront Placement Toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
+                <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50 border border-gray-200 rounded-xl cursor-pointer">
+                  <span className="text-xs font-bold text-gray-600">Show in Top Trending</span>
+                  <input
+                    type="checkbox"
+                    checked={isTopTrend}
+                    onChange={(e) => setIsTopTrend(e.target.checked)}
+                    className="w-4 h-4 accent-[#635BFF]"
+                  />
+                </label>
+                <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50 border border-gray-200 rounded-xl cursor-pointer">
+                  <span className="text-xs font-bold text-gray-600">Buy 2 Get 1 Free</span>
+                  <input
+                    type="checkbox"
+                    checked={isBuy2Get1}
+                    onChange={(e) => setIsBuy2Get1(e.target.checked)}
+                    className="w-4 h-4 accent-[#635BFF]"
+                  />
+                </label>
               </div>
 
               {/* Dynamic Category Dropdowns */}

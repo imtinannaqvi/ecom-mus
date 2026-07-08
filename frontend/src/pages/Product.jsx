@@ -28,6 +28,8 @@ const ProductCard = ({ item, itemsToShow }) => {
     ? imagePath 
     : `${BACKEND_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 
+  const hasDiscount = item.oldPrice && item.oldPrice > item.price;
+
   return (
     <Link
       to={`/product/${item._id}`}
@@ -37,6 +39,11 @@ const ProductCard = ({ item, itemsToShow }) => {
       <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors">
         <CiHeart />
       </div>
+      {hasDiscount && (
+        <div className="absolute left-2 top-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+          {Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100)}% OFF
+        </div>
+      )}
       <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
         <img
           src={finalSrc}
@@ -56,7 +63,12 @@ const ProductCard = ({ item, itemsToShow }) => {
           <p className="text-gray-500 text-[10px] md:text-xs truncate max-w-[60%]">
             {item.brand}
           </p>
-          <p className="text-sm md:text-lg font-semibold">${item.price}</p>
+          <div className="flex items-center gap-1.5">
+            {hasDiscount && (
+              <p className="text-gray-400 text-[10px] md:text-xs line-through">${item.oldPrice}</p>
+            )}
+            <p className="text-sm md:text-lg font-semibold">${item.price}</p>
+          </div>
         </div>
       </div>
     </Link>
@@ -125,12 +137,9 @@ export const NewArrivals = ({ products }) => {
   return <ProductSliderSection title="NEW ARRIVALS" products={products} />;
 };
 
-// 4. TOP CATEGORIES
-
-
-// 5. MAIN PRODUCT PAGE
-function Product({ category , products }) {
-
+// 5. MAIN PRODUCT PAGE — buckets real products into real sections instead
+// of showing the same full list four times.
+function Product({ category, products }) {
 
   if (!products || products.length === 0) {
     return (
@@ -140,14 +149,26 @@ function Product({ category , products }) {
     );
   }
 
-  
+  // New Arrivals: most recently added products first.
+  const newArrivals = [...products]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 10);
+
+  // Top Trending: admin-flagged via isTopTrend toggle.
+  const topTrending = products.filter((p) => p.isTopTrend);
+
+  // Top Discount: admin set an oldPrice higher than the current price.
+  const topDiscount = products.filter((p) => p.oldPrice && p.oldPrice > p.price);
+
+  // Buy 2 Get 1 Free: admin-flagged via isBuy2Get1 toggle.
+  const buy2Get1 = products.filter((p) => p.isBuy2Get1);
 
   return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
-      <NewArrivals products={products} />
-      <ProductSliderSection title="TOP TRENDING"  category={category} products={products} />
-      <ProductSliderSection title="TOP DISCOUNT" products={products} />
-      <ProductSliderSection title="BUY 2 GET 1 FREE" products={products} />
+      <ProductSliderSection title="NEW ARRIVALS" products={newArrivals} />
+      <ProductSliderSection title="TOP TRENDING" products={topTrending} />
+      <ProductSliderSection title="TOP DISCOUNT" products={topDiscount} />
+      <ProductSliderSection title="BUY 2 GET 1 FREE" products={buy2Get1} />
     </div>
   );
 }

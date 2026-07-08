@@ -187,6 +187,7 @@ function SingleProduct() {
               activeTab={activeTab}
               product={product}
               setActiveTab={setActiveTab}
+              onProductUpdate={(updatedProduct) => setProduct(updatedProduct)}
             />
           </section>
 

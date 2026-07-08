@@ -12,12 +12,15 @@ const NewProduct = () => {
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [oldPrice, setOldPrice] = useState("");
   const [description, setDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [stock, setStock] = useState(1);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
+  const [isTopTrend, setIsTopTrend] = useState(false);
+  const [isBuy2Get1, setIsBuy2Get1] = useState(false);
   const [imagesPreview, setImagesPreview] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -75,17 +78,24 @@ const NewProduct = () => {
         toast.error("Please select all required attributes."); // ✅ Swapped alert with premium toast error
         return;
     }
+    if (oldPrice && Number(oldPrice) <= Number(price)) {
+      toast.error("Old price must be higher than the current price to show a discount.");
+      return;
+    }
     try {
       setLoading(true);
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
+      if (oldPrice) formData.append("oldPrice", oldPrice);
       formData.append("description", description);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("stock", stock);
       formData.append("colors", JSON.stringify(colors));
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("isTopTrend", isTopTrend);
+      formData.append("isBuy2Get1", isBuy2Get1);
       imageFiles.forEach((file) => formData.append("images", file));
 
       await Api.post("/product/add", formData, {
@@ -99,8 +109,9 @@ const NewProduct = () => {
       });
 
       // Reset logic
-      setName(""); setPrice(""); setDescription(""); setMainCategory("");
+      setName(""); setPrice(""); setOldPrice(""); setDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
+      setIsTopTrend(false); setIsBuy2Get1(false);
       setImagesPreview([]); setImageFiles([]);
 
       // ✅ Securely route back to products overview pane after timeout
@@ -111,7 +122,7 @@ const NewProduct = () => {
     } catch (err) {
       toast.error("Error: " + (err.response?.data?.message || err.message));
     } finally {
-      loading(false);
+      setLoading(false);
     }
   };
 
@@ -149,7 +160,7 @@ const NewProduct = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Price ($)</label>
                   <input
@@ -159,6 +170,16 @@ const NewProduct = () => {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Old Price (optional)</label>
+                  <input
+                    type="number"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
+                    placeholder="Leave blank if no discount"
+                    value={oldPrice}
+                    onChange={(e) => setOldPrice(e.target.value)}
                   />
                 </div>
                 <div>
@@ -172,6 +193,28 @@ const NewProduct = () => {
                     required
                   />
                 </div>
+              </div>
+
+              {/* Storefront Placement Toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
+                <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl cursor-pointer">
+                  <span className="text-xs font-bold text-gray-600">Show in Top Trending</span>
+                  <input
+                    type="checkbox"
+                    checked={isTopTrend}
+                    onChange={(e) => setIsTopTrend(e.target.checked)}
+                    className="w-4 h-4 accent-[#635BFF]"
+                  />
+                </label>
+                <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl cursor-pointer">
+                  <span className="text-xs font-bold text-gray-600">Buy 2 Get 1 Free</span>
+                  <input
+                    type="checkbox"
+                    checked={isBuy2Get1}
+                    onChange={(e) => setIsBuy2Get1(e.target.checked)}
+                    className="w-4 h-4 accent-[#635BFF]"
+                  />
+                </label>
               </div>
 
               <div>
