@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiTrash2 } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { CartContext } from "../context/CartContext";
@@ -58,11 +60,16 @@ const ReviewOrder = () => {
       const res = await Api.post("/coupons/validate", { code, cartTotal: subtotal });
       if (res.data.success) {
         setAppliedCoupon({ code: res.data.coupon.code, discountAmount: res.data.discountAmount });
-        if (!silent) setCouponInput("");
+        if (!silent) {
+          setCouponInput("");
+          toast.success(`Coupon ${res.data.coupon.code} applied! You saved ₹${res.data.discountAmount}`);
+        }
       }
     } catch (err) {
       setAppliedCoupon(null);
-      setCouponError(err.response?.data?.message || "Invalid coupon code");
+      const message = err.response?.data?.message || "Invalid coupon code";
+      setCouponError(message);
+      if (!silent) toast.error(message);
     } finally {
       setCouponLoading(false);
     }
@@ -72,13 +79,16 @@ const ReviewOrder = () => {
     setAppliedCoupon(null);
     setCouponInput("");
     setCouponError("");
+    toast.info("Coupon removed");
   };
 
   const handleRemoveItem = async (id) => {
-    if (!window.confirm("Remove this item from your bag?")) return;
     setRemovingId(id);
     try {
       await removeFromCart(id);
+      toast.success("Item removed from your bag");
+    } catch (err) {
+      toast.error("Failed to remove item");
     } finally {
       setRemovingId(null);
     }
@@ -89,17 +99,17 @@ const ReviewOrder = () => {
     // 0. Require login only at the point of actually placing the order.
     // Guests can freely view/manage their bag up to this point.
     if (!user) {
-      alert("Please log in or sign up to complete your order.");
+      toast.error("Please log in or sign up to complete your order.");
       return navigate('/login');
     }
 
     // 1. Validations
     if (!selectedAddress) {
-      alert("Shipping address is missing. Please select one.");
+      toast.error("Shipping address is missing. Please select one.");
       return navigate('/address');
     }
     if (cartItems.length === 0) {
-      alert("Your cart is empty.");
+      toast.error("Your cart is empty.");
       return navigate('/cart');
     }
 
@@ -124,16 +134,17 @@ const ReviewOrder = () => {
       const res = await placeOrder(payload);
 
       if (res.success) {
+        toast.success("Order placed successfully!");
         // Clear logic
         localStorage.removeItem("selectedAddress");
         if(setCartItems) setCartItems([]); // Context clear
 
-        navigate(`/profile/orders`);
+        setTimeout(() => navigate(`/profile/orders`), 1200);
       } else {
-        alert(res.message || "Failed to place order.");
+        toast.error(res.message || "Failed to place order.");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsOrdering(false);
     }
@@ -146,6 +157,7 @@ const ReviewOrder = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
+      <ToastContainer position="top-right" autoClose={2500} />
 
       <div className="px-6 md:px-12 py-4 text-[11px] text-gray-400">
         Cart / <span className="text-black font-bold">Info</span> / Shipping / Payment
