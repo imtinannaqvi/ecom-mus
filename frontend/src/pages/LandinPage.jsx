@@ -25,13 +25,9 @@ function LandinPage() {
 
   const fetchCategory = async () => {
     try {
-     const res = await fetchMainCategory();
-setItems((res.data || []).filter((cat) => cat.isActive !== false));
-console.log("Categories:", res.data);
-
-res.data.forEach(item => {
-  console.log("Image:", item.image);
-});    } catch (err) {
+      const res = await fetchMainCategory();
+      setItems((res.data || []).filter((cat) => cat.isActive !== false));
+    } catch (err) {
       console.log(err.message);
     }
   };
@@ -81,32 +77,34 @@ res.data.forEach(item => {
           />
         </div>
       </header>
-      <section className="w-full py-5 px-4  min-h-screen flex flex-wrap items-stretch justify-between gap-4">
+      <section className="w-full py-5 px-4 min-h-screen flex flex-wrap items-stretch justify-between gap-4">
         {items.map((item, idx) => {
           return (
-            <div
+            // Whole tile is now the clickable link — image, overlay, and
+            // "Buy Now" all navigate together, matching how category tiles
+            // work everywhere else on the site.
+            <Link
+              to={`/shop/${item.name}`}
               key={idx}
-              className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-screen overflow-hidden "
+              className="w-full sm:w-[48%] lg:w-[32%] shrink-0 relative h-[60vh] sm:h-[70vh] lg:h-screen overflow-hidden block group bg-gray-100"
             >
-     <img
-    src={categoryImages[item.name] || "/images/no-image.png"}
-    alt={item.title}
-/>
-
+              <img
+                src={categoryImages[item.name] || "/images/no-image.png"}
+                alt={item.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                onError={(e) => { e.target.src = "/images/no-image.png"; }}
+              />
 
               {/* Overlay Content */}
               <div className="w-full flex items-center gap-4 flex-col justify-center bottom-0 h-[30%] bg-black/60 absolute backdrop-blur-sm">
                 <h1 className="text-xl uppercase font-bold text-white text-center px-2">
-                  {item.title}
+                  {item.name}
                 </h1>
-                <Link
-                  to={`/shop/${item.name}`}
-                  className="px-6 py-2 bg-white text-black font-semibold hover:bg-gray-200 transition-colors"
-                >
+                <span className="px-6 py-2 bg-white text-black font-semibold group-hover:bg-gray-200 transition-colors">
                   Buy Now
-                </Link>
+                </span>
               </div>
-            </div>
+            </Link>
           );
         })}
       </section>
