@@ -170,7 +170,7 @@ function Header() {
           </span>
         </div>
         <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.15em]">
-          <Link to="/profile/track" className="hover:text-gray-400 transition-colors">Track Order</Link>
+<Link to="/profile/orders" className="hover:text-gray-400 transition-colors">Track Order</Link>
           <Link to="/profile/support" className="hover:text-gray-400 transition-colors">Support</Link>
         </div>
       </div>
@@ -367,7 +367,7 @@ function Header() {
                   Login
                 </Link>
               )}
-              <Link to="/profile/track" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">Track Order</Link>
+<Link to="/profile/orders" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">Track Order</Link>
               <Link to="/profile/support" onClick={() => setMobileMenuOpen(false)} className="block text-[10px] uppercase tracking-widest font-bold">Support</Link>
             </div>
           </div>

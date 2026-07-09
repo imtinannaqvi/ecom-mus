@@ -438,7 +438,7 @@ const Footer = () => {
                 Contact Us
               </Link>
               <Link
-                to="/profile/track"
+to="/profile/orders"
                 className="block text-xs text-gray-400 hover:text-white transition"
               >
                 Track Order

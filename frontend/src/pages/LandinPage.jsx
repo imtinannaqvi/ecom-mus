@@ -55,12 +55,7 @@ function LandinPage() {
               <FaTwitter className="hover:text-blue-400 cursor-pointer" />
             </div>
             <span className="h-3 w-[1px] bg-gray-700 mx-2"></span>
-            <Link
-              to="/profile/track"
-              className="hover:text-red-500 transition-colors"
-            >
-              Track Order
-            </Link>
+           <Link to="/profile/orders" className="hover:text-red-500 transition-colors">Track Order</Link>
             <Link
               to="/profile/support"
               className="hover:text-red-500 transition-colors"
