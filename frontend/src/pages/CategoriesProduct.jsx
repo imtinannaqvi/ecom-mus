@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { IoIosClose } from "react-icons/io";
-import { FiChevronRight } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
@@ -56,8 +56,29 @@ const colorOptions = [
 ];
 
 const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
+const RATING_OPTIONS = [4, 3, 2, 1];
 
 const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+
+// A single collapsible filter section — name + chevron, only one open at a
+// time across the whole drawer (accordion), so the drawer stays compact and
+// doesn't require scrolling to see every filter type.
+const FilterSection = ({ id, title, openSection, setOpenSection, children }) => {
+  const isOpen = openSection === id;
+  return (
+    <section className="border-t pt-5 first:border-t-0 first:pt-0">
+      <button
+        type="button"
+        onClick={() => setOpenSection(isOpen ? null : id)}
+        className="w-full flex items-center justify-between"
+      >
+        <h3 className="font-bold text-sm uppercase">{title}</h3>
+        <FiChevronDown className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && <div className="mt-4">{children}</div>}
+    </section>
+  );
+};
 
 const CategoriesProduct = () => {
   const { mainCategory, subCategory } = useParams();
@@ -123,6 +144,9 @@ const CategoriesProduct = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef(null);
 
+  // Only one filter section open at a time — keeps the drawer short.
+  const [openSection, setOpenSection] = useState("size");
+
   useEffect(() => {
     const handler = (e) => {
       if (sortRef.current && !sortRef.current.contains(e.target)) {
@@ -142,12 +166,10 @@ const CategoriesProduct = () => {
     priceMin: "",
     priceMax: "",
     ageGroups: [],
+    minRating: null,
   });
 
   const [tempFilters, setTempFilters] = useState({ ...appliedFilters });
-
-  // Collapsible section state for the Category quick-nav panel
-  const [categoryOpen, setCategoryOpen] = useState(true);
 
   const subCategoryProducts = useMemo(
     () =>
@@ -186,7 +208,6 @@ const CategoriesProduct = () => {
       result = result.filter((p) => p.stock <= 0);
     }
 
-    // PRICE RANGE FILTER — only bounds that were actually entered apply.
     if (appliedFilters.priceMin !== "" && !isNaN(appliedFilters.priceMin)) {
       result = result.filter((p) => Number(p.price) >= Number(appliedFilters.priceMin));
     }
@@ -194,12 +215,14 @@ const CategoriesProduct = () => {
       result = result.filter((p) => Number(p.price) <= Number(appliedFilters.priceMax));
     }
 
-    // AGE FILTER — only relevant for Kids; matches if the product has ANY
-    // of the selected age brackets.
     if (isKids && appliedFilters.ageGroups.length > 0) {
       result = result.filter((p) =>
         (p.ageGroups || []).some((ag) => appliedFilters.ageGroups.includes(ag))
       );
+    }
+
+    if (appliedFilters.minRating) {
+      result = result.filter((p) => (p.ratings || 0) >= appliedFilters.minRating);
     }
 
     if (sortOrder === "lowHigh") {
@@ -220,7 +243,7 @@ const CategoriesProduct = () => {
   };
 
   const handleReset = () => {
-    const resetValue = { size: "", colors: [], availability: null, priceMin: "", priceMax: "", ageGroups: [] };
+    const resetValue = { size: "", colors: [], availability: null, priceMin: "", priceMax: "", ageGroups: [], minRating: null };
     setTempFilters(resetValue);
     setAppliedFilters(resetValue);
     setIsFilterOpen(false);
@@ -252,21 +275,20 @@ const CategoriesProduct = () => {
 
       {/* --- Filter Drawer --- */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-[360px] bg-white z-[101] shadow-2xl transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-full max-w-[360px] bg-white z-[101] shadow-2xl transition-transform duration-300 flex flex-col ${
           isFilterOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b shrink-0">
           <h2 className="text-xl font-bold uppercase">Filters</h2>
           <button onClick={() => setIsFilterOpen(false)} className="text-3xl">
             <IoIosClose />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto h-[calc(100vh-140px)] space-y-8">
-          {/* SIZE */}
-          <section>
-            <h3 className="font-bold mb-4 text-sm uppercase">Size</h3>
+        <div className="p-6 overflow-y-auto flex-1 space-y-5">
+
+          <FilterSection id="size" title="Size" openSection={openSection} setOpenSection={setOpenSection}>
             <div className="grid grid-cols-4 gap-2">
               {sizes.map((s) => (
                 <button
@@ -287,11 +309,9 @@ const CategoriesProduct = () => {
                 </button>
               ))}
             </div>
-          </section>
+          </FilterSection>
 
-          {/* AVAILABILITY */}
-          <section className="border-t pt-6">
-            <h3 className="font-bold mb-4 text-sm uppercase">Availability</h3>
+          <FilterSection id="availability" title="Availability" openSection={openSection} setOpenSection={setOpenSection}>
             <div className="space-y-3">
               <label className="flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3">
@@ -329,21 +349,12 @@ const CategoriesProduct = () => {
                 <span className="text-gray-400 text-xs">({outOfStockCount})</span>
               </label>
             </div>
-          </section>
+          </FilterSection>
 
-          {/* CATEGORY — quick navigation between this main category's groups */}
-          <section className="border-t pt-6">
-            <button
-              type="button"
-              onClick={() => setCategoryOpen((prev) => !prev)}
-              className="w-full flex items-center justify-between mb-4"
-            >
-              <h3 className="font-bold text-sm uppercase">Category</h3>
-              <FiChevronRight className={`transition-transform ${categoryOpen ? "rotate-90" : ""}`} />
-            </button>
-            {categoryOpen && (
-              <div className="space-y-3">
-                {matchedMainCat?.subCategories?.map((group) => (
+          <FilterSection id="category" title="Category" openSection={openSection} setOpenSection={setOpenSection}>
+            <div className="space-y-3">
+              {matchedMainCat?.subCategories?.length > 0 ? (
+                matchedMainCat.subCategories.map((group) => (
                   <Link
                     key={group._id}
                     to={`/shop/${mainCategory}/${slugify(group.name)}`}
@@ -354,14 +365,14 @@ const CategoriesProduct = () => {
                   >
                     {group.name}
                   </Link>
-                )) || <p className="text-xs text-gray-400">No categories found.</p>}
-              </div>
-            )}
-          </section>
+                ))
+              ) : (
+                <p className="text-xs text-gray-400">No categories found.</p>
+              )}
+            </div>
+          </FilterSection>
 
-          {/* COLORS */}
-          <section className="border-t pt-6">
-            <h3 className="font-bold mb-4 text-sm uppercase">Colors</h3>
+          <FilterSection id="colors" title="Colors" openSection={openSection} setOpenSection={setOpenSection}>
             <div className="space-y-4">
               {colorOptions.map((c) => (
                 <div key={c.name} className="flex items-center justify-between">
@@ -386,11 +397,9 @@ const CategoriesProduct = () => {
                 </div>
               ))}
             </div>
-          </section>
+          </FilterSection>
 
-          {/* PRICE RANGE */}
-          <section className="border-t pt-6">
-            <h3 className="font-bold mb-4 text-sm uppercase">Price Range</h3>
+          <FilterSection id="price" title="Price Range" openSection={openSection} setOpenSection={setOpenSection}>
             <div className="flex items-center gap-3">
               <input
                 type="number"
@@ -408,12 +417,10 @@ const CategoriesProduct = () => {
                 className="w-1/2 border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-black transition"
               />
             </div>
-          </section>
+          </FilterSection>
 
-          {/* AGE — Kids category only */}
           {isKids && (
-            <section className="border-t pt-6">
-              <h3 className="font-bold mb-4 text-sm uppercase">Age</h3>
+            <FilterSection id="age" title="Age" openSection={openSection} setOpenSection={setOpenSection}>
               <div className="space-y-3">
                 {AGE_GROUP_OPTIONS.map((age) => (
                   <label key={age} className="flex items-center gap-3 cursor-pointer">
@@ -427,11 +434,33 @@ const CategoriesProduct = () => {
                   </label>
                 ))}
               </div>
-            </section>
+            </FilterSection>
           )}
+
+          <FilterSection id="ratings" title="Ratings" openSection={openSection} setOpenSection={setOpenSection}>
+            <div className="space-y-3">
+              {RATING_OPTIONS.map((r) => (
+                <label key={r} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="minRating"
+                    checked={tempFilters.minRating === r}
+                    onChange={() =>
+                      setTempFilters({ ...tempFilters, minRating: tempFilters.minRating === r ? null : r })
+                    }
+                    className="w-4 h-4 accent-black"
+                  />
+                  <span className="text-sm flex items-center gap-1">
+                    {"★".repeat(r)}{"☆".repeat(5 - r)} <span className="text-gray-400 ml-1">& up</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+
         </div>
 
-        <div className="absolute bottom-0 w-full p-6 bg-white border-t grid grid-cols-2 gap-4">
+        <div className="w-full p-6 bg-white border-t grid grid-cols-2 gap-4 shrink-0">
           <button
             onClick={handleReset}
             className="py-4 border border-black text-[10px] font-black uppercase"
