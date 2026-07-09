@@ -14,8 +14,23 @@ import useProduct from "../hooks/productService";
 import API, { BACKEND_URL } from "../api/api";
 
 // --- MEGA MENU COMPONENT ---
+// Groups subcategories into columns by their "group" field (e.g. "Top Wear",
+// "Bottom Wear", "Footwear"), matching the storefront's mega-menu design.
+const groupSubCategories = (subCategories = []) => {
+  const groups = {};
+  subCategories.forEach((sub) => {
+    const key = sub.group && sub.group.trim() ? sub.group : "General";
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(sub);
+  });
+  return groups;
+};
+
 const MegaMenu = ({ mainCat, closeMenu }) => {
   if (!mainCat || !mainCat.subCategories) return null;
+
+  const grouped = groupSubCategories(mainCat.subCategories);
+  const groupNames = Object.keys(grouped);
 
   return (
     <>
@@ -28,19 +43,28 @@ const MegaMenu = ({ mainCat, closeMenu }) => {
         onMouseLeave={closeMenu}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col flex-wrap h-[250px] gap-x-16 gap-y-4 content-start">
-            {mainCat.subCategories.map((sub, index) => (
-              <div key={index} className="w-[180px] group">
-                <Link
-                  to={`/shop/${mainCat.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`}
-                  onClick={closeMenu}
-                  className="inline-block"
-                >
-                  <h3 className="text-[12px] text-white tracking-[0.2em] uppercase transition-all duration-300 group-hover:translate-x-2 group-hover:text-gray-300 cursor-pointer relative">
-                    {sub.name}
-                    <span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full"></span>
-                  </h3>
-                </Link>
+          <div className="flex flex-wrap gap-x-16 gap-y-8">
+            {groupNames.map((groupName) => (
+              <div key={groupName} className="min-w-[180px]">
+                <h4 className="text-[13px] font-bold uppercase tracking-[0.15em] mb-4 text-white">
+                  {groupName}
+                </h4>
+                <div className="space-y-3">
+                  {grouped[groupName].map((sub) => (
+                    <div key={sub._id} className="group">
+                      <Link
+                        to={`/shop/${mainCat.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        onClick={closeMenu}
+                        className="inline-block"
+                      >
+                        <h3 className="text-[12px] text-gray-300 tracking-[0.1em] uppercase transition-all duration-300 group-hover:translate-x-2 group-hover:text-white cursor-pointer relative">
+                          {sub.name}
+                          <span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full"></span>
+                        </h3>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

@@ -2,11 +2,22 @@ import React, { useState } from "react";
 import { FiPlus, FiUploadCloud, FiX, FiCheckCircle } from "react-icons/fi";
 import Api from "../api/api";
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // ✅ Ensures toast styling renders perfectly
+import 'react-toastify/dist/ReactToastify.css';
+
+const GROUP_SUGGESTIONS = [
+  "Top Wear",
+  "Bottom Wear",
+  "Plus Size",
+  "Footwear",
+  "Accessories",
+  "Ethnic Wear",
+  "Western Wear",
+];
 
 const NewCategory = () => {
   const [mainCategoryName, setMainCategoryName] = useState("Men");
   const [subName, setSubName] = useState("");
+  const [group, setGroup] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,86 +32,80 @@ const NewCategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!subName) return toast.error("Please enter sub-category name"); // ✅ Swapped alert with toast
-    if (!image) return toast.error("Please upload an image");            // ✅ Swapped alert with toast
+    if (!subName) return toast.error("Please enter sub-category name");
+    if (!image) return toast.error("Please upload an image");
 
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("mainCategoryName", mainCategoryName); 
-    formData.append("subName", subName);                   
+    formData.append("mainCategoryName", mainCategoryName);
+    formData.append("subName", subName);
+    formData.append("group", group || "General");
     formData.append("image", image);
 
     try {
       const res = await Api.post("/admin/sub", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
-      // ✅ Premium React Toastify Success Trigger
+
       toast.success("Sub-Category Added Successfully!", {
         position: "top-right",
         autoClose: 2500,
       });
 
-      // Reset
       setMainCategoryName("Men");
       setSubName("");
+      setGroup("");
       setImage(null);
       setPreview(null);
     } catch (err) {
       console.error("Full error:", err);
       const message = err.response?.data?.message || err.message || "Unknown error";
-      toast.error("Error: " + message); // ✅ Swapped alert with toast error
+      toast.error("Error: " + message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-12">
+    <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-3xl mx-auto">
-        
-        {/* Unified Dashboard Header Theme — Adjusted for smaller to larger screens */}
-        <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+        <header className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
+            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
             <p className="text-xs text-gray-400 mt-0.5">Configure sub-branches for your primary storefront departments</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 self-start sm:self-center shrink-0">V2.1</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.2</span>
         </header>
 
         <ToastContainer />
 
-        {/* Form Container Container — Dynamic interior padding across screen tiers */}
-        <form onSubmit={handleSubmit} className="bg-white p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-          
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Main Category Dropdown Selector */}
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
                 Main Department
               </label>
-              <div className="relative">
-                <select
-                  value={mainCategoryName}
-                  onChange={(e) => setMainCategoryName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold transition-all"
-                >
-                  <option value="Men">Men</option>
-                  <option value="Women">Women</option>
-                  <option value="Kids">Kids</option>
-                </select>
-              </div>
+              <select
+                value={mainCategoryName}
+                onChange={(e) => setMainCategoryName(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-xs font-semibold appearance-none transition-all"
+              >
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Kids">Kids</option>
+              </select>
             </div>
 
-            {/* Sub-Category Name Input Field */}
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
                 Sub-Category Title
               </label>
               <input
                 type="text"
-                placeholder="e.g. Hoodies, T-Shirts, Sneakers"
+                placeholder="e.g. Classic Fit T-Shirts"
                 value={subName}
                 onChange={(e) => setSubName(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
@@ -109,15 +114,38 @@ const NewCategory = () => {
             </div>
           </div>
 
-          {/* Asset Image Uploader Slot */}
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+              Menu Group (optional)
+            </label>
+            <input
+              type="text"
+              list="group-suggestions"
+              placeholder="e.g. Top Wear, Bottom Wear, Footwear..."
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+            />
+            <datalist id="group-suggestions">
+              {GROUP_SUGGESTIONS.map((g) => (
+                <option key={g} value={g} />
+              ))}
+            </datalist>
+            <p className="text-[10px] text-gray-400 mt-1.5">
+              Groups related sub-categories together as a column in the storefront's mega-menu
+              (e.g. "Classic Fit T-Shirts" and "Oversized T-Shirts" both under "Top Wear").
+              Leave blank to place it under "General".
+            </p>
+          </div>
+
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
               Category Cover Image
             </label>
 
             {!preview ? (
-              <label className="flex flex-col items-center justify-center w-full h-48 md:h-56 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group p-4 text-center">
-                <FiUploadCloud className="text-2xl md:text-3xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group">
+                <FiUploadCloud className="text-2xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
                 <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">Click to upload image</span>
                 <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG up to 5MB</p>
                 <input
@@ -128,7 +156,7 @@ const NewCategory = () => {
                 />
               </label>
             ) : (
-              <div className="relative w-full h-48 md:h-56 rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
+              <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
                 <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -141,15 +169,14 @@ const NewCategory = () => {
                 </button>
               </div>
             )}
-            
+
             {preview && (
               <p className="text-[10px] text-emerald-600 mt-2.5 flex items-center gap-1 font-bold bg-emerald-50 w-fit px-2 py-0.5 rounded-md border border-emerald-100">
-                <FiCheckCircle className="shrink-0" /> <span>1 ASSET SELECTED</span>
+                <FiCheckCircle /> 1 ASSET SELECTED
               </p>
             )}
           </div>
 
-          {/* Action Publish CTA Button */}
           <button
             type="submit"
             disabled={loading}

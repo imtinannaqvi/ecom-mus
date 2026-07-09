@@ -146,6 +146,18 @@ const ApplePayIcon = () => (
 // so footer links always land on a real, matching subcategory page.
 const toSlug = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
 
+// Groups a flat subCategories array into { groupName: [sub, sub, ...] },
+// matching the same grouping used in the storefront's mega-menu.
+const groupSubCategories = (subCategories = []) => {
+  const groups = {};
+  subCategories.forEach((sub) => {
+    const key = sub.group && sub.group.trim() ? sub.group : "General";
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(sub);
+  });
+  return groups;
+};
+
 const Footer = () => {
   const [categories, setCategories] = useState([]);
   const { fetchMainCategory } = useProduct();
@@ -390,28 +402,39 @@ const Footer = () => {
             so it never drifts out of sync with what's actually in the store. */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 py-12 text-gray-400 text-[13px]">
 
-          {categories.map((cat) => (
-            <div key={cat._id} className="space-y-2">
-              <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
-                {cat.name}
-              </h4>
-              <div className="space-y-2">
-                {cat.subCategories && cat.subCategories.length > 0 ? (
-                  cat.subCategories.map((sub) => (
-                    <Link
-                      key={sub._id}
-                      to={`/shop/${cat.name.toLowerCase()}/${toSlug(sub.name)}`}
-                      className="block text-xs text-gray-400 hover:text-white transition"
-                    >
-                      {sub.name}
-                    </Link>
+          {categories.map((cat) => {
+            const grouped = groupSubCategories(cat.subCategories);
+            const groupNames = Object.keys(grouped);
+            return (
+              <div key={cat._id} className="space-y-2">
+                <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
+                  {cat.name}
+                </h4>
+                {groupNames.length > 0 ? (
+                  groupNames.map((groupName) => (
+                    <div key={groupName} className="mb-3">
+                      <p className="text-xs font-semibold text-gray-300 uppercase mb-1">
+                        {groupName}
+                      </p>
+                      <div className="space-y-2">
+                        {grouped[groupName].map((sub) => (
+                          <Link
+                            key={sub._id}
+                            to={`/shop/${cat.name.toLowerCase()}/${toSlug(sub.name)}`}
+                            className="block text-xs text-gray-400 hover:text-white transition"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   ))
                 ) : (
                   <p className="text-xs text-gray-600 italic">Coming soon</p>
                 )}
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Quick links and company information */}
           <div className="space-y-2">
