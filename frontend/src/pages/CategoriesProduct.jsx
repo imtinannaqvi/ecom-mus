@@ -87,8 +87,6 @@ const CategoriesProduct = () => {
   const [categories, setCategories] = useState([]);
   const { fetchMainCategory } = useProduct();
 
-  const isKids = mainCategory?.toLowerCase() === "kids";
-
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -215,7 +213,7 @@ const CategoriesProduct = () => {
       result = result.filter((p) => Number(p.price) <= Number(appliedFilters.priceMax));
     }
 
-    if (isKids && appliedFilters.ageGroups.length > 0) {
+    if (appliedFilters.ageGroups.length > 0) {
       result = result.filter((p) =>
         (p.ageGroups || []).some((ag) => appliedFilters.ageGroups.includes(ag))
       );
@@ -232,7 +230,7 @@ const CategoriesProduct = () => {
     }
 
     return result;
-  }, [subCategoryProducts, appliedFilters, sortOrder, isKids]);
+  }, [subCategoryProducts, appliedFilters, sortOrder]);
 
   const topFiveProducts = subCategoryProducts.slice(0, 5);
   const displayProducts = categoriesProduct;
@@ -419,23 +417,21 @@ const CategoriesProduct = () => {
             </div>
           </FilterSection>
 
-          {isKids && (
-            <FilterSection id="age" title="Age" openSection={openSection} setOpenSection={setOpenSection}>
-              <div className="space-y-3">
-                {AGE_GROUP_OPTIONS.map((age) => (
-                  <label key={age} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={tempFilters.ageGroups.includes(age)}
-                      onChange={() => toggleTempAgeGroup(age)}
-                      className="w-4 h-4 accent-black"
-                    />
-                    <span className="text-sm">{age}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-          )}
+          <FilterSection id="age" title="Age" openSection={openSection} setOpenSection={setOpenSection}>
+            <div className="space-y-3">
+              {AGE_GROUP_OPTIONS.map((age) => (
+                <label key={age} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={tempFilters.ageGroups.includes(age)}
+                    onChange={() => toggleTempAgeGroup(age)}
+                    className="w-4 h-4 accent-black"
+                  />
+                  <span className="text-sm">{age}</span>
+                </label>
+              ))}
+            </div>
+          </FilterSection>
 
           <FilterSection id="ratings" title="Ratings" openSection={openSection} setOpenSection={setOpenSection}>
             <div className="space-y-3">
