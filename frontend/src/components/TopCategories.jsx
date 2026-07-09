@@ -5,8 +5,10 @@ import { BACKEND_URL } from "../api/api";
 
 // Same slug format used everywhere else (Header, CategoriesProduct) so links
 // always land on a matching page.
-const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
-
+const slugify = (name) => (name || "")
+  .toLowerCase()
+  .replace(/\//g, "-")
+  .replace(/\s+/g, "-");
 function TopCategories({ mainCategory, subCategories }) {
 
   return (

@@ -13,6 +13,14 @@ import { AppContext } from "../context/AppContextProvider";
 import useProduct from "../hooks/productService";
 import API, { BACKEND_URL } from "../api/api";
 
+// Builds a URL-safe slug from a category/item name. Handles slashes (e.g.
+// "Pants / Trousers") as well as spaces — a raw "/" would otherwise be read
+// by the router as an extra path segment and break the route entirely.
+const slugify = (name) => (name || "")
+  .toLowerCase()
+  .replace(/\//g, "-")
+  .replace(/\s+/g, "-");
+
 // --- MEGA MENU COMPONENT ---
 // mainCat.subCategories = menu groups (e.g. "Top Wear"), each with its own
 // items[] (e.g. "Classic Fit T-Shirts") — a real two-level hierarchy.
@@ -40,7 +48,7 @@ const MegaMenu = ({ mainCat, closeMenu }) => {
                   {(group.items || []).map((item) => (
                     <div key={item._id} className="group">
                       <Link
-                        to={`/shop/${mainCat.name.toLowerCase()}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        to={`/shop/${mainCat.name.toLowerCase()}/${slugify(item.name)}`}
                         onClick={closeMenu}
                         className="inline-block"
                       >
@@ -330,7 +338,7 @@ function Header() {
                         {(group.items || []).map((item) => (
                           <Link
                             key={item._id}
-                            to={`/shop/${cat.name.toLowerCase()}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
+                            to={`/shop/${cat.name.toLowerCase()}/${slugify(item.name)}`}
                             className="block py-2 text-[10px] text-gray-600 uppercase tracking-widest"
                             onClick={() => setMobileMenuOpen(false)}
                           >

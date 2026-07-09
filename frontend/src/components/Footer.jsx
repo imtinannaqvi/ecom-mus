@@ -144,8 +144,10 @@ const ApplePayIcon = () => (
 
 // Builds the exact same URL-safe slug used elsewhere (Header, TopCategories),
 // so footer links always land on a real, matching item page.
-const toSlug = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
-
+const toSlug = (name) => (name || "")
+  .toLowerCase()
+  .replace(/\//g, "-")
+  .replace(/\s+/g, "-");
 const Footer = () => {
   const [categories, setCategories] = useState([]);
   const { fetchMainCategory } = useProduct();
