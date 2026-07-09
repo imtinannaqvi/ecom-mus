@@ -5,20 +5,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Api, { BACKEND_URL } from '../api/api';
 
+const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
+
 const UpdateProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const availableSizes = ["S", "M", "L", "XL", "XXL"];
   const availableColors = ["Black", "White", "Red", "Grey", "Navy", "Beige"];
-
-
-  // 1. Subcategory Mapping Repository (Fixed Database Matrix)
-  const subCategoryMapping = {
-    Men: ["Hoodies & Sweatshirts", "Casual Shirts", "Jeans & Denims", "Polo Tees"],
-    Women: ["Kurtas & Ethnic", "Tops & Blouses", "Trousers", "Winter Wear"],
-    Kids: ["Infant Rompers", "Teens Casuals", "Toys & Gadgets"]
-  };
 
   // Form Pipeline States
   const [loading, setLoading] = useState(false);
@@ -29,18 +23,34 @@ const UpdateProduct = () => {
   const [oldPrice, setOldPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
-  const [mainCategory, setMainCategory] = useState("Men"); // Default node
+  const [mainCategory, setMainCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("");
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [isTopTrend, setIsTopTrend] = useState(false);
   const [isBuy2Get1, setIsBuy2Get1] = useState(false);
+  const [ageGroups, setAgeGroups] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   
   // Image assets management
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
 
-  // 2. Fetch Existing Product Details and Fill State Matrices
+  // Fetch the real category structure (groups + items) so the Product Type
+  // dropdown lists actual items instead of a stale hardcoded map.
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await Api.get("/admin/all");
+        setAllCategories(res.data.data ?? res.data ?? []);
+      } catch (err) {
+        console.log("Failed to fetch categories:", err.message);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch Existing Product Details and Fill State Matrices
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -48,7 +58,6 @@ const UpdateProduct = () => {
         if (data.success && data.product) {
           const prod = data.product;
           
-          // Old data variables population layer
           setName(prod.name);
           setPrice(prod.price);
           setOldPrice(prod.oldPrice || "");
@@ -60,6 +69,7 @@ const UpdateProduct = () => {
           setSizes(prod.sizes || []);
           setIsTopTrend(!!prod.isTopTrend);
           setIsBuy2Get1(!!prod.isBuy2Get1);
+          setAgeGroups(prod.ageGroups || []);
           
           if (prod.images && prod.images.length > 0) {
             const structuralPreviews = prod.images.map(img => `${BACKEND_URL}${img.url}`);
@@ -76,21 +86,21 @@ const UpdateProduct = () => {
     fetchProductDetails();
   }, [id]);
 
-  // 3. Reset Sub-Category option whenever Main-Category alters
   const handleMainCategoryChange = (e) => {
-    const selectedMain = e.target.value;
-    setMainCategory(selectedMain);
-    // Automatically fall back to first sub-category node of selected branch
-    setSubCategory(subCategoryMapping[selectedMain]?.[0] || "");
+    setMainCategory(e.target.value);
+    setSubCategory("");
   };
 
-  // Variations Handlers
   const handleSizeChange = (size) => {
     sizes.includes(size) ? setSizes(sizes.filter(s => s !== size)) : setSizes([...sizes, size]);
   };
 
   const handleColorChange = (color) => {
     colors.includes(color) ? setColors(colors.filter(c => c !== color)) : setColors([...colors, color]);
+  };
+
+  const handleAgeGroupChange = (age) => {
+    setAgeGroups((prev) => prev.includes(age) ? prev.filter((a) => a !== age) : [...prev, age]);
   };
 
   const handleImageChange = (e) => {
@@ -123,6 +133,7 @@ const UpdateProduct = () => {
       formData.append("colors", JSON.stringify(colors));
       formData.append("isTopTrend", isTopTrend);
       formData.append("isBuy2Get1", isBuy2Get1);
+      formData.append("ageGroups", JSON.stringify(ageGroups));
 
       imageFiles.forEach((file) => {
         formData.append("images", file);
@@ -272,7 +283,7 @@ const UpdateProduct = () => {
                   </select>
                 </div>
 
-                {/* Dynamic Sub-Category Selector */}
+                {/* Dynamic Sub-Category Selector — real items pulled from admin categories */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Sub Category Branch Node</label>
                   <select 
@@ -281,11 +292,36 @@ const UpdateProduct = () => {
                     onChange={(e) => setSubCategory(e.target.value)}
                     required
                   >
-                    {/* Render corresponding items based on current main category state */}
-                    {(subCategoryMapping[mainCategory] || []).map((subNode) => (
-                      <option key={subNode} value={subNode}>{subNode}</option>
-                    ))}
+                    <option value="">Select Sub Category</option>
+                    {allCategories
+                      .find((cat) => cat.name === mainCategory)
+                      ?.subCategories.flatMap((group) =>
+                        (group.items || []).map((item) => (
+                          <option key={item._id} value={item.name}>{group.name} — {item.name}</option>
+                        ))
+                      )}
                   </select>
+                </div>
+              </div>
+
+              {/* Age Groups — available for any product, any category */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Age Groups (optional)</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {AGE_GROUP_OPTIONS.map((age) => (
+                    <button
+                      key={age}
+                      type="button"
+                      onClick={() => handleAgeGroupChange(age)}
+                      className={`py-2 px-1 rounded-xl text-[11px] font-bold border text-center transition-all duration-200 ${
+                        ageGroups.includes(age)
+                          ? "bg-[#635BFF] border-[#635BFF] text-white shadow-sm"
+                          : "bg-slate-50 border-gray-200 text-gray-500 hover:border-gray-300"
+                      }`}
+                    >
+                      {age}
+                    </button>
+                  ))}
                 </div>
               </div>
 
