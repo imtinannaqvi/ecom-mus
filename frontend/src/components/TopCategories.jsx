@@ -9,6 +9,7 @@ const slugify = (name) => (name || "")
   .toLowerCase()
   .replace(/\//g, "-")
   .replace(/\s+/g, "-");
+
 function TopCategories({ mainCategory, subCategories }) {
 
   return (
@@ -18,8 +19,8 @@ function TopCategories({ mainCategory, subCategories }) {
         {subCategories.map((group) => (
           <div key={group._id} className="flex flex-col">
 
-            {/* Group tile — clicking it shows every product across all of
-                this group's items, aggregated (see CategoriesProduct.jsx) */}
+            {/* Group tile — the whole image is clickable again, taking the
+                shopper straight to this group's aggregated products page. */}
             <Link
               to={`/shop/${mainCategory}/${slugify(group.name)}`}
               className="relative h-60 md:h-80 rounded-lg overflow-hidden group"
