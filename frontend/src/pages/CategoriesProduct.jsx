@@ -58,7 +58,10 @@ const colorOptions = [
 const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
 const RATING_OPTIONS = [4, 3, 2, 1];
 
-const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+const slugify = (name) => (name || "")
+  .toLowerCase()
+  .replace(/\//g, "-")
+  .replace(/\s+/g, "-");
 
 // A single collapsible filter section — name + chevron, only one open at a
 // time across the whole drawer (accordion), so the drawer stays compact and
