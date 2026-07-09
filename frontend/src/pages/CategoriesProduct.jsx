@@ -133,10 +133,43 @@ const CategoriesProduct = () => {
     if (matchedGroup) {
       return (matchedGroup.items || []).map((item) => item.name.toLowerCase());
     }
-    return [subCategory?.toLowerCase().replace(/-/g, " ")];
-  }, [matchedGroup, subCategory]);
+    // Look up the real item across every group in this main category whose
+    // slug matches the URL — do NOT try to reverse-guess the name from the
+    // slug, since that breaks for any item name that already contains its
+    // own hyphen (e.g. "T-Shirts" slugifies to "t-shirts", and blindly
+    // replacing every hyphen with a space would turn it into "t shirts",
+    // which no longer matches the real name).
+    let foundItem = null;
+    matchedMainCat?.subCategories?.forEach((group) => {
+      group.items?.forEach((item) => {
+        if (slugify(item.name) === subCategory?.toLowerCase()) {
+          foundItem = item;
+        }
+      });
+    });
+    if (foundItem) return [foundItem.name.toLowerCase()];
 
-  const displayTitle = matchedGroup ? matchedGroup.name : (subCategory || "").replace(/-/g, " ");
+    // Fallback for legacy products whose subCategory predates the current
+    // item structure and doesn't match anything — best-effort guess only.
+    return [subCategory?.toLowerCase().replace(/-/g, " ")];
+  }, [matchedGroup, matchedMainCat, subCategory]);
+
+  const matchedItem = useMemo(() => {
+    if (matchedGroup) return null;
+    let found = null;
+    matchedMainCat?.subCategories?.forEach((group) => {
+      group.items?.forEach((item) => {
+        if (slugify(item.name) === subCategory?.toLowerCase()) found = item;
+      });
+    });
+    return found;
+  }, [matchedMainCat, matchedGroup, subCategory]);
+
+  const displayTitle = matchedGroup
+    ? matchedGroup.name
+    : matchedItem
+    ? matchedItem.name
+    : (subCategory || "").replace(/-/g, " ");
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
