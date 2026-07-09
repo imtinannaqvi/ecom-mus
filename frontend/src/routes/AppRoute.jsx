@@ -62,12 +62,12 @@ function AppRoute() {
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrdersDetail />} />
           <Route path="orders/review/:id" element={<ProductReviews />} />
-          <Route path="track" element={<TrackOrders />} />
+<Route path="track/:id" element={<TrackOrders />} />
           <Route path="touchpoints" element={<MaurishTouchpoints />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="address" element={<Address />} />
           <Route path="payment" element={<Payment />} />
-          <Route path="returns" element={<Returns />} />
+<Route path="returns/:id" element={<Returns />} />
           <Route path="security" element={<Security />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="country" element={<Country />} />
