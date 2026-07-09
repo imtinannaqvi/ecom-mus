@@ -94,8 +94,7 @@ function Profile() {
                     {section.title}
                   </h3>
                   {section.links.map((link) => {
-                    const isActive = location.pathname === link.path;
-                    return (
+const isActive = location.pathname === link.path && !["Track Orders", "Return Policy"].includes(link.name);                    return (
                       <Link
                         key={link.name}
                         to={link.path}

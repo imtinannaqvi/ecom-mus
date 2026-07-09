@@ -4,12 +4,10 @@ import { Link } from "react-router-dom";
 import { getOrder } from "../../services/orderService";
 import { useEffect } from "react";
 import { useState } from "react";
-import { cancelOrder } from "../../services/orderService";
 import { BACKEND_URL } from "../../api/api";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
-
 
   const getOrders = async () => {
     try {
@@ -32,20 +30,6 @@ function Orders() {
     getOrders();
   }, []);
 
-
-  const handleCancelOrder = async (id) => {
-    try {
-      const res = await cancelOrder(id)
-      if (res.success) {
-        alert('order is canceled')
-      }
-    } catch (err) {
-      alert(err.message)
-    }
-
-  }
-
-
   return (
     <section className="w-full h-full">
       {/* Search and Filter Section */}
@@ -66,7 +50,12 @@ function Orders() {
     <div className="w-full flex mt-6 md:mt-10 flex-col gap-8 md:gap-6">
   {/* Agar orders load nahi hue toh skeleton ya message dikhao */}
   {orders && orders.length > 0 ? (
-    orders.map((order) => (
+    orders.map((order) => {
+      // Track/Cancel only make sense while the order is still in motion —
+      // matches the backend's own rule (cancelOrder blocks Delivered/Cancelled).
+      const canCancel = order.orderStatus !== "Delivered" && order.orderStatus !== "Cancelled";
+
+      return (
       <div key={order._id} className="w-full border-b pb-8 mb-4">
         {/* Order Header: ID aur Date yahan dikha dein (Optional but better) */}
         <div className="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded">
@@ -109,7 +98,14 @@ function Orders() {
               {/* Action Buttons (Sirf pehle item ke sath dikhaein ya separate column mein) */}
               
 {index === 0 && (
-  <div className="flex flex-row md:flex-col gap-2 w-full md:w-48">
+  <div className="flex flex-row flex-wrap md:flex-col gap-2 w-full md:w-48">
+    <Link
+      to={`/profile/track/${order._id}`}
+      className="flex-1 text-center py-2 border border-black text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition"
+    >
+      Track Order
+    </Link>
+
     <Link 
       to={`/profile/orders/${order._id}`} 
       className="flex-1 text-center py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 transition"
@@ -117,14 +113,15 @@ function Orders() {
       View Details
     </Link>
     
-    {/* Cancel button sirf tab jab order pending ho */}
-    {order.orderStatus === "Processing" && (
-      <button 
-        onClick={() => handleCancelOrder(order._id)} 
-        className="flex-1 py-2 border border-red-600 text-red-600 text-[10px] font-bold uppercase tracking-widest hover:bg-red-50"
+    {/* Cancel now routes through the real reason-selection page instead
+        of cancelling immediately with no confirmation. */}
+    {canCancel && (
+      <Link
+        to={`/profile/returns/${order._id}`}
+        className="flex-1 text-center py-2 border border-red-600 text-red-600 text-[10px] font-bold uppercase tracking-widest hover:bg-red-50 transition"
       >
         Cancel Order
-      </button>
+      </Link>
     )}
   </div>
 )}
@@ -140,7 +137,8 @@ function Orders() {
            </p>
         </div>
       </div>
-    ))
+      );
+    })
   ) : (
     <div className="text-center py-20 uppercase tracking-widest text-gray-400 text-sm">No orders found</div>
   )}
