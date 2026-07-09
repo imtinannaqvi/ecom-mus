@@ -14,23 +14,10 @@ import useProduct from "../hooks/productService";
 import API, { BACKEND_URL } from "../api/api";
 
 // --- MEGA MENU COMPONENT ---
-// Groups subcategories into columns by their "group" field (e.g. "Top Wear",
-// "Bottom Wear", "Footwear"), matching the storefront's mega-menu design.
-const groupSubCategories = (subCategories = []) => {
-  const groups = {};
-  subCategories.forEach((sub) => {
-    const key = sub.group && sub.group.trim() ? sub.group : "General";
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(sub);
-  });
-  return groups;
-};
-
+// mainCat.subCategories = menu groups (e.g. "Top Wear"), each with its own
+// items[] (e.g. "Classic Fit T-Shirts") — a real two-level hierarchy.
 const MegaMenu = ({ mainCat, closeMenu }) => {
   if (!mainCat || !mainCat.subCategories) return null;
-
-  const grouped = groupSubCategories(mainCat.subCategories);
-  const groupNames = Object.keys(grouped);
 
   return (
     <>
@@ -44,21 +31,21 @@ const MegaMenu = ({ mainCat, closeMenu }) => {
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap gap-x-16 gap-y-8">
-            {groupNames.map((groupName) => (
-              <div key={groupName} className="min-w-[180px]">
+            {mainCat.subCategories.map((group) => (
+              <div key={group._id} className="min-w-[180px]">
                 <h4 className="text-[13px] font-bold uppercase tracking-[0.15em] mb-4 text-white">
-                  {groupName}
+                  {group.name}
                 </h4>
                 <div className="space-y-3">
-                  {grouped[groupName].map((sub) => (
-                    <div key={sub._id} className="group">
+                  {(group.items || []).map((item) => (
+                    <div key={item._id} className="group">
                       <Link
-                        to={`/shop/${mainCat.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        to={`/shop/${mainCat.name.toLowerCase()}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
                         onClick={closeMenu}
                         className="inline-block"
                       >
                         <h3 className="text-[12px] text-gray-300 tracking-[0.1em] uppercase transition-all duration-300 group-hover:translate-x-2 group-hover:text-white cursor-pointer relative">
-                          {sub.name}
+                          {item.name}
                           <span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full"></span>
                         </h3>
                       </Link>
@@ -334,15 +321,27 @@ function Header() {
                   </Link>
                 </div>
                 <div className="px-6 py-2">
-                  {cat.subCategories?.map((sub, idx) => (
-                    <Link
-                      key={idx}
-                      to={`/shop/${cat.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="block py-3 text-[10px] text-gray-600 uppercase tracking-widest"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {sub.name}
-                    </Link>
+                  {cat.subCategories?.map((group) => (
+                    <div key={group._id} className="py-2">
+                      <p className="text-[10px] font-extrabold text-[#635BFF] uppercase tracking-widest mb-1.5">
+                        {group.name}
+                      </p>
+                      <div className="pl-2 space-y-1">
+                        {(group.items || []).map((item) => (
+                          <Link
+                            key={item._id}
+                            to={`/shop/${cat.name.toLowerCase()}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
+                            className="block py-2 text-[10px] text-gray-600 uppercase tracking-widest"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                        {(!group.items || group.items.length === 0) && (
+                          <p className="text-[9px] text-gray-300 italic py-1">No items yet</p>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

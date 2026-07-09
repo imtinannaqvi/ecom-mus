@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
 import Api, { BACKEND_URL } from "../api/api";
+import useProduct from "../hooks/productService";
 
 const FilterIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +58,10 @@ const CategoriesProduct = () => {
   const { mainCategory, subCategory } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const { fetchMainCategory } = useProduct();
 
+  // Load all products for this main category.
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -74,11 +78,53 @@ const CategoriesProduct = () => {
     if (mainCategory) load();
   }, [mainCategory]);
 
+  // Load the category structure (menu groups + their items) so we can tell
+  // whether the URL slug refers to a GROUP (e.g. "top-wear" — show every
+  // item inside it) or a specific ITEM (e.g. "classic-fit-t-shirts" — show
+  // only that exact item's products).
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetchMainCategory();
+        setCategories(res.data || []);
+      } catch (err) {
+        console.error("Failed to load category structure", err.message);
+      }
+    };
+    loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const matchedMainCat = useMemo(
+    () => categories.find((c) => c.name?.toLowerCase() === mainCategory?.toLowerCase()),
+    [categories, mainCategory]
+  );
+
+  const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+
+  const matchedGroup = useMemo(
+    () =>
+      matchedMainCat?.subCategories?.find(
+        (group) => slugify(group.name) === subCategory?.toLowerCase()
+      ),
+    [matchedMainCat, subCategory]
+  );
+
+  // If the URL matched a menu group, aggregate every item inside it.
+  // Otherwise, fall back to treating the URL as a single item's exact name.
+  const targetItemNames = useMemo(() => {
+    if (matchedGroup) {
+      return (matchedGroup.items || []).map((item) => item.name.toLowerCase());
+    }
+    return [subCategory?.toLowerCase().replace(/-/g, " ")];
+  }, [matchedGroup, subCategory]);
+
+  const displayTitle = matchedGroup ? matchedGroup.name : (subCategory || "").replace(/-/g, " ");
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef(null);
 
-  // Close sort dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (sortRef.current && !sortRef.current.contains(e.target)) {
@@ -99,23 +145,20 @@ const CategoriesProduct = () => {
 
   const [tempFilters, setTempFilters] = useState({ ...appliedFilters });
 
-  // All products matching this subCategory
- const subCategoryProducts = useMemo(
-  () =>
-    products.filter(
-      (p) => p.subCategory?.toLowerCase() === subCategory?.toLowerCase().replace(/-/g, " ")
-    ),
-  [products, subCategory]
-);
+  // All products matching this subCategory (group aggregate OR single item)
+  const subCategoryProducts = useMemo(
+    () =>
+      products.filter((p) =>
+        targetItemNames.includes(p.subCategory?.toLowerCase())
+      ),
+    [products, targetItemNames]
+  );
 
   const outOfStockCount = subCategoryProducts.filter((p) => p.stock <= 0).length;
 
-  console.log(products)
-  // --- FIXED FILTER + SORT LOGIC ---
   const categoriesProduct = useMemo(() => {
     let result = [...subCategoryProducts];
 
-    // SIZE FILTER — p.sizes can be array or string
     if (appliedFilters.size) {
       const selectedSize = appliedFilters.size.toLowerCase().trim();
       result = result.filter((p) => {
@@ -124,32 +167,27 @@ const CategoriesProduct = () => {
       });
     }
 
-    // COLOR FILTER — p.color can be array or string
     if (appliedFilters.colors.length > 0) {
       const selectedColors = appliedFilters.colors.map((c) =>
         c.toLowerCase().trim()
       );
       result = result.filter((p) => {
         const productColors = toStringArray(p.color);
-        // At least one of the product's colors must match any selected color
         return productColors.some((pc) => selectedColors.includes(pc));
       });
     }
 
-    // AVAILABILITY FILTER
     if (appliedFilters.availability === "inStock") {
       result = result.filter((p) => p.stock > 0);
     } else if (appliedFilters.availability === "outOfStock") {
       result = result.filter((p) => p.stock <= 0);
     }
 
-    // SORT (separate from filters, controlled by sort dropdown)
     if (sortOrder === "lowHigh") {
       result.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (sortOrder === "highLow") {
       result.sort((a, b) => Number(b.price) - Number(a.price));
     }
-    // "popularity" — keep original order
 
     return result;
   }, [subCategoryProducts, appliedFilters, sortOrder]);
@@ -347,11 +385,11 @@ const CategoriesProduct = () => {
         {/* Toolbar */}
         <div className="mt-8">
           <p className="text-[10px] text-gray-400 tracking-widest uppercase">
-            home / {subCategory}
+            home / {displayTitle}
           </p>
           <div className="flex items-center justify-between mt-4">
             <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-              {subCategory}{" "}
+              {displayTitle}{" "}
               <span className="text-gray-400 font-normal text-xs ml-2 normal-case not-italic tracking-normal">
                 ({displayProducts.length} items)
               </span>

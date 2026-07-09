@@ -22,6 +22,7 @@ import Setting from "./pages/Setting";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Coupons from './pages/Coupons'
+import NewCategoryItem from "./pages/NewCategoryItem";
 // Baki pages bhi import karein...
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
   <Route path="users" element={<UserList />} />
   <Route path='notification' element={<Notification/>} /> 
   <Route path='setting' element={<Setting/>} />
+  <Route path="category/item/new" element={<NewCategoryItem />} />
 
 </Route>
         </Route>

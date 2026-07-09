@@ -5,17 +5,6 @@ import Api, { BACKEND_URL } from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Groups a flat subCategories array into { groupName: [sub, sub, ...] }.
-const groupSubCategories = (subCategories = []) => {
-  const groups = {};
-  subCategories.forEach((sub) => {
-    const key = sub.group && sub.group.trim() ? sub.group : "General";
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(sub);
-  });
-  return groups;
-};
-
 const CategoryList = () => {
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
@@ -42,15 +31,15 @@ const CategoryList = () => {
     return () => { isMounted = false; };
   }, []);
 
-  const deleteSubCategoryHandler = useCallback(async (subId) => {
-    if (!window.confirm("Are you sure you want to delete this sub-category?")) return;
+  const deleteGroupHandler = useCallback(async (groupId) => {
+    if (!window.confirm("Delete this menu group and all its items?")) return;
     try {
-      await Api.delete(`/admin/delete/${subId}`);
-      toast.success("Sub-Category deleted successfully!");
-      setAllCategories((prevCategories) =>
-        prevCategories.map((cat) => ({
+      await Api.delete(`/admin/delete/${groupId}`);
+      toast.success("Menu group deleted successfully!");
+      setAllCategories((prev) =>
+        prev.map((cat) => ({
           ...cat,
-          subCategories: cat.subCategories ? cat.subCategories.filter((sub) => sub._id !== subId) : [],
+          subCategories: cat.subCategories ? cat.subCategories.filter((g) => g._id !== groupId) : [],
         }))
       );
     } catch (err) {
@@ -58,9 +47,29 @@ const CategoryList = () => {
     }
   }, []);
 
+  const deleteItemHandler = useCallback(async (groupId, itemId) => {
+    if (!window.confirm("Delete this item?")) return;
+    try {
+      await Api.delete(`/admin/sub-item/${groupId}/${itemId}`);
+      toast.success("Item deleted successfully!");
+      setAllCategories((prev) =>
+        prev.map((cat) => ({
+          ...cat,
+          subCategories: cat.subCategories?.map((g) =>
+            g._id === groupId
+              ? { ...g, items: g.items.filter((it) => it._id !== itemId) }
+              : g
+          ),
+        }))
+      );
+    } catch (err) {
+      toast.error("Error deleting item: " + (err.response?.data?.message || err.message));
+    }
+  }, []);
+
   const deleteMainCategoryHandler = useCallback(async (categoryId, categoryName, subCount) => {
     const warning = subCount > 0
-      ? `Delete "${categoryName}"? This will also remove all ${subCount} of its sub-categories. This cannot be undone.`
+      ? `Delete "${categoryName}"? This will also remove all ${subCount} of its menu groups. This cannot be undone.`
       : `Delete "${categoryName}"? This cannot be undone.`;
     if (!window.confirm(warning)) return;
 
@@ -81,8 +90,8 @@ const CategoryList = () => {
     try {
       const res = await Api.patch(`/admin/toggle-status/${categoryId}`);
       const updated = res.data.data;
-      setAllCategories((prevCategories) =>
-        prevCategories.map((cat) =>
+      setAllCategories((prev) =>
+        prev.map((cat) =>
           cat._id === categoryId ? { ...cat, isActive: updated.isActive } : cat
         )
       );
@@ -98,9 +107,9 @@ const CategoryList = () => {
     }
   }, []);
 
-  const getSubImageSrc = (sub) => {
-    if (!sub.image) return "";
-    const rawPath = sub.image.url || sub.image.secure_url || sub.image.path || sub.image;
+  const getGroupImageSrc = (group) => {
+    if (!group.image) return "";
+    const rawPath = group.image.url || group.image.secure_url || group.image.path || group.image;
     if (typeof rawPath !== "string") return "";
     if (rawPath.startsWith("http")) return rawPath;
     if (rawPath.startsWith("uploads/")) return `${BACKEND_URL}/${rawPath}`;
@@ -128,9 +137,16 @@ const CategoryList = () => {
             <button
               type="button"
               onClick={() => navigate("/admin/category/new")}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E1B4B] text-[#1E1B4B] hover:bg-slate-50 rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-[0.98] whitespace-nowrap"
+            >
+              <FiPlus size={16} /> MENU GROUP
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/admin/category/item/new")}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] whitespace-nowrap"
             >
-              <FiPlus size={16} /> ADD SUB-CATEGORY
+              <FiPlus size={16} /> ADD ITEM
             </button>
           </div>
         </header>
@@ -149,9 +165,7 @@ const CategoryList = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allCategories.map((category) => {
               const isActive = category.isActive !== false;
-              const subCount = category.subCategories?.length || 0;
-              const grouped = groupSubCategories(category.subCategories);
-              const groupNames = Object.keys(grouped);
+              const groupCount = category.subCategories?.length || 0;
 
               return (
               <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between w-full">
@@ -166,7 +180,7 @@ const CategoryList = () => {
                         {category.name}
                       </h3>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
-                        {subCount} Sub-Branches
+                        {groupCount} Menu Groups
                       </p>
                     </div>
                   </div>
@@ -196,7 +210,7 @@ const CategoryList = () => {
 
                     <button
                       type="button"
-                      onClick={() => deleteMainCategoryHandler(category._id, category.name, subCount)}
+                      onClick={() => deleteMainCategoryHandler(category._id, category.name, groupCount)}
                       disabled={deletingCategoryId === category._id}
                       title="Delete this category"
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 disabled:opacity-50"
@@ -207,49 +221,67 @@ const CategoryList = () => {
                 </div>
 
                 <div className="p-4 flex-1 space-y-4">
-                  {groupNames.length > 0 ? (
-                    groupNames.map((groupName) => (
-                      <div key={groupName}>
-                        <p className="text-[9px] font-extrabold text-[#635BFF] uppercase tracking-widest mb-2 px-1">
-                          {groupName}
-                        </p>
-                        <div className="space-y-2">
-                          {grouped[groupName].map((sub) => {
-                            const imageSrc = getSubImageSrc(sub);
-                            return (
-                              <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-xl border border-gray-50 bg-slate-50/20 hover:bg-slate-50 transition duration-150 group gap-2">
-                                <div className="flex items-center gap-3 min-w-0">
-                                  {imageSrc ? (
-                                    <img
-                                      src={imageSrc}
-                                      alt={sub.name}
-                                      className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm shrink-0"
-                                    />
-                                  ) : (
-                                    <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs shrink-0">
-                                      <FiLayers />
-                                    </div>
-                                  )}
-                                  <span className="text-xs font-semibold text-gray-700 truncate" title={sub.name}>
-                                    {sub.name}
-                                  </span>
+                  {category.subCategories && category.subCategories.length > 0 ? (
+                    category.subCategories.map((group) => {
+                      const imageSrc = getGroupImageSrc(group);
+                      return (
+                        <div key={group._id} className="border border-gray-50 rounded-xl overflow-hidden">
+                          {/* Group header row */}
+                          <div className="flex items-center justify-between p-2.5 bg-slate-50/40 gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {imageSrc ? (
+                                <img
+                                  src={imageSrc}
+                                  alt={group.name}
+                                  className="w-9 h-9 rounded-lg object-cover border border-gray-100 shadow-sm shrink-0"
+                                />
+                              ) : (
+                                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs shrink-0">
+                                  <FiLayers />
                                 </div>
+                              )}
+                              <span className="text-xs font-bold text-gray-800 truncate" title={group.name}>
+                                {group.name}
+                              </span>
+                              <span className="text-[9px] text-gray-400 font-semibold shrink-0">
+                                ({group.items?.length || 0})
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => deleteGroupHandler(group._id)}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 shrink-0"
+                            >
+                              <FiTrash2 size={14} />
+                            </button>
+                          </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() => deleteSubCategoryHandler(sub._id)}
-                                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 shrink-0"
-                                >
-                                  <FiTrash2 size={14} />
-                                </button>
-                              </div>
-                            );
-                          })}
+                          {/* Items under this group */}
+                          {group.items && group.items.length > 0 ? (
+                            <div className="divide-y divide-gray-50">
+                              {group.items.map((item) => (
+                                <div key={item._id} className="flex items-center justify-between px-3 py-2 pl-14 group">
+                                  <span className="text-[11px] text-gray-600 truncate" title={item.name}>
+                                    {item.name}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => deleteItemHandler(group._id, item._id)}
+                                    className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition duration-150 md:opacity-0 group-hover:opacity-100"
+                                  >
+                                    <FiTrash2 size={12} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-gray-400 italic px-3 py-2 pl-14">No items yet.</p>
+                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
-                    <p className="text-[11px] text-gray-400 italic text-center py-4">No sub-categories linked yet.</p>
+                    <p className="text-[11px] text-gray-400 italic text-center py-4">No menu groups linked yet.</p>
                   )}
                 </div>
 

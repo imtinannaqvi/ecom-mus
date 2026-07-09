@@ -1,23 +1,12 @@
 import React, { useState } from "react";
-import { FiPlus, FiUploadCloud, FiX, FiCheckCircle } from "react-icons/fi";
+import { FiUploadCloud, FiX, FiCheckCircle } from "react-icons/fi";
 import Api from "../api/api";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const GROUP_SUGGESTIONS = [
-  "Top Wear",
-  "Bottom Wear",
-  "Plus Size",
-  "Footwear",
-  "Accessories",
-  "Ethnic Wear",
-  "Western Wear",
-];
-
 const NewCategory = () => {
   const [mainCategoryName, setMainCategoryName] = useState("Men");
   const [subName, setSubName] = useState("");
-  const [group, setGroup] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +21,7 @@ const NewCategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!subName) return toast.error("Please enter sub-category name");
+    if (!subName) return toast.error("Please enter a menu group name");
     if (!image) return toast.error("Please upload an image");
 
     setLoading(true);
@@ -40,22 +29,20 @@ const NewCategory = () => {
     const formData = new FormData();
     formData.append("mainCategoryName", mainCategoryName);
     formData.append("subName", subName);
-    formData.append("group", group || "General");
     formData.append("image", image);
 
     try {
-      const res = await Api.post("/admin/sub", formData, {
+      await Api.post("/admin/sub", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success("Sub-Category Added Successfully!", {
+      toast.success("Menu Group Added Successfully!", {
         position: "top-right",
         autoClose: 2500,
       });
 
       setMainCategoryName("Men");
       setSubName("");
-      setGroup("");
       setImage(null);
       setPreview(null);
     } catch (err) {
@@ -73,10 +60,13 @@ const NewCategory = () => {
 
         <header className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Sub-Category</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Configure sub-branches for your primary storefront departments</p>
+            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Menu Group</h1>
+            <p className="text-xs text-gray-400 mt-0.5">
+              A group like "Top Wear" or "Footwear" — shown with an image on the Home page
+              and as a mega-menu column. Add specific items to it afterward.
+            </p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V2.2</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V3.0</span>
         </header>
 
         <ToastContainer />
@@ -101,11 +91,11 @@ const NewCategory = () => {
 
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                Sub-Category Title
+                Menu Group Name
               </label>
               <input
                 type="text"
-                placeholder="e.g. Classic Fit T-Shirts"
+                placeholder="e.g. Top Wear, Footwear, Accessories"
                 value={subName}
                 onChange={(e) => setSubName(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
@@ -115,32 +105,8 @@ const NewCategory = () => {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-              Menu Group (optional)
-            </label>
-            <input
-              type="text"
-              list="group-suggestions"
-              placeholder="e.g. Top Wear, Bottom Wear, Footwear..."
-              value={group}
-              onChange={(e) => setGroup(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
-            />
-            <datalist id="group-suggestions">
-              {GROUP_SUGGESTIONS.map((g) => (
-                <option key={g} value={g} />
-              ))}
-            </datalist>
-            <p className="text-[10px] text-gray-400 mt-1.5">
-              Groups related sub-categories together as a column in the storefront's mega-menu
-              (e.g. "Classic Fit T-Shirts" and "Oversized T-Shirts" both under "Top Wear").
-              Leave blank to place it under "General".
-            </p>
-          </div>
-
-          <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
-              Category Cover Image
+              Group Cover Image
             </label>
 
             {!preview ? (
@@ -182,7 +148,7 @@ const NewCategory = () => {
             disabled={loading}
             className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
           >
-            {loading ? "CREATING SUB-CATEGORY..." : "CREATE SUB-CATEGORY"}
+            {loading ? "CREATING..." : "CREATE MENU GROUP"}
           </button>
 
         </form>
