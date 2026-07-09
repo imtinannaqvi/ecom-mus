@@ -5,6 +5,8 @@ import Api from "../api/api";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // ✅ Added to ensure toast styles render properly
 
+const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
+
 const NewProduct = () => {
   const navigate = useNavigate(); // ✅ Initialize navigation hook
   const availableSizes = ["S", "M", "L", "XL", "XXL"];
@@ -21,6 +23,7 @@ const NewProduct = () => {
   const [sizes, setSizes] = useState([]);
   const [isTopTrend, setIsTopTrend] = useState(false);
   const [isBuy2Get1, setIsBuy2Get1] = useState(false);
+  const [ageGroups, setAgeGroups] = useState([]);
   const [imagesPreview, setImagesPreview] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,10 @@ const NewProduct = () => {
 
   const handleColorChange = (color) => {
     setColors((prev) => prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]);
+  };
+
+  const handleAgeGroupChange = (age) => {
+    setAgeGroups((prev) => prev.includes(age) ? prev.filter((a) => a !== age) : [...prev, age]);
   };
 
   const handleMainCategoryChange = (e) => {
@@ -96,6 +103,7 @@ const NewProduct = () => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("isTopTrend", isTopTrend);
       formData.append("isBuy2Get1", isBuy2Get1);
+      formData.append("ageGroups", JSON.stringify(ageGroups));
       imageFiles.forEach((file) => formData.append("images", file));
 
       await Api.post("/product/add", formData, {
@@ -111,7 +119,7 @@ const NewProduct = () => {
       // Reset logic
       setName(""); setPrice(""); setOldPrice(""); setDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
-      setIsTopTrend(false); setIsBuy2Get1(false);
+      setIsTopTrend(false); setIsBuy2Get1(false); setAgeGroups([]);
       setImagesPreview([]); setImageFiles([]);
 
       // ✅ Securely route back to products overview pane after timeout
@@ -136,7 +144,7 @@ const NewProduct = () => {
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
             <p className="text-xs text-gray-400 mt-0.5">Add details, metrics, sizes and asset gallery for the inventory</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.1</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.2</span>
         </header>
         
         <ToastContainer />
@@ -257,11 +265,36 @@ const NewProduct = () => {
                       disabled={!mainCategory}
                     >
                       <option value="">{mainCategory ? "Select Sub Category" : "Choose Gender First"}</option>
-                      {allCategories.find((cat) => cat.name === mainCategory)?.subCategories.map((sub) => (
-                        <option key={sub._id} value={sub.name}>{sub.name}</option>
-                      ))}
+                      {allCategories
+                        .find((cat) => cat.name === mainCategory)
+                        ?.subCategories.flatMap((group) =>
+                          (group.items || []).map((item) => (
+                            <option key={item._id} value={item.name}>{group.name} — {item.name}</option>
+                          ))
+                        )}
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Age Groups — available for any product, any category */}
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Age Groups (optional)</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {AGE_GROUP_OPTIONS.map((age) => (
+                    <button
+                      key={age}
+                      type="button"
+                      onClick={() => handleAgeGroupChange(age)}
+                      className={`py-2 px-1 rounded-xl text-[11px] font-bold border text-center transition-all duration-200 ${
+                        ageGroups.includes(age)
+                          ? "bg-[#635BFF] border-[#635BFF] text-white shadow-sm"
+                          : "bg-slate-50 border-gray-200 text-gray-500 hover:border-gray-300"
+                      }`}
+                    >
+                      {age}
+                    </button>
+                  ))}
                 </div>
               </div>
 
