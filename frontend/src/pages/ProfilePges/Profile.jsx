@@ -25,7 +25,7 @@ function Profile() {
       title: "Quick Links",
       links: [
         { name: "My Orders", path: "/profile/orders", icon: <GoPackage /> },
-{ name: "Track Orders", path: "/profile/orders", icon: <FaRoute /> },
+        { name: "Track Orders", path: "/profile/orders", icon: <FaRoute /> },
         { name: "Maurish Touchpoints", path: "/profile/touchpoints", icon: <FaAsymmetrik /> },
         { name: "My Wishlist", path: "/profile/wishlist", icon: <FaRegHeart /> },
       ],
@@ -35,7 +35,7 @@ function Profile() {
       links: [
         { name: "Address", path: "/profile/address", icon: <SlLocationPin /> },
         { name: "Payment", path: "/profile/payment", icon: <MdOutlinePayment /> },
-{ name: "Return Policy", path: "/profile/orders", icon: <GoPackage /> },
+        { name: "Return Policy", path: "/profile/orders", icon: <GoPackage /> },
       ],
     },
     {
@@ -97,7 +97,7 @@ function Profile() {
                     const isActive = location.pathname === link.path;
                     return (
                       <Link
-                        key={link.path}
+                        key={link.name}
                         to={link.path}
                         onClick={() => setIsSidebarOpen(false)} // Mobile pe link click hote hi menu band ho jaye
                         className={`w-full p-3 flex justify-between items-center transition-all ${
