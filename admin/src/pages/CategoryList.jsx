@@ -10,6 +10,7 @@ const CategoryList = () => {
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
+  const [deletingCategoryId, setDeletingCategoryId] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -43,6 +44,24 @@ const CategoryList = () => {
       );
     } catch (err) {
       toast.error("Error deleting: " + (err.response?.data?.message || err.message));
+    }
+  }, []);
+
+  const deleteMainCategoryHandler = useCallback(async (categoryId, categoryName, subCount) => {
+    const warning = subCount > 0
+      ? `Delete "${categoryName}"? This will also remove all ${subCount} of its sub-categories. This cannot be undone.`
+      : `Delete "${categoryName}"? This cannot be undone.`;
+    if (!window.confirm(warning)) return;
+
+    setDeletingCategoryId(categoryId);
+    try {
+      await Api.delete(`/admin/main/${categoryId}`);
+      toast.success(`${categoryName} category deleted successfully!`);
+      setAllCategories((prev) => prev.filter((cat) => cat._id !== categoryId));
+    } catch (err) {
+      toast.error("Error deleting category: " + (err.response?.data?.message || err.message));
+    } finally {
+      setDeletingCategoryId(null);
     }
   }, []);
 
@@ -111,6 +130,7 @@ const CategoryList = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allCategories.map((category) => {
               const isActive = category.isActive !== false;
+              const subCount = category.subCategories?.length || 0;
               return (
               <div key={category._id || category.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between w-full">
                 
@@ -125,32 +145,45 @@ const CategoryList = () => {
                         {category.name}
                       </h3>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
-                        {category.subCategories?.length || 0} Sub-Branches
+                        {subCount} Sub-Branches
                       </p>
                     </div>
                   </div>
 
-                  {/* Visibility Toggle Controls */}
-                  <div className="flex flex-col items-end gap-1 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Visibility Toggle Controls */}
+                    <div className="flex flex-col items-end gap-1">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={isActive}
+                        disabled={togglingId === category._id}
+                        onClick={() => toggleCategoryStatusHandler(category._id, isActive)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 disabled:opacity-50 ${
+                          isActive ? "bg-emerald-500" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                            isActive ? "translate-x-4.5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                      <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? "text-emerald-600" : "text-gray-400"}`}>
+                        {isActive ? "Visible" : "Hidden"}
+                      </span>
+                    </div>
+
+                    {/* Delete Main Category */}
                     <button
                       type="button"
-                      role="switch"
-                      aria-checked={isActive}
-                      disabled={togglingId === category._id}
-                      onClick={() => toggleCategoryStatusHandler(category._id, isActive)}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 disabled:opacity-50 ${
-                        isActive ? "bg-emerald-500" : "bg-gray-300"
-                      }`}
+                      onClick={() => deleteMainCategoryHandler(category._id, category.name, subCount)}
+                      disabled={deletingCategoryId === category._id}
+                      title="Delete this category"
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition duration-150 disabled:opacity-50"
                     >
-                      <span
-                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
-                          isActive ? "translate-x-4.5" : "translate-x-0.5"
-                        }`}
-                      />
+                      <FiTrash2 size={14} />
                     </button>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? "text-emerald-600" : "text-gray-400"}`}>
-                      {isActive ? "Visible" : "Hidden"}
-                    </span>
                   </div>
                 </div>
 
