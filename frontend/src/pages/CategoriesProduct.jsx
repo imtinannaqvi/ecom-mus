@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { IoIosClose } from "react-icons/io";
+import { FiChevronRight } from "react-icons/fi";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link, useParams } from "react-router-dom";
@@ -54,6 +55,10 @@ const colorOptions = [
   { name: "Beige", hex: "#F5F5DC" },
 ];
 
+const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
+
+const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+
 const CategoriesProduct = () => {
   const { mainCategory, subCategory } = useParams();
   const [products, setProducts] = useState([]);
@@ -61,7 +66,8 @@ const CategoriesProduct = () => {
   const [categories, setCategories] = useState([]);
   const { fetchMainCategory } = useProduct();
 
-  // Load all products for this main category.
+  const isKids = mainCategory?.toLowerCase() === "kids";
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -78,10 +84,6 @@ const CategoriesProduct = () => {
     if (mainCategory) load();
   }, [mainCategory]);
 
-  // Load the category structure (menu groups + their items) so we can tell
-  // whether the URL slug refers to a GROUP (e.g. "top-wear" — show every
-  // item inside it) or a specific ITEM (e.g. "classic-fit-t-shirts" — show
-  // only that exact item's products).
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -100,8 +102,6 @@ const CategoriesProduct = () => {
     [categories, mainCategory]
   );
 
-  const slugify = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
-
   const matchedGroup = useMemo(
     () =>
       matchedMainCat?.subCategories?.find(
@@ -110,8 +110,6 @@ const CategoriesProduct = () => {
     [matchedMainCat, subCategory]
   );
 
-  // If the URL matched a menu group, aggregate every item inside it.
-  // Otherwise, fall back to treating the URL as a single item's exact name.
   const targetItemNames = useMemo(() => {
     if (matchedGroup) {
       return (matchedGroup.items || []).map((item) => item.name.toLowerCase());
@@ -141,11 +139,16 @@ const CategoriesProduct = () => {
     size: "",
     colors: [],
     availability: null,
+    priceMin: "",
+    priceMax: "",
+    ageGroups: [],
   });
 
   const [tempFilters, setTempFilters] = useState({ ...appliedFilters });
 
-  // All products matching this subCategory (group aggregate OR single item)
+  // Collapsible section state for the Category quick-nav panel
+  const [categoryOpen, setCategoryOpen] = useState(true);
+
   const subCategoryProducts = useMemo(
     () =>
       products.filter((p) =>
@@ -183,6 +186,22 @@ const CategoriesProduct = () => {
       result = result.filter((p) => p.stock <= 0);
     }
 
+    // PRICE RANGE FILTER — only bounds that were actually entered apply.
+    if (appliedFilters.priceMin !== "" && !isNaN(appliedFilters.priceMin)) {
+      result = result.filter((p) => Number(p.price) >= Number(appliedFilters.priceMin));
+    }
+    if (appliedFilters.priceMax !== "" && !isNaN(appliedFilters.priceMax)) {
+      result = result.filter((p) => Number(p.price) <= Number(appliedFilters.priceMax));
+    }
+
+    // AGE FILTER — only relevant for Kids; matches if the product has ANY
+    // of the selected age brackets.
+    if (isKids && appliedFilters.ageGroups.length > 0) {
+      result = result.filter((p) =>
+        (p.ageGroups || []).some((ag) => appliedFilters.ageGroups.includes(ag))
+      );
+    }
+
     if (sortOrder === "lowHigh") {
       result.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (sortOrder === "highLow") {
@@ -190,7 +209,7 @@ const CategoriesProduct = () => {
     }
 
     return result;
-  }, [subCategoryProducts, appliedFilters, sortOrder]);
+  }, [subCategoryProducts, appliedFilters, sortOrder, isKids]);
 
   const topFiveProducts = subCategoryProducts.slice(0, 5);
   const displayProducts = categoriesProduct;
@@ -201,10 +220,19 @@ const CategoriesProduct = () => {
   };
 
   const handleReset = () => {
-    const resetValue = { size: "", colors: [], availability: null };
+    const resetValue = { size: "", colors: [], availability: null, priceMin: "", priceMax: "", ageGroups: [] };
     setTempFilters(resetValue);
     setAppliedFilters(resetValue);
     setIsFilterOpen(false);
+  };
+
+  const toggleTempAgeGroup = (age) => {
+    setTempFilters((prev) => ({
+      ...prev,
+      ageGroups: prev.ageGroups.includes(age)
+        ? prev.ageGroups.filter((a) => a !== age)
+        : [...prev.ageGroups, age],
+    }));
   };
 
   const activeSortLabel =
@@ -303,6 +331,34 @@ const CategoriesProduct = () => {
             </div>
           </section>
 
+          {/* CATEGORY — quick navigation between this main category's groups */}
+          <section className="border-t pt-6">
+            <button
+              type="button"
+              onClick={() => setCategoryOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between mb-4"
+            >
+              <h3 className="font-bold text-sm uppercase">Category</h3>
+              <FiChevronRight className={`transition-transform ${categoryOpen ? "rotate-90" : ""}`} />
+            </button>
+            {categoryOpen && (
+              <div className="space-y-3">
+                {matchedMainCat?.subCategories?.map((group) => (
+                  <Link
+                    key={group._id}
+                    to={`/shop/${mainCategory}/${slugify(group.name)}`}
+                    onClick={() => setIsFilterOpen(false)}
+                    className={`block text-sm ${
+                      matchedGroup?._id === group._id ? "font-bold text-black" : "text-gray-500 hover:text-black"
+                    }`}
+                  >
+                    {group.name}
+                  </Link>
+                )) || <p className="text-xs text-gray-400">No categories found.</p>}
+              </div>
+            )}
+          </section>
+
           {/* COLORS */}
           <section className="border-t pt-6">
             <h3 className="font-bold mb-4 text-sm uppercase">Colors</h3>
@@ -331,6 +387,48 @@ const CategoriesProduct = () => {
               ))}
             </div>
           </section>
+
+          {/* PRICE RANGE */}
+          <section className="border-t pt-6">
+            <h3 className="font-bold mb-4 text-sm uppercase">Price Range</h3>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                placeholder="Min"
+                value={tempFilters.priceMin}
+                onChange={(e) => setTempFilters({ ...tempFilters, priceMin: e.target.value })}
+                className="w-1/2 border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-black transition"
+              />
+              <span className="text-gray-400 text-sm">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={tempFilters.priceMax}
+                onChange={(e) => setTempFilters({ ...tempFilters, priceMax: e.target.value })}
+                className="w-1/2 border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-black transition"
+              />
+            </div>
+          </section>
+
+          {/* AGE — Kids category only */}
+          {isKids && (
+            <section className="border-t pt-6">
+              <h3 className="font-bold mb-4 text-sm uppercase">Age</h3>
+              <div className="space-y-3">
+                {AGE_GROUP_OPTIONS.map((age) => (
+                  <label key={age} className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={tempFilters.ageGroups.includes(age)}
+                      onChange={() => toggleTempAgeGroup(age)}
+                      className="w-4 h-4 accent-black"
+                    />
+                    <span className="text-sm">{age}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         <div className="absolute bottom-0 w-full p-6 bg-white border-t grid grid-cols-2 gap-4">
