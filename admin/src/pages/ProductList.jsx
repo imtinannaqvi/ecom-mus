@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiSliders, FiEye, FiPlus } from "react-icons/fi";
+import { FiSearch, FiSliders, FiEye, FiPlus, FiTrash2 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Api, { BACKEND_URL } from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   
   // UI States matching the screenshot
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +34,45 @@ const ProductList = () => {
     fetchProducts();
   }, []);
 
+  // Deletes a single product after confirmation, then removes it from the
+  // list locally so the table updates immediately without a full refetch.
+  const handleDeleteProduct = async (productId, productName) => {
+    if (!window.confirm(`Delete "${productName}"? This cannot be undone.`)) return;
+
+    setDeletingId(productId);
+    try {
+      await Api.delete(`/product/delete/${productId}`);
+      toast.success("Product deleted successfully!");
+      setAllProducts((prev) => prev.filter((p) => p._id !== productId));
+      setSelectedItems((prev) => {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      });
+    } catch (err) {
+      toast.error("Error deleting product: " + (err.response?.data?.message || err.message));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Deletes every currently checked product in one go.
+  const handleBulkDelete = async () => {
+    const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
+    if (idsToDelete.length === 0) return;
+    if (!window.confirm(`Delete ${idsToDelete.length} selected product(s)? This cannot be undone.`)) return;
+
+    try {
+      await Promise.all(idsToDelete.map((id) => Api.delete(`/product/delete/${id}`)));
+      toast.success(`${idsToDelete.length} product(s) deleted successfully!`);
+      setAllProducts((prev) => prev.filter((p) => !idsToDelete.includes(p._id)));
+      setSelectedItems({});
+      setSelectAll(false);
+    } catch (err) {
+      toast.error("Some products failed to delete: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   // ✅ Derived filtered data logic preserved
   const filteredProducts = allProducts.filter((product) => {
     const matchesSearch = searchTerm
@@ -41,6 +83,8 @@ const ProductList = () => {
       : true;
     return matchesSearch && matchesCategory;
   });
+
+  const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
   // Checkbox handlers for UI consistency
   const handleSelectAll = () => {
@@ -71,6 +115,7 @@ const ProductList = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-white min-h-screen font-sans">
+      <ToastContainer />
       
       {/* Top Header Controls — Responsive adaptation for md and lg screen layouts */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -96,6 +141,15 @@ const ProductList = () => {
           <button onClick={() => { setSelectedCategory(""); setSearchTerm(""); }} className="border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition shrink-0">
             See All
           </button>
+
+          {selectedCount > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-1.5 border border-red-200 bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition shrink-0"
+            >
+              <FiTrash2 className="text-base" /> Delete ({selectedCount})
+            </button>
+          )}
           
           <Link to="/admin/product/new" className="flex items-center gap-1.5 bg-[#635BFF] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition shrink-0 ml-auto sm:ml-0">
             <FiPlus className="text-lg" /> Add Product
@@ -110,7 +164,7 @@ const ProductList = () => {
         ) : (
           /* Preserves scroll containment below md, scales wide on md and lg without clipping content */
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-[850px] md:min-w-0">
+            <table className="w-full text-left border-collapse min-w-[900px] md:min-w-0">
               <thead>
                 <tr className="border-b border-gray-100 text-[#8A94A6] text-xs font-semibold bg-gray-50/50">
                   <th className="p-4 w-12 text-center shrink-0">
@@ -180,14 +234,25 @@ const ProductList = () => {
                         </span>
                       </td>
 
-                      {/* Details View/Action Router link */}
+                      {/* Details View/Action Router link + Delete */}
                       <td className="p-4 text-right pr-6 whitespace-nowrap">
-                        <Link
-                          to={`/admin/product/${product._id}`}
-                          className="text-[#635BFF] hover:underline font-semibold text-xs inline-flex items-center gap-1 transition"
-                        >
-                          Detail
-                        </Link>
+                        <div className="flex items-center justify-end gap-3">
+                          <Link
+                            to={`/admin/product/${product._id}`}
+                            className="text-[#635BFF] hover:underline font-semibold text-xs inline-flex items-center gap-1 transition"
+                          >
+                            Detail
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProduct(product._id, product.name)}
+                            disabled={deletingId === product._id}
+                            title="Delete product"
+                            className="text-gray-400 hover:text-red-500 transition disabled:opacity-50"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
                       </td>
 
                     </tr>
