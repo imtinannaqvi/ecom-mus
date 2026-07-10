@@ -46,6 +46,13 @@ const ProductDetails = ({
             SAVE 33%
           </span>
         </div>
+
+        {/* Short Description — set from admin, shows right under the price */}
+        {product.shortDescription && (
+          <p className="text-gray-600 text-sm md:text-base mt-1">
+            {product.shortDescription}
+          </p>
+        )}
       </div>
 
       {/* 1. COLOR SELECTOR (Visual Circles) */}

@@ -23,6 +23,7 @@ const UpdateProduct = () => {
   const [oldPrice, setOldPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("");
   const [colors, setColors] = useState([]);
@@ -63,6 +64,7 @@ const UpdateProduct = () => {
           setOldPrice(prod.oldPrice || "");
           setStock(prod.stock);
           setDescription(prod.description);
+          setShortDescription(prod.shortDescription || "");
           setMainCategory(prod.mainCategory || "Men");
           setSubCategory(prod.subCategory || "");
           setColors(prod.colors || []);
@@ -127,6 +129,7 @@ const UpdateProduct = () => {
       formData.append("oldPrice", oldPrice || "");
       formData.append("stock", stock);
       formData.append("description", description);
+      formData.append("shortDescription", shortDescription);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes)); 
@@ -207,6 +210,21 @@ const UpdateProduct = () => {
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
                   required
+                />
+              </div>
+
+              {/* Short Description */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                  Short Description <span className="normal-case font-medium text-gray-400">(shows under the price on the product page)</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={120}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                  placeholder="e.g. Soft, breathable cotton — perfect for everyday wear"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
                 />
               </div>
 

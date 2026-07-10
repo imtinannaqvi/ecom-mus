@@ -16,6 +16,7 @@ const NewProduct = () => {
   const [price, setPrice] = useState("");
   const [oldPrice, setOldPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [stock, setStock] = useState(1);
@@ -96,6 +97,7 @@ const NewProduct = () => {
       formData.append("price", price);
       if (oldPrice) formData.append("oldPrice", oldPrice);
       formData.append("description", description);
+      formData.append("shortDescription", shortDescription);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("stock", stock);
@@ -117,7 +119,7 @@ const NewProduct = () => {
       });
 
       // Reset logic
-      setName(""); setPrice(""); setOldPrice(""); setDescription(""); setMainCategory("");
+      setName(""); setPrice(""); setOldPrice(""); setDescription(""); setShortDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
       setIsTopTrend(false); setIsBuy2Get1(false); setAgeGroups([]);
       setImagesPreview([]); setImageFiles([]);
@@ -144,7 +146,7 @@ const NewProduct = () => {
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
             <p className="text-xs text-gray-400 mt-0.5">Add details, metrics, sizes and asset gallery for the inventory</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.2</span>
+          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.3</span>
         </header>
         
         <ToastContainer />
@@ -165,6 +167,20 @@ const NewProduct = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+                  Short Description <span className="normal-case font-medium text-gray-400">(shows under the price on the product page)</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={120}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                  placeholder="e.g. Soft, breathable cotton — perfect for everyday wear"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
                 />
               </div>
 
