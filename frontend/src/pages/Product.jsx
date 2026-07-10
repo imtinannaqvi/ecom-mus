@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
 import Button from "../components/Button";
 import Api, { BACKEND_URL } from "../api/api";
-import { toast } from "react-toastify";
-// 1. Reusable Product Card
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const ProductCard = ({ item, itemsToShow }) => {
 
   // Logic to get the image URL correctly
@@ -174,9 +174,9 @@ function Product({ category, products }) {
 
   // Buy 2 Get 1 Free: admin-flagged via isBuy2Get1 toggle.
   const buy2Get1 = products.filter((p) => p.isBuy2Get1);
-
-  return (
+return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
+      <ToastContainer />
       <ProductSliderSection title="NEW ARRIVALS" products={newArrivals} />
       <ProductSliderSection title="TOP TRENDING" products={topTrending} />
       <ProductSliderSection title="TOP DISCOUNT" products={topDiscount} />
@@ -184,5 +184,7 @@ function Product({ category, products }) {
     </div>
   );
 }
+
+
 
 export default Product;
