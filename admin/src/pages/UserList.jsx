@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FiTrash2, FiSearch, FiUsers, FiShield } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiTrash2, FiSearch, FiUsers, FiShield, FiEye } from 'react-icons/fi';
 import Api from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -100,20 +101,22 @@ const UserList = () => {
         {/* Consumers Data Sheets Grid Layout container */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-[650px] md:min-w-0">
+            <table className="w-full text-left border-collapse min-w-[700px] md:min-w-0">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th className="p-4 pl-6 whitespace-nowrap">Profile Identity</th>
                   <th className="p-4 whitespace-nowrap">Email Address</th>
                   <th className="p-4 whitespace-nowrap">Account Tier</th>
-                  <th className="p-4 pr-6 text-center whitespace-nowrap">Terminate</th>
+                  <th className="p-4 pr-6 text-center whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-xs font-medium">
                 {loading ? (
                   <tr>
-                    <td colSpan="4" className="py-20 text-center text-gray-400 font-semibold">
-                      Loading customers...
+                    <td colSpan="4" className="py-20 text-center">
+                      <div className="flex justify-center">
+                        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" />
+                      </div>
                     </td>
                   </tr>
                 ) : filteredUsers.length > 0 ? (
@@ -145,15 +148,24 @@ const UserList = () => {
                       </td>
 
                       {/* Action Trigger control links */}
-                      <td className="p-4 pr-6 text-center whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => deleteUserHandler(user._id)}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
-                          title="Revoke access and delete account"
-                        >
-                          <FiTrash2 size={14} />
-                        </button>
+                      <td className="p-4 pr-6 whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-2">
+                          <Link
+                            to={`/admin/users/${user._id}`}
+                            className="p-2 text-gray-400 hover:text-[#635BFF] hover:bg-indigo-50 rounded-lg transition-colors inline-flex items-center justify-center"
+                            title="View customer details & saved addresses"
+                          >
+                            <FiEye size={14} />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => deleteUserHandler(user._id)}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
+                            title="Revoke access and delete account"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

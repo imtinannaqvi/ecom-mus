@@ -25,7 +25,6 @@ function Profile() {
       title: "Quick Links",
       links: [
         { name: "My Orders", path: "/profile/orders", icon: <GoPackage /> },
-        { name: "Track Orders", path: "/profile/orders", icon: <FaRoute /> },
         { name: "Maurish Touchpoints", path: "/profile/touchpoints", icon: <FaAsymmetrik /> },
         { name: "My Wishlist", path: "/profile/wishlist", icon: <FaRegHeart /> },
       ],
@@ -35,7 +34,6 @@ function Profile() {
       links: [
         { name: "Address", path: "/profile/address", icon: <SlLocationPin /> },
         { name: "Payment", path: "/profile/payment", icon: <MdOutlinePayment /> },
-        { name: "Return Policy", path: "/profile/orders", icon: <GoPackage /> },
       ],
     },
     {
