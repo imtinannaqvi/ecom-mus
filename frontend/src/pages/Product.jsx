@@ -4,11 +4,10 @@ import { CiHeart } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
 import Button from "../components/Button";
-import { BACKEND_URL } from "../api/api";
-
+import Api, { BACKEND_URL } from "../api/api";
+import { toast } from "react-toastify";
 // 1. Reusable Product Card
 const ProductCard = ({ item, itemsToShow }) => {
-
 
   // Logic to get the image URL correctly
   // Agar images array hai to pehli image ka url lo, warna check karo fallback
@@ -36,9 +35,22 @@ const ProductCard = ({ item, itemsToShow }) => {
       className="shrink-0 relative group mb-4"
       style={{ width: `calc(${100 / itemsToShow}% - 16px)` }}
     >
-      <div className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors">
-        <CiHeart />
-      </div>
+   <button
+  type="button"
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await Api.post(`/wishlist/${item._id}`);
+      toast.success("Added to wishlist!");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Please log in to save items.");
+    }
+  }}
+  className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors"
+>
+  <CiHeart />
+</button>
       {hasDiscount && (
         <div className="absolute left-2 top-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
           {Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100)}% OFF
