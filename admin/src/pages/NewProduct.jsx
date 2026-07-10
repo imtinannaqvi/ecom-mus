@@ -17,6 +17,8 @@ const NewProduct = () => {
   const [oldPrice, setOldPrice] = useState("");
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [stock, setStock] = useState(1);
@@ -98,6 +100,8 @@ const NewProduct = () => {
       if (oldPrice) formData.append("oldPrice", oldPrice);
       formData.append("description", description);
       formData.append("shortDescription", shortDescription);
+      formData.append("seoTitle", seoTitle);
+      formData.append("seoDescription", seoDescription);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("stock", stock);
@@ -119,7 +123,7 @@ const NewProduct = () => {
       });
 
       // Reset logic
-      setName(""); setPrice(""); setOldPrice(""); setDescription(""); setShortDescription(""); setMainCategory("");
+      setName(""); setPrice(""); setOldPrice(""); setDescription(""); setShortDescription(""); setSeoTitle(""); setSeoDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
       setIsTopTrend(false); setIsBuy2Get1(false); setAgeGroups([]);
       setImagesPreview([]); setImageFiles([]);
@@ -184,37 +188,27 @@ const NewProduct = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Price ($)</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">SEO Title</label>
                   <input
-                    type="number"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
-                    placeholder="0.00"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
+                    type="text"
+                    maxLength={70}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                    placeholder="e.g. Premium Cotton Shirt | Maurish"
+                    value={seoTitle}
+                    onChange={(e) => setSeoTitle(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Old Price </label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">SEO Description</label>
                   <input
-                    type="number"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
-                    placeholder="Leave blank if no discount"
-                    value={oldPrice}
-                    onChange={(e) => setOldPrice(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Stock Qty</label>
-                  <input
-                    type="number"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
-                    placeholder="1"
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                    required
+                    type="text"
+                    maxLength={160}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                    placeholder="e.g. Shop the Premium Cotton Shirt — soft, breathable, made to last."
+                    value={seoDescription}
+                    onChange={(e) => setSeoDescription(e.target.value)}
                   />
                 </div>
               </div>

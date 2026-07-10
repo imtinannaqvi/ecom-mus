@@ -24,6 +24,8 @@ const UpdateProduct = () => {
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [seoTitle, setSeoTitle] = useState("");
+const [seoDescription, setSeoDescription] = useState("");
   const [mainCategory, setMainCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("");
   const [colors, setColors] = useState([]);
@@ -65,6 +67,8 @@ const UpdateProduct = () => {
           setStock(prod.stock);
           setDescription(prod.description);
           setShortDescription(prod.shortDescription || "");
+          setSeoTitle(prod.seoTitle || "");
+setSeoDescription(prod.seoDescription || "");
           setMainCategory(prod.mainCategory || "Men");
           setSubCategory(prod.subCategory || "");
           setColors(prod.colors || []);
@@ -130,6 +134,8 @@ const UpdateProduct = () => {
       formData.append("stock", stock);
       formData.append("description", description);
       formData.append("shortDescription", shortDescription);
+      formData.append("seoTitle", seoTitle);
+formData.append("seoDescription", seoDescription);
       formData.append("mainCategory", mainCategory);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes)); 
@@ -220,10 +226,42 @@ if (fetchLoading) {
                   maxLength={120}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
                   placeholder="Write here.."
-                  value={shortDescription}
+                value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
                 />
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+                    SEO Title <span className="normal-case font-medium text-gray-400">(browser tab / search result title)</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={70}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                    placeholder="e.g. Premium Cotton Shirt | Maurish"
+                    value={seoTitle}
+                    onChange={(e) => setSeoTitle(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+                    SEO Description <span className="normal-case font-medium text-gray-400">(search result snippet)</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={160}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                    placeholder="e.g. Shop the Premium Cotton Shirt — soft, breathable, made to last."
+                    value={seoDescription}
+                    onChange={(e) => setSeoDescription(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Price, Old Price & Stock */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
               {/* Price, Old Price & Stock */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
