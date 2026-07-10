@@ -74,7 +74,20 @@ function SingleProduct() {
     window.scrollTo(0, 0);
   }, [id, products]); // Products array change hone par re-run hoga
 
- 
+ useEffect(() => {
+  if (!product) return;
+
+  document.title = product.seoTitle || product.name || "Maurish";
+
+  const description = product.seoDescription || product.shortDescription || product.description || "";
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (!metaDesc) {
+    metaDesc = document.createElement("meta");
+    metaDesc.setAttribute("name", "description");
+    document.head.appendChild(metaDesc);
+  }
+  metaDesc.setAttribute("content", description.slice(0, 160));
+}, [product]);
 
 
   const { addToCart } = useContext(CartContext);
