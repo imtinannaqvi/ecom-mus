@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiRefreshCw, FiArrowLeft, FiEdit3, FiSliders, FiEye, FiUploadCloud } from 'react-icons/fi';
+import { FiRefreshCw, FiArrowLeft, FiEdit3, FiSliders, FiEye, FiUploadCloud, FiSearch } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Api, { BACKEND_URL } from '../api/api';
@@ -231,38 +231,6 @@ if (fetchLoading) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                    SEO Title <span className="normal-case font-medium text-gray-400">(browser tab / search result title)</span>
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={70}
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
-                    placeholder="e.g. Premium Cotton Shirt | Maurish"
-                    value={seoTitle}
-                    onChange={(e) => setSeoTitle(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                    SEO Description <span className="normal-case font-medium text-gray-400">(search result snippet)</span>
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={160}
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
-                    placeholder="e.g. Shop the Premium Cotton Shirt — soft, breathable, made to last."
-                    value={seoDescription}
-                    onChange={(e) => setSeoDescription(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Price, Old Price & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
               {/* Price, Old Price & Stock */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1.5">
@@ -390,6 +358,44 @@ if (fetchLoading) {
                 />
               </div>
 
+            </div>
+
+            {/* SEO Section — kept in its own card for clarity */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#1E1B4B] flex items-center gap-1.5">
+                  <FiSearch className="text-[#635BFF]" /> SEO Settings
+                </h3>
+                <p className="text-[11px] text-gray-400 mt-0.5">Controls how this product appears in search results and browser tabs.</p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                  SEO Title <span className="normal-case font-medium text-gray-400">(browser tab / search result title)</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={70}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
+                  placeholder="e.g. Premium Cotton Shirt | Maurish"
+                  value={seoTitle}
+                  onChange={(e) => setSeoTitle(e.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                  SEO Description <span className="normal-case font-medium text-gray-400">(search result snippet)</span>
+                </label>
+                <textarea
+                  rows="2"
+                  maxLength={160}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition resize-none leading-relaxed"
+                  placeholder="e.g. Shop the Premium Cotton Shirt — soft, breathable, made to last."
+                  value={seoDescription}
+                  onChange={(e) => setSeoDescription(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
