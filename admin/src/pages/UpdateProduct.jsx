@@ -157,16 +157,13 @@ const UpdateProduct = () => {
     }
   };
 
-  if (fetchLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <div className="flex flex-col items-center gap-3">
-          <FiRefreshCw className="animate-spin text-[#635BFF]" size={30} />
-          <p className="text-xs font-bold text-gray-400 tracking-wider">LOADING DATA CORE MATRIX...</p>
-        </div>
-      </div>
-    );
-  }
+if (fetchLoading) {
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]">
+      <div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" />
+    </div>
+  );
+}
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
@@ -216,13 +213,13 @@ const UpdateProduct = () => {
               {/* Short Description */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">
-                  Short Description <span className="normal-case font-medium text-gray-400">(shows under the price on the product page)</span>
+                  Short Description <span className="normal-case font-medium text-gray-400"></span>
                 </label>
                 <input
                   type="text"
                   maxLength={120}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
-                  placeholder="e.g. Soft, breathable cotton — perfect for everyday wear"
+                  placeholder="Write here.."
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
                 />
@@ -231,7 +228,7 @@ const UpdateProduct = () => {
               {/* Price, Old Price & Stock */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Price Valuation (PKR)</label>
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Price </label>
                   <input 
                     type="number" 
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition" 
@@ -241,17 +238,17 @@ const UpdateProduct = () => {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Old Price (optional)</label>
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Old Price</label>
                   <input 
                     type="number" 
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition" 
-                    placeholder="Leave blank for no discount"
+                    placeholder="Amount"
                     value={oldPrice} 
                     onChange={(e) => setOldPrice(e.target.value)} 
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Inventory Stock Unit Counter</label>
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Stock Unit </label>
                   <input 
                     type="number" 
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition" 
@@ -265,7 +262,7 @@ const UpdateProduct = () => {
               {/* Storefront Placement Toggles */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
                 <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50 border border-gray-200 rounded-xl cursor-pointer">
-                  <span className="text-xs font-bold text-gray-600">Show in Top Trending</span>
+                  <span className="text-xs font-bold text-gray-600"> Top Trending</span>
                   <input
                     type="checkbox"
                     checked={isTopTrend}
@@ -288,7 +285,7 @@ const UpdateProduct = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Main Category Selector */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Main Category Cluster</label>
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Main Category </label>
                   <select 
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition cursor-pointer"
                     value={mainCategory}
@@ -303,7 +300,7 @@ const UpdateProduct = () => {
 
                 {/* Dynamic Sub-Category Selector — real items pulled from admin categories */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Sub Category Branch Node</label>
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Sub Category </label>
                   <select 
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition cursor-pointer"
                     value={subCategory}
@@ -324,7 +321,7 @@ const UpdateProduct = () => {
 
               {/* Age Groups — available for any product, any category */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Age Groups (optional)</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Age Groups</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {AGE_GROUP_OPTIONS.map((age) => (
                     <button
@@ -345,7 +342,7 @@ const UpdateProduct = () => {
 
               {/* Public Description */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Public Specification Description</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide"> Description</label>
                 <textarea 
                   rows="4" 
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white text-xs font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition resize-none leading-relaxed" 
@@ -386,11 +383,9 @@ const UpdateProduct = () => {
                   <span>Upload Fresh Batches</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
                 </label>
-                <p className="text-[9px] text-gray-400 font-normal mt-2">Uploading fresh assets will replace current database image bundles.</p>
               </div>
             </div>
 
-            {/* Box 2: Configuration Options Grid */}
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#1E1B4B] flex items-center gap-1.5">
                 <FiSliders className="text-gray-400" /> Configuration Matrix
@@ -398,7 +393,7 @@ const UpdateProduct = () => {
               
               {/* Sizes scope */}
               <div className="space-y-2">
-                <h4 className="text-[10px] font-bold uppercase text-gray-400 tracking-wide">Size Variants Scope</h4>
+                <h4 className="text-[10px] font-bold uppercase text-gray-400 tracking-wide">Select Size</h4>
                 <div className="flex flex-wrap gap-2">
                   {availableSizes.map(size => {
                     const isSelected = sizes.includes(size);
@@ -414,7 +409,7 @@ const UpdateProduct = () => {
 
               {/* Colors array */}
               <div className="space-y-2 pt-2 border-t border-gray-50">
-                <h4 className="text-[10px] font-bold uppercase text-gray-400 tracking-wide">Color Spectrum Arrays</h4>
+                <h4 className="text-[10px] font-bold uppercase text-gray-400 tracking-wide">Select Colors</h4>
                 <div className="flex flex-wrap gap-2">
                   {availableColors.map(color => {
                     const isSelected = colors.includes(color);
@@ -436,7 +431,7 @@ const UpdateProduct = () => {
               className="w-full bg-[#1E1B4B] hover:bg-[#2a2668] disabled:bg-[#43407c] text-white py-3.5 rounded-xl text-xs font-bold tracking-widest transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 uppercase"
             >
               <FiRefreshCw className={loading ? "animate-spin" : ""} size={14} /> 
-              {loading ? "Publishing Database Matrix..." : "Commit Update Package"}
+              {loading ? "Publishing Database Matrix..." : "Update here"}
             </button>
 
           </div>

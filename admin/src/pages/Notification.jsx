@@ -111,16 +111,14 @@ const Notification = () => {
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Notification Hub</h1>
+              <h1 className="text-xl md:text-2xl font-bold tracking-tight italic text-[#1E1B4B]">Notification Hub</h1>
               {notifications.filter(n => n.isUnread).length > 0 && (
                 <span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md font-extrabold border border-rose-100 animate-pulse shrink-0">
                   {notifications.filter(n => n.isUnread).length} Unread
                 </span>
               )}
             </div>
-            <p className="text-xs md:text-sm text-gray-400 mt-0.5">
-              Live updates channel. Audit platform activity logs, sales triggers, and consumer escalations.
-            </p>
+           
           </div>
 
           {notifications.length > 0 && (
@@ -147,9 +145,7 @@ const Notification = () => {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50 min-w-0">
           {loading ? (
-            <div className="py-20 text-center text-gray-400 font-semibold text-xs">
-              Loading notifications...
-            </div>
+            <div className="flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
           ) : notifications.length > 0 ? (
             notifications.map((item) => {
               const config = getTypeConfig(item.type);

@@ -53,11 +53,8 @@ const NewCategoryItem = () => {
       <div className="max-w-2xl mx-auto">
 
         <header className="mb-6">
-          <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Add Menu Item</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
-            A specific item like "Classic Fit T-Shirts" under an existing menu group. No image
-            needed — this is what products get tagged with.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E1B4B]">Add Menu</h1>
+         
         </header>
 
         <ToastContainer />
@@ -104,7 +101,7 @@ const NewCategoryItem = () => {
             </label>
             <input
               type="text"
-              placeholder="e.g. Classic Fit T-Shirts"
+              placeholder=""
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"

@@ -131,9 +131,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
-        Loading dashboard...
-      </div>
+     <div className="flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
     );
   }
 

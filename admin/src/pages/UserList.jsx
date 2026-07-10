@@ -75,14 +75,12 @@ const UserList = () => {
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Registered Customers</h1>
+              <h1 className="text-2xl font-bold tracking-tight italic text-[#1E1B4B]">Registered Customers</h1>
               <span className="text-[10px] bg-indigo-50 text-[#635BFF] px-2 py-0.5 rounded-md font-extrabold border border-indigo-100 shrink-0">
                 {users.filter(u => u.role !== "admin").length} Total
               </span>
             </div>
-            <p className="text-xs text-gray-400 mt-0.5">
-              User identity matrix. View active consumer accounts, access privileges, and manage lifecycles.
-            </p>
+           
           </div>
 
           {/* Premium Search input structure wrapper */}

@@ -75,16 +75,14 @@ const Reviews = () => {
 
         <header className="mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Review Moderation</h1>
+            <h1 className="text-2xl font-bold tracking-tight italic text-[#1E1B4B]">Review Moderation</h1>
             {pendingCount > 0 && (
               <span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md font-extrabold border border-rose-100">
                 {pendingCount} Pending
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Approve or remove customer reviews before they appear on product pages.
-          </p>
+        
         </header>
 
         {/* Filter Tabs */}
@@ -106,8 +104,7 @@ const Reviews = () => {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
           {loading ? (
-            <div className="p-16 text-center text-gray-400 font-medium text-sm">Loading reviews...</div>
-          ) : filteredReviews.length === 0 ? (
+<div className="p-16 flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>          ) : filteredReviews.length === 0 ? (
             <div className="p-16 text-center text-gray-400 text-sm font-medium">
               <FiMessageSquare className="mx-auto text-2xl mb-2 text-gray-300" />
               No {filter.toLowerCase()} reviews.

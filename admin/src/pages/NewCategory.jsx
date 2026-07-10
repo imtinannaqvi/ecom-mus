@@ -60,13 +60,9 @@ const NewCategory = () => {
 
         <header className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Create Menu Group</h1>
-            <p className="text-xs text-gray-400 mt-0.5">
-              A group like "Top Wear" or "Footwear" — shown with an image on the Home page
-              and as a mega-menu column. Add specific items to it afterward.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1E1B4B]">Create Menu Group</h1>
+          
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600">V3.0</span>
         </header>
 
         <ToastContainer />
@@ -91,7 +87,7 @@ const NewCategory = () => {
 
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                Menu Group Name
+                ADD Menu
               </label>
               <input
                 type="text"
@@ -106,14 +102,14 @@ const NewCategory = () => {
 
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
-              Group Cover Image
+              Add Image
             </label>
 
             {!preview ? (
               <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group">
                 <FiUploadCloud className="text-2xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
-                <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">Click to upload image</span>
-                <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG up to 5MB</p>
+                <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">Upload image</span>
+                <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG..</p>
                 <input
                   type="file"
                   className="hidden"
@@ -148,7 +144,7 @@ const NewCategory = () => {
             disabled={loading}
             className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
           >
-            {loading ? "CREATING..." : "CREATE MENU GROUP"}
+            {loading ? "CREATING..." : "CREATE MENU "}
           </button>
 
         </form>

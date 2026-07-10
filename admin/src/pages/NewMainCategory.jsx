@@ -56,27 +56,22 @@ const NewMainCategory = () => {
         {/* Responsive Header Configuration */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">
-              Create / Update Main Category
+            <h1 className="text-2xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">
+              Update Main Category
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Set up or replace the image for one of the three storefront departments.
-            </p>
+          
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 self-start sm:self-center shrink-0">
-            V1.0
-          </span>
+        
         </header>
 
         <ToastContainer />
 
-        {/* Form Container with Adaptive Interior Spacing */}
         <form 
           onSubmit={handleSubmit} 
           className="bg-white p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl border border-gray-100 shadow-sm space-y-6"
         >
           <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
+            <label className="text-[13px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
               Main Category
             </label>
             <select
@@ -88,25 +83,21 @@ const NewMainCategory = () => {
               <option value="Women">Women</option>
               <option value="Kids">Kids</option>
             </select>
-            <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
-              Only these three categories exist in the store. Selecting an existing one and
-              uploading a new image will replace its current image.
-            </p>
+           
           </div>
 
-          {/* Dynamic Image Upload Zone Scaling */}
           <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
-              Category Cover Image
+            <label className="text-[13px] font-bold text-gray-400 uppercase mb-2 block tracking-wider">
+              Category  Image
             </label>
 
             {!preview ? (
               <label className="flex flex-col items-center justify-center w-full h-48 md:h-56 lg:h-64 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#635BFF] hover:bg-indigo-50/10 transition-all group p-4 text-center">
                 <FiUploadCloud className="text-2xl md:text-3xl text-gray-300 group-hover:text-[#635BFF] transition-colors mb-1.5" />
                 <span className="text-xs font-bold text-gray-500 group-hover:text-[#635BFF] transition-colors">
-                  Click to upload image
+                  Upload image
                 </span>
-                <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG up to 5MB</p>
+                <p className="text-[10px] text-gray-400 mt-1">Supports PNG, JPG...</p>
                 <input
                   type="file"
                   className="hidden"
@@ -141,7 +132,7 @@ const NewMainCategory = () => {
             disabled={loading}
             className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
           >
-            {loading ? "SAVING..." : "SAVE MAIN CATEGORY"}
+            {loading ? "Saving..." : "Save Category"}
           </button>
         </form>
       </div>

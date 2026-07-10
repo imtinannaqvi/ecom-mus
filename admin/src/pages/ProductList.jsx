@@ -160,8 +160,7 @@ const ProductList = () => {
       {/* Main Container Layout */}
       <div className="border border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
         {loading ? (
-          <div className="p-20 text-center text-gray-400 font-medium">Loading Products Data...</div>
-        ) : (
+<div className="p-20 flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>        ) : (
           /* Preserves scroll containment below md, scales wide on md and lg without clipping content */
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse min-w-[900px] md:min-w-0">

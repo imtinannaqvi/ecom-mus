@@ -92,12 +92,8 @@ const ProcessOrder = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <div className="flex flex-col items-center gap-3">
-          <FiRefreshCw className="animate-spin text-[#635BFF]" size={28} />
-          <p className="text-xs font-bold text-gray-400 tracking-wider uppercase">Compiling Order Document Payload...</p>
-        </div>
-      </div>
+      // NEW
+<div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
     );
   }
 

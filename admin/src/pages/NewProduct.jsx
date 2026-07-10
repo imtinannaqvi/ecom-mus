@@ -172,13 +172,13 @@ const NewProduct = () => {
 
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                  Short Description <span className="normal-case font-medium text-gray-400">(shows under the price on the product page)</span>
+                  Short Description <span className="normal-case font-medium text-gray-400"></span>
                 </label>
                 <input
                   type="text"
                   maxLength={120}
                   className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
-                  placeholder="e.g. Soft, breathable cotton — perfect for everyday wear"
+                  placeholder="Write here.."
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
                 />
@@ -197,7 +197,7 @@ const NewProduct = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Old Price (optional)</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Old Price </label>
                   <input
                     type="number"
                     className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-bold transition-all"
@@ -219,10 +219,9 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Storefront Placement Toggles */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
                 <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl cursor-pointer">
-                  <span className="text-xs font-bold text-gray-600">Show in Top Trending</span>
+                  <span className="text-xs font-bold text-gray-600"> Top Trending</span>
                   <input
                     type="checkbox"
                     checked={isTopTrend}
@@ -246,7 +245,7 @@ const NewProduct = () => {
                 <textarea
                   rows="4"
                   className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm leading-relaxed transition-all"
-                  placeholder="Write a comprehensive overview about product styling, material..."
+                  placeholder="Write here.."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
@@ -295,7 +294,7 @@ const NewProduct = () => {
 
               {/* Age Groups — available for any product, any category */}
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Age Groups (optional)</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Age Groups </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {AGE_GROUP_OPTIONS.map((age) => (
                     <button
@@ -317,11 +316,9 @@ const NewProduct = () => {
             </div>
           </div>
 
-          {/* Right Column - Attributes & Uploads (5 Columns on md and up) */}
           <div className="md:col-span-5 space-y-5 w-full">
             <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               
-              {/* Sizes Block */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Available Sizes</label>
                 <div className="flex flex-wrap gap-2">
@@ -342,7 +339,6 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Colors Block — Fluid grid structure ensuring labels stay intact across grid widths */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Product Colors</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -363,7 +359,6 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Asset Media Gallery Uploader — Self-balancing gallery grid configuration */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Media Gallery</label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -396,7 +391,6 @@ const NewProduct = () => {
 
             </div>
 
-            {/* Action Dynamic CTA Button */}
             <button
               type="submit"
               disabled={loading}

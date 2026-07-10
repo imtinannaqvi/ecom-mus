@@ -93,12 +93,8 @@ const OrderList = () => {
   // Safe UI layout for data synchronization loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <div className="flex flex-col items-center gap-3">
-          <FiRefreshCw className="animate-spin text-[#635BFF]" size={26} />
-          <p className="text-xs font-bold text-gray-400 tracking-wider uppercase">Fetching Active Order Feeds...</p>
-        </div>
-      </div>
+      // NEW — replace whatever text/div is shown while loading with:
+<div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
     );
   }
 
@@ -109,10 +105,8 @@ const OrderList = () => {
         {/* Modern Unified Header Layout */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Maurish Orders</h1>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Fulfillment pipeline. Monitor customer checkouts, invoices, and shipping statuses.
-            </p>
+            <h1 className="text-2xl font-bold italic tracking-tight text-[#1E1B4B]">Maurish Orders</h1>
+            
           </div>
 
           {/* Premium Rounded Search Bar */}

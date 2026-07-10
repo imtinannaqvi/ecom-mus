@@ -154,9 +154,7 @@ const CategoryList = () => {
         <ToastContainer />
 
         {loading ? (
-          <div className="flex justify-center items-center h-40 text-sm font-semibold text-gray-400">
-            Loading your store matrix...
-          </div>
+         <div className="flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
         ) : allCategories.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center text-gray-400 text-sm font-medium shadow-sm">
             <FiAlertCircle className="mx-auto text-xl mb-2 text-gray-300" /> No categories found.

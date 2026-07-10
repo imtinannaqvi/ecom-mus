@@ -113,8 +113,7 @@ const Coupons = () => {
 
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">Coupons</h1>
-            <p className="text-xs text-gray-400 mt-0.5 truncate">Create and manage discount codes for checkout.</p>
+            <h1 className="text-2xl font-bold tracking-tight italic text-[#1E1B4B]">Coupons</h1>
           </div>
           <button
             type="button"
@@ -246,8 +245,7 @@ const Coupons = () => {
         {/* Coupons List */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-w-0">
           {loading ? (
-            <div className="p-16 text-center text-gray-400 font-medium text-sm">Loading coupons...</div>
-          ) : coupons.length === 0 ? (
+<div className="p-16 flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>          ) : coupons.length === 0 ? (
             <div className="p-16 text-center text-gray-400 text-sm font-medium">
               <FiTag className="mx-auto text-2xl mb-2 text-gray-300" />
               No coupons created yet.
