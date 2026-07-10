@@ -37,7 +37,6 @@ const ProductList = () => {
   // Deletes a single product after confirmation, then removes it from the
   // list locally so the table updates immediately without a full refetch.
   const handleDeleteProduct = async (productId, productName) => {
-    if (!window.confirm(`Delete "${productName}"? This cannot be undone.`)) return;
 
     setDeletingId(productId);
     try {
@@ -60,7 +59,6 @@ const ProductList = () => {
   const handleBulkDelete = async () => {
     const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
     if (idsToDelete.length === 0) return;
-    if (!window.confirm(`Delete ${idsToDelete.length} selected product(s)? This cannot be undone.`)) return;
 
     try {
       await Promise.all(idsToDelete.map((id) => Api.delete(`/product/delete/${id}`)));

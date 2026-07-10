@@ -40,7 +40,6 @@ const UserList = () => {
     );
 
   const deleteUserHandler = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this customer account permanently?")) return;
     try {
       await Api.delete(`/admin/users/${id}`);
       toast.success("Customer account deleted successfully!");

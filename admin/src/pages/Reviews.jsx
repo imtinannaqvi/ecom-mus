@@ -41,8 +41,7 @@ const Reviews = () => {
     }
   };
 
-  const handleDelete = async (review) => {
-    if (!window.confirm("Permanently delete this review?")) return;
+const handleDelete = async (review) => {
     setActingId(review._id);
     try {
       await Api.delete(`/product/admin/reviews/${review.productId}/${review._id}`);
@@ -68,6 +67,7 @@ const Reviews = () => {
     return path.startsWith("http") ? path : `${BACKEND_URL}${path}`;
   };
 
+  
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-5xl mx-auto">

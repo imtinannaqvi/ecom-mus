@@ -32,7 +32,6 @@ const CategoryList = () => {
   }, []);
 
   const deleteGroupHandler = useCallback(async (groupId) => {
-    if (!window.confirm("Delete this menu group and all its items?")) return;
     try {
       await Api.delete(`/admin/delete/${groupId}`);
       toast.success("Menu group deleted successfully!");
@@ -48,7 +47,6 @@ const CategoryList = () => {
   }, []);
 
   const deleteItemHandler = useCallback(async (groupId, itemId) => {
-    if (!window.confirm("Delete this item?")) return;
     try {
       await Api.delete(`/admin/sub-item/${groupId}/${itemId}`);
       toast.success("Item deleted successfully!");
@@ -68,10 +66,8 @@ const CategoryList = () => {
   }, []);
 
   const deleteMainCategoryHandler = useCallback(async (categoryId, categoryName, subCount) => {
-    const warning = subCount > 0
-      ? `Delete "${categoryName}"? This will also remove all ${subCount} of its menu groups. This cannot be undone.`
-      : `Delete "${categoryName}"? This cannot be undone.`;
-    if (!window.confirm(warning)) return;
+  
+
 
     setDeletingCategoryId(categoryId);
     try {

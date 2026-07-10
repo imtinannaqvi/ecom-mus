@@ -92,16 +92,15 @@ const Coupons = () => {
     }
   };
 
-  const deleteCoupon = async (id) => {
-    if (!window.confirm("Delete this coupon permanently?")) return;
-    try {
-      await Api.delete(`/coupons/admin/${id}`);
-      toast.success("Coupon deleted");
-      setCoupons((prev) => prev.filter((c) => c._id !== id));
-    } catch (err) {
-      toast.error("Failed to delete coupon");
-    }
-  };
+ const deleteCoupon = async (id) => {
+  try {
+    await Api.delete(`/coupons/admin/${id}`);
+    toast.success("Coupon deleted");
+    setCoupons((prev) => prev.filter((c) => c._id !== id));
+  } catch (err) {
+    toast.error("Failed to delete coupon");
+  }
+};
 
   const formatDiscount = (c) =>
     c.discountType === "fixed" ? `Rs. ${c.discountValue} off` : `${c.discountValue}% off`;
