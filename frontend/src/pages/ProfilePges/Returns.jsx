@@ -66,13 +66,13 @@ function Returns() {
     }
   };
 
-  if (fetchLoading) {
-    return (
-      <div className="max-w-2xl mx-auto p-6 text-center text-gray-400 font-medium">
-        Loading order...
-      </div>
-    );
-  }
+ if (fetchLoading) {
+  return (
+    <div className="max-w-2xl mx-auto p-6 flex justify-center">
+      <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+    </div>
+  );
+}
 
   if (fetchError || !order) {
     return (

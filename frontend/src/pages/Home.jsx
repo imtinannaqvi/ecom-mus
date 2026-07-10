@@ -60,13 +60,15 @@ function Home() {
       />
 
       {loading ? (
-        <div className="text-center py-10">Loading Products...</div>
-      ) : (
-        <Product
-          category={mainCategory}
-          products={products} // Yahan products state pass ki
-        />
-      )}
+  <div className="w-full py-20 flex justify-center">
+    <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+  </div>
+) : (
+  <Product
+    category={mainCategory}
+    products={products} // Yahan products state pass ki
+  />
+)}
 
       <CoustomerReviews />
       <Footer />

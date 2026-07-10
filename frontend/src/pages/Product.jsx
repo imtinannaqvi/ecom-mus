@@ -143,9 +143,9 @@ function Product({ category, products }) {
 
   if (!products || products.length === 0) {
     return (
-      <div className="w-full h-screen flex items-center justify-center font-bold uppercase tracking-widest">
-        Loading...
-      </div>
+      <div className="w-full h-screen flex items-center justify-center">
+  <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+</div>
     );
   }
 

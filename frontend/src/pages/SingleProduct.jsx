@@ -110,10 +110,10 @@ function SingleProduct() {
     }
   };
 
- if (loading || !product) {
+if (loading || !product) {
     return (
-      <div className="h-screen flex items-center justify-center font-bold text-gray-500">
-        Loading...
+      <div className="h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
       </div>
     );
   }

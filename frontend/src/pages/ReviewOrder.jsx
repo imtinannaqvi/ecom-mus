@@ -150,9 +150,9 @@ const ReviewOrder = () => {
     }
   };
 
-  if (cartLoading && cartItems.length === 0) {
-    return <div className="flex h-screen items-center justify-center font-bold tracking-widest uppercase">Loading...</div>;
-  }
+ if (cartLoading && cartItems.length === 0) {
+  return <div className="flex h-screen items-center justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" /></div>;
+}
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">

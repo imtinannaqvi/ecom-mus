@@ -31,7 +31,7 @@ function OrdersDetail() {
     if (id) getOrder();
   }, [id]);
 
-  if (loading) return <div className="p-10 text-center font-bold tracking-widest uppercase">Loading Order...</div>;
+if (loading) return <div className="flex justify-center p-10"><div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" /></div>
   if (!order) return <div className="p-10 text-center font-bold text-red-500 uppercase">Order Not Found</div>;
 
   return (

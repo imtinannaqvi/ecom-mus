@@ -23,8 +23,8 @@ function AddPayment() {
     navigate('/shopping-bag'); 
   };
 
-  if (cartLoading) return <div className="text-center p-20 font-bold tracking-widest">LOADING...</div>;
-
+if (cartLoading) return 
+<div className="flex justify-center p-20"><div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" /></div>;
   return (
     <main>
       <Header />
