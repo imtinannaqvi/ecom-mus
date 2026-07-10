@@ -7,7 +7,11 @@ import Button from "../components/Button";
 import Api, { BACKEND_URL } from "../api/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const ProductCard = ({ item, itemsToShow }) => {
+  // Track whether THIS image has finished downloading, so we can show a
+  // skeleton shimmer until it lands and then fade it in smoothly.
+  const [loaded, setLoaded] = useState(false);
 
   // Logic to get the image URL correctly
   // Agar images array hai to pehli image ka url lo, warna check karo fallback
@@ -23,9 +27,9 @@ const ProductCard = ({ item, itemsToShow }) => {
   };
 
   const imagePath = getImageUrl();
-  const finalSrc = imagePath.startsWith("http") 
-    ? imagePath 
-    : `${BACKEND_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+  const finalSrc = imagePath.startsWith("http")
+    ? imagePath
+    : `${BACKEND_URL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
 
   const hasDiscount = item.oldPrice && item.oldPrice > item.price;
 
@@ -35,35 +39,49 @@ const ProductCard = ({ item, itemsToShow }) => {
       className="shrink-0 relative group mb-4"
       style={{ width: `calc(${100 / itemsToShow}% - 16px)` }}
     >
-   <button
-  type="button"
-  onClick={async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      await Api.post(`/wishlist/${item._id}`);
-      toast.success("Added to wishlist!");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Please log in to save items.");
-    }
-  }}
-  className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors"
->
-  <CiHeart />
-</button>
+      <button
+        type="button"
+        onClick={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          try {
+            await Api.post(`/wishlist/${item._id}`);
+            toast.success("Added to wishlist!");
+          } catch (err) {
+            toast.error(err.response?.data?.message || "Please log in to save items.");
+          }
+        }}
+        className="h-8 w-8 text-xl flex items-center justify-center bg-white/80 backdrop-blur-sm right-2 top-2 rounded-full absolute z-10 hover:bg-black hover:text-white transition-colors"
+      >
+        <CiHeart />
+      </button>
+
       {hasDiscount && (
         <div className="absolute left-2 top-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
           {Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100)}% OFF
         </div>
       )}
-      <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md">
+
+      <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden rounded-md relative">
+        {/* Skeleton shimmer — visible only until the image loads */}
+        {!loaded && (
+          <div className="absolute inset-0 animate-pulse bg-gray-200" />
+        )}
         <img
           src={finalSrc}
           alt={item.title || item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => { e.target.src = "/images/placeholder.png"; }} // Image load na ho to handle kare
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
+          onError={(e) => {
+            e.target.src = "/images/placeholder.png";
+            setLoaded(true); // hide shimmer even on fallback
+          }}
         />
       </div>
+
       <div className="mt-3 md:mt-4">
         <p className="text-[10px] md:text-xs text-gray-400 capitalize">
           {item.subCategory}
@@ -77,7 +95,9 @@ const ProductCard = ({ item, itemsToShow }) => {
           </p>
           <div className="flex items-center gap-1.5">
             {hasDiscount && (
-              <p className="text-gray-400 text-[10px] md:text-xs line-through">${item.oldPrice}</p>
+              <p className="text-gray-400 text-[10px] md:text-xs line-through">
+                ${item.oldPrice}
+              </p>
             )}
             <p className="text-sm md:text-lg font-semibold">${item.price}</p>
           </div>
@@ -86,6 +106,7 @@ const ProductCard = ({ item, itemsToShow }) => {
     </Link>
   );
 };
+
 export const ProductSliderSection = ({ title, products = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(5);
@@ -152,12 +173,11 @@ export const NewArrivals = ({ products }) => {
 // 5. MAIN PRODUCT PAGE — buckets real products into real sections instead
 // of showing the same full list four times.
 function Product({ category, products }) {
-
   if (!products || products.length === 0) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-  <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
-</div>
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+      </div>
     );
   }
 
@@ -174,7 +194,8 @@ function Product({ category, products }) {
 
   // Buy 2 Get 1 Free: admin-flagged via isBuy2Get1 toggle.
   const buy2Get1 = products.filter((p) => p.isBuy2Get1);
-return (
+
+  return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
       <ToastContainer />
       <ProductSliderSection title="NEW ARRIVALS" products={newArrivals} />
@@ -184,7 +205,5 @@ return (
     </div>
   );
 }
-
-
 
 export default Product;

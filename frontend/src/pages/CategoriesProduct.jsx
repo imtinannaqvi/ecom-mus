@@ -87,6 +87,7 @@ const CategoriesProduct = () => {
   const { mainCategory, subCategory } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const { fetchMainCategory } = useProduct();
 
@@ -108,16 +109,26 @@ const CategoriesProduct = () => {
 
   useEffect(() => {
     const loadCategories = async () => {
+      setCategoriesLoading(true);
       try {
         const res = await fetchMainCategory();
         setCategories(res.data || []);
       } catch (err) {
         console.error("Failed to load category structure", err.message);
+      } finally {
+        setCategoriesLoading(false);
       }
     };
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Content is only "ready" once BOTH the products fetch and the category
+  // structure fetch have finished. Rendering before both are done is what
+  // caused the "2 items then all items" flash — the parallelogram strip and
+  // the grid were computed from half-loaded matching data, then recomputed
+  // once the second fetch landed.
+  const isReady = !loading && !categoriesLoading;
 
   const matchedMainCat = useMemo(
     () => categories.find((c) => c.name?.toLowerCase() === mainCategory?.toLowerCase()),
@@ -510,132 +521,142 @@ const CategoriesProduct = () => {
 
       {/* --- Main Content --- */}
       <div className="w-full px-4 md:px-6 pt-5">
-        {/* PARALLELOGRAM SECTION */}
-        <div className="flex flex-col md:flex-row h-auto md:h-[450px] gap-2 md:gap-0 w-full overflow-hidden">
-          {topFiveProducts.map((cat, index) => {
-            let desktopClip =
-              "md:[clip-path:polygon(20%_0%,100%_0%,80%_100%,0%_100%)]";
-            if (index === 0)
-              desktopClip =
-                "md:[clip-path:polygon(0%_0%,100%_0%,80%_100%,0%_100%)]";
-            else if (index === topFiveProducts.length - 1)
-              desktopClip =
-                "md:[clip-path:polygon(20%_0%,100%_0%,100%_100%,0%_100%)]";
-
-            return (
-              <Link
-                to={`/product/${cat._id}`}
-                key={cat._id}
-                className={`relative w-full h-[150px] md:h-full md:flex-1 overflow-hidden transition-all duration-500 ease-in-out cursor-pointer group ${
-                  index !== 0 ? "md:-ml-16" : ""
-                } ${desktopClip}`}
-                style={{ zIndex: topFiveProducts.length - index }}
-              >
-                <img
-                  src={getImageUrl(cat.images)}
-                  alt={cat.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
-                />
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Toolbar */}
-        <div className="mt-8">
-          <p className="text-[10px] text-gray-400 tracking-widest uppercase">
-            home / {displayTitle}
-          </p>
-          <div className="flex items-center justify-between mt-4">
-            <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-              {displayTitle}{" "}
-              <span className="text-gray-400 font-normal text-xs ml-2 normal-case not-italic tracking-normal">
-                ({displayProducts.length} items)
-              </span>
-            </h2>
-
-            {/* RIGHT SIDE: Sort By + Filter */}
-            <div className="flex items-center gap-3">
-              {/* Sort By Dropdown */}
-              <div className="relative" ref={sortRef}>
-                <button
-                  onClick={() => setIsSortOpen((prev) => !prev)}
-                  className="flex items-center gap-2 border border-black px-5 py-2 text-[10px] font-black uppercase"
-                >
-                  {activeSortLabel}
-                  <ChevronDown />
-                </button>
-                {isSortOpen && (
-                  <div className="absolute right-0 top-[calc(100%+4px)] w-48 bg-white border border-gray-200 shadow-lg z-50">
-                    {SORT_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => {
-                          setSortOrder(opt.value);
-                          setIsSortOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider transition-colors ${
-                          sortOrder === opt.value
-                            ? "bg-black text-white"
-                            : "hover:bg-gray-50"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Filter Button */}
-              <button
-                onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 border border-black px-5 py-2 text-[10px] font-black uppercase"
-              >
-                <FilterIcon /> Filter
-              </button>
-            </div>
+        {!isReady ? (
+          // Show a single spinner until BOTH fetches finish, so the strip and
+          // grid render once with complete data instead of flashing 2 → all.
+          <div className="w-full py-40 flex justify-center">
+            <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
           </div>
-        </div>
+        ) : (
+          <>
+            {/* PARALLELOGRAM SECTION */}
+            <div className="flex flex-col md:flex-row h-auto md:h-[450px] gap-2 md:gap-0 w-full overflow-hidden">
+              {topFiveProducts.map((cat, index) => {
+                let desktopClip =
+                  "md:[clip-path:polygon(20%_0%,100%_0%,80%_100%,0%_100%)]";
+                if (index === 0)
+                  desktopClip =
+                    "md:[clip-path:polygon(0%_0%,100%_0%,80%_100%,0%_100%)]";
+                else if (index === topFiveProducts.length - 1)
+                  desktopClip =
+                    "md:[clip-path:polygon(20%_0%,100%_0%,100%_100%,0%_100%)]";
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mt-8 pb-20">
-          {displayProducts.length > 0 ? (
-            displayProducts.map((item) => (
-              <Link
-                to={`/product/${item._id}`}
-                key={item._id}
-                className="group"
-              >
-                <div className="aspect-[3/4] overflow-hidden bg-gray-50 rounded-sm">
-                  <img
-                    src={getImageUrl(item.images)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    alt={item.name}
-                  />
-                </div>
-                <h3 className="mt-3 text-[11px] font-bold uppercase">
-                  {item.name}
-                </h3>
-                <p className="text-[10px] text-gray-500 font-medium">
-                  Rs. {item.price}
-                </p>
-              </Link>
-            ))
-          ) : (
-            <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100">
-              <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">
-                No items matched your filter
-              </p>
-              <button
-                onClick={handleReset}
-                className="mt-4 text-[10px] underline font-black uppercase"
-              >
-                Clear All Filters
-              </button>
+                return (
+                  <Link
+                    to={`/product/${cat._id}`}
+                    key={cat._id}
+                    className={`relative w-full h-[150px] md:h-full md:flex-1 overflow-hidden transition-all duration-500 ease-in-out cursor-pointer group ${
+                      index !== 0 ? "md:-ml-16" : ""
+                    } ${desktopClip}`}
+                    style={{ zIndex: topFiveProducts.length - index }}
+                  >
+                    <img
+                      src={getImageUrl(cat.images)}
+                      alt={cat.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                    />
+                  </Link>
+                );
+              })}
             </div>
-          )}
-        </div>
+
+            {/* Toolbar */}
+            <div className="mt-8">
+              <p className="text-[10px] text-gray-400 tracking-widest uppercase">
+                home / {displayTitle}
+              </p>
+              <div className="flex items-center justify-between mt-4">
+                <h2 className="text-lg font-bold uppercase italic tracking-tighter">
+                  {displayTitle}{" "}
+                  <span className="text-gray-400 font-normal text-xs ml-2 normal-case not-italic tracking-normal">
+                    ({displayProducts.length} items)
+                  </span>
+                </h2>
+
+                {/* RIGHT SIDE: Sort By + Filter */}
+                <div className="flex items-center gap-3">
+                  {/* Sort By Dropdown */}
+                  <div className="relative" ref={sortRef}>
+                    <button
+                      onClick={() => setIsSortOpen((prev) => !prev)}
+                      className="flex items-center gap-2 border border-black px-5 py-2 text-[10px] font-black uppercase"
+                    >
+                      {activeSortLabel}
+                      <ChevronDown />
+                    </button>
+                    {isSortOpen && (
+                      <div className="absolute right-0 top-[calc(100%+4px)] w-48 bg-white border border-gray-200 shadow-lg z-50">
+                        {SORT_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => {
+                              setSortOrder(opt.value);
+                              setIsSortOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider transition-colors ${
+                              sortOrder === opt.value
+                                ? "bg-black text-white"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Filter Button */}
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="flex items-center gap-2 border border-black px-5 py-2 text-[10px] font-black uppercase"
+                  >
+                    <FilterIcon /> Filter
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mt-8 pb-20">
+              {displayProducts.length > 0 ? (
+                displayProducts.map((item) => (
+                  <Link
+                    to={`/product/${item._id}`}
+                    key={item._id}
+                    className="group"
+                  >
+                    <div className="aspect-[3/4] overflow-hidden bg-gray-50 rounded-sm">
+                      <img
+                        src={getImageUrl(item.images)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        alt={item.name}
+                      />
+                    </div>
+                    <h3 className="mt-3 text-[11px] font-bold uppercase">
+                      {item.name}
+                    </h3>
+                    <p className="text-[10px] text-gray-500 font-medium">
+                      Rs. {item.price}
+                    </p>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100">
+                  <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">
+                    No items matched your filter
+                  </p>
+                  <button
+                    onClick={handleReset}
+                    className="mt-4 text-[10px] underline font-black uppercase"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
       <Footer />
     </section>

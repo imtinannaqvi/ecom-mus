@@ -14,14 +14,19 @@ function Home() {
   const { fetchMainCategory, fetchProducts, loading, setLoading, products } =
     useProduct();
 
-
-
   const [subCategories, setSubCategories] = useState([]);
 
   const loadPageData = async () => {
     setLoading(true);
     try {
-      const catRes = await fetchMainCategory();
+      // Fire BOTH requests at the same time instead of waiting for one,
+      // then the other. This roughly halves the delay before product
+      // images can start downloading.
+      const [catRes, productData] = await Promise.all([
+        fetchMainCategory(),
+        fetchProducts({ mainCategory }),
+      ]);
+
       const foundCategory = catRes.data.find(
         (cat) => cat.name.toLowerCase() === mainCategory.toLowerCase(),
       );
@@ -29,25 +34,16 @@ function Home() {
       if (foundCategory) {
         setSubCategories(foundCategory.subCategories);
       }
-
-      const productData = await fetchProducts({ mainCategory });
-
     } catch (err) {
       console.log(err.message);
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
-    useEffect(() => {
-      loadPageData()
-    
-     
-    }, [mainCategory])
-    
-
-
+  useEffect(() => {
+    loadPageData();
+  }, [mainCategory]);
 
   return (
     <div>
@@ -60,15 +56,15 @@ function Home() {
       />
 
       {loading ? (
-  <div className="w-full py-20 flex justify-center">
-    <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
-  </div>
-) : (
-  <Product
-    category={mainCategory}
-    products={products} // Yahan products state pass ki
-  />
-)}
+        <div className="w-full py-20 flex justify-center">
+          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+        </div>
+      ) : (
+        <Product
+          category={mainCategory}
+          products={products} // Yahan products state pass ki
+        />
+      )}
 
       <CoustomerReviews />
       <Footer />

@@ -16,6 +16,10 @@ function HeroBanner({ subCategories, mainCategory }) {
   const [isMobile, setIsMobile] = useState(false);
   const [slide, setSlide] = useState(0); // 0 = image banner, 1 = categories grid
 
+  // Are the categories actually loaded yet? Used to avoid rendering a
+  // half-empty grid and to hold off the auto-rotate until data is ready.
+  const hasCategories = Array.isArray(subCategories) && subCategories.length > 0;
+
   useEffect(() => {
     const checkRes = () => setIsMobile(window.innerWidth < 768);
     checkRes();
@@ -23,13 +27,15 @@ function HeroBanner({ subCategories, mainCategory }) {
     return () => window.removeEventListener("resize", checkRes);
   }, []);
 
-  // Auto-rotate between the two slides every few seconds.
+  // Auto-rotate between the two slides every few seconds — but only once the
+  // category data has arrived, so it can't flip to a half-built grid.
   useEffect(() => {
+    if (!hasCategories) return; // wait for data before rotating
     const interval = setInterval(() => {
       setSlide((prev) => (prev === 0 ? 1 : 0));
     }, AUTO_ROTATE_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [hasCategories]);
 
   const goPrev = () => setSlide((prev) => (prev === 0 ? 1 : 0));
   const goNext = () => setSlide((prev) => (prev === 0 ? 1 : 0));
@@ -80,15 +86,17 @@ function HeroBanner({ subCategories, mainCategory }) {
               transition={{ duration: 0.6 }}
               className="absolute inset-0 w-full h-full"
             >
-             <img
-  src="/images/banner.png"
-  alt="Promotional banner"
-  className="w-full h-full object-cover"
-  onError={(e) => { e.target.style.display = "none"; }}
-/>
+              <img
+                src="/images/banner.png"
+                alt="Promotional banner"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
             </motion.div>
-          ) : (
-            // ---- SLIDE 2: Category Slanted Grid ----
+          ) : hasCategories ? (
+            // ---- SLIDE 2: Category Slanted Grid (only once data is ready) ----
             <motion.div
               key="banner-slanted"
               initial={{ opacity: 0 }}
@@ -136,6 +144,16 @@ function HeroBanner({ subCategories, mainCategory }) {
                 </Link>
               ))}
             </motion.div>
+          ) : (
+            // ---- Placeholder while categories load — no partial grid flash ----
+            <motion.div
+              key="banner-loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute inset-0 w-full h-full bg-gray-100 animate-pulse"
+            />
           )}
         </AnimatePresence>
       </div>
