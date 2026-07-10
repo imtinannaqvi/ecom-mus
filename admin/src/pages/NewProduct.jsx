@@ -148,9 +148,7 @@ const NewProduct = () => {
         <header className="mb-6 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Add details, metrics, sizes and asset gallery for the inventory</p>
           </div>
-          <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold text-slate-600 shrink-0">V2.3</span>
         </header>
         
         <ToastContainer />
@@ -284,38 +282,36 @@ const NewProduct = () => {
 
             </div>
 
-            {/* SEO Section — kept in its own card for clarity */}
             <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#1E1B4B] flex items-center gap-1.5">
                   <FiSearch className="text-[#635BFF]" /> SEO Settings
                 </h3>
-                <p className="text-[11px] text-gray-400 mt-0.5">Controls how this product appears in search results and browser tabs.</p>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                    SEO Title <span className="normal-case font-medium text-gray-400">(browser tab / search result title)</span>
+                    SEO Title <span className="normal-case font-medium text-gray-400"></span>
                   </label>
                   <input
                     type="text"
                     maxLength={70}
                     className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
-                    placeholder="e.g. Premium Cotton Shirt | Maurish"
+                    placeholder="Add Title"
                     value={seoTitle}
                     onChange={(e) => setSeoTitle(e.target.value)}
                   />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">
-                    SEO Description <span className="normal-case font-medium text-gray-400">(search result snippet)</span>
+                    SEO Description <span className="normal-case font-medium text-gray-400"></span>
                   </label>
                   <textarea
                     rows="2"
                     maxLength={160}
                     className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all resize-none leading-relaxed"
-                    placeholder="e.g. Shop the Premium Cotton Shirt — soft, breathable, made to last."
+                    placeholder="Add Description."
                     value={seoDescription}
                     onChange={(e) => setSeoDescription(e.target.value)}
                   />
