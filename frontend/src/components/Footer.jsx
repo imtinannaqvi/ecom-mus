@@ -11,6 +11,7 @@ import { FaFacebookF, FaYoutube, FaTwitter } from "react-icons/fa";
 import { FaInstagram } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import useProduct from "../hooks/productService";
+import Api, { BACKEND_URL } from "../api/api";
 
 // Colorful Payment Method Icons
 const VisaIcon = () => (
@@ -144,12 +145,11 @@ const ApplePayIcon = () => (
 
 // Builds the exact same URL-safe slug used elsewhere (Header, TopCategories),
 // so footer links always land on a real, matching item page.
-const toSlug = (name) => (name || "")
-  .toLowerCase()
-  .replace(/\//g, "-")
-  .replace(/\s+/g, "-");
+const toSlug = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
+
 const Footer = () => {
   const [categories, setCategories] = useState([]);
+  const [siteSettings, setSiteSettings] = useState(null);
   const { fetchMainCategory } = useProduct();
 
   useEffect(() => {
@@ -162,6 +162,18 @@ const Footer = () => {
       }
     };
     loadCategories();
+
+    // Real store branding — logo, description, social links, currently
+    // hardcoded below as a fallback if settings haven't been fetched yet.
+    const loadSettings = async () => {
+      try {
+        const { data } = await Api.get("/settings");
+        if (data.success) setSiteSettings(data.settings);
+      } catch (err) {
+        console.error("Failed to load site settings", err);
+      }
+    };
+    loadSettings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -212,10 +224,23 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10 border-b border-gray-800 pb-12">
           {/* Company logo and contact information section */}
           <div className="col-span-1">
-            <img src="/images/footer-logo.png" alt="" />
+            {siteSettings?.logo ? (
+              <img
+                src={siteSettings.logo.startsWith("http") ? siteSettings.logo : `${BACKEND_URL}${siteSettings.logo}`}
+                alt={siteSettings.storeName || "Store logo"}
+                className="max-h-12 object-contain"
+              />
+            ) : (
+              <img src="/images/footer-logo.png" alt="" />
+            )}
             <div className="space-y-4 text-sm text-gray-400">
+              {siteSettings?.description && (
+                <p className="text-xs text-gray-400 leading-relaxed mt-3">
+                  {siteSettings.description}
+                </p>
+              )}
               <p className="flex items-center mt-4 gap-2">
-                <Mail size={16} /> help@maurish.com
+                <Mail size={16} /> {siteSettings?.supportEmail || "help@maurish.com"}
               </p>
               <div>
                 <p className="flex items-center gap-2 text-white font-bold text-lg">
@@ -230,7 +255,7 @@ const Footer = () => {
                 <p className="text-xs ml-7">24/7 Support Center</p>
               </div>
               <p className="text-[10px] pt-4">
-                © 2025, <span className="text-white">maurish</span> - A
+                © 2025, <span className="text-white">{siteSettings?.storeName || "maurish"}</span> - A
                 Ecommerce platform. All rights reserved
               </p>
             </div>
@@ -365,22 +390,26 @@ const Footer = () => {
             </div>
             <div className="flex items-center gap-3 mt-6">
               <span className="text-xs font-bold">Follow Us</span>
-              <FaFacebookF
-                size={18}
-                className="cursor-pointer hover:text-gray-400"
-              />
-              <FaTwitter
-                size={18}
-                className="cursor-pointer hover:text-gray-400"
-              />
-              <FaInstagram
-                size={18}
-                className="cursor-pointer hover:text-gray-400"
-              />
-              <FaYoutube
-                size={18}
-                className="cursor-pointer hover:text-gray-400"
-              />
+              {siteSettings?.socialLinks?.facebook && (
+                <a href={siteSettings.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
+                  <FaFacebookF size={18} className="cursor-pointer hover:text-gray-400" />
+                </a>
+              )}
+              {siteSettings?.socialLinks?.twitter && (
+                <a href={siteSettings.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                  <FaTwitter size={18} className="cursor-pointer hover:text-gray-400" />
+                </a>
+              )}
+              {siteSettings?.socialLinks?.instagram && (
+                <a href={siteSettings.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
+                  <FaInstagram size={18} className="cursor-pointer hover:text-gray-400" />
+                </a>
+              )}
+              {siteSettings?.socialLinks?.youtube && (
+                <a href={siteSettings.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
+                  <FaYoutube size={18} className="cursor-pointer hover:text-gray-400" />
+                </a>
+              )}
             </div>
             <p className="text-[10px] text-gray-500 mt-2">
               Up to 15% discount on your first subscribe
@@ -438,7 +467,7 @@ const Footer = () => {
                 Contact Us
               </Link>
               <Link
-to="/profile/orders"
+                to="/profile/track"
                 className="block text-xs text-gray-400 hover:text-white transition"
               >
                 Track Order
