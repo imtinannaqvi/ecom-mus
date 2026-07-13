@@ -12,12 +12,12 @@ const ProductList = () => {
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   
-  // UI States matching the screenshot
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState({});
 
-  // ✅ Keep original API fetch logic intact
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -34,8 +34,7 @@ const ProductList = () => {
     fetchProducts();
   }, []);
 
-  // Deletes a single product after confirmation, then removes it from the
-  // list locally so the table updates immediately without a full refetch.
+ 
   const handleDeleteProduct = async (productId, productName) => {
 
     setDeletingId(productId);
@@ -55,7 +54,7 @@ const ProductList = () => {
     }
   };
 
-  // Deletes every currently checked product in one go.
+  
   const handleBulkDelete = async () => {
     const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
     if (idsToDelete.length === 0) return;

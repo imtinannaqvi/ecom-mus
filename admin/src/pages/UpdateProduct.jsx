@@ -35,12 +35,11 @@ const [seoDescription, setSeoDescription] = useState("");
   const [ageGroups, setAgeGroups] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   
-  // Image assets management
+  
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
 
-  // Fetch the real category structure (groups + items) so the Product Type
-  // dropdown lists actual items instead of a stale hardcoded map.
+  
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -53,7 +52,6 @@ const [seoDescription, setSeoDescription] = useState("");
     fetchCategories();
   }, []);
 
-  // Fetch Existing Product Details and Fill State Matrices
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -175,7 +173,7 @@ if (fetchLoading) {
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
         
-        {/* Header Section */}
+       
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <button 
             type="button"
@@ -192,7 +190,7 @@ if (fetchLoading) {
 
         <form onSubmit={handleFormSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* LEFT BLOCK: PRODUCT CORE DETAILS */}
+          
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
               

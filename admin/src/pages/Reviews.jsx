@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("Pending"); // Pending | Approved | All
+  const [filter, setFilter] = useState("Pending"); 
   const [actingId, setActingId] = useState(null);
 
   const fetchReviews = async () => {

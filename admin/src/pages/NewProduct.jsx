@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Added for navigation
+import { useNavigate } from "react-router-dom"; 
 import { FiUploadCloud, FiX, FiCheckCircle, FiSearch } from "react-icons/fi";
 import Api from "../api/api";
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // ✅ Added to ensure toast styles render properly
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const AGE_GROUP_OPTIONS = ["0-2 Years", "3-5 Years", "6-8 Years", "9-12 Years", "13-16 Years"];
 
 const NewProduct = () => {
-  const navigate = useNavigate(); // ✅ Initialize navigation hook
+  const navigate = useNavigate(); 
   const availableSizes = ["S", "M", "L", "XL", "XXL"];
   const availableColors = ["Black", "White", "Red", "Blue", "Grey", "Beige"];
 
@@ -32,7 +32,7 @@ const NewProduct = () => {
   const [loading, setLoading] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
 
-  // Logic remains untouched as per instruction
+  
   const handleSizeChange = (size) => {
     setSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]);
   };
@@ -85,7 +85,7 @@ const NewProduct = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (colors.length === 0 || sizes.length === 0 || imageFiles.length === 0) {
-        toast.error("Please select all required attributes."); // ✅ Swapped alert with premium toast error
+        toast.error("Please select all required attributes."); 
         return;
     }
     if (oldPrice && Number(oldPrice) <= Number(price)) {
@@ -116,19 +116,18 @@ const NewProduct = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       
-      // ✅ React Toastify Success notification 
       toast.success("Product published successfully!", {
         position: "top-right",
         autoClose: 2000,
       });
 
-      // Reset logic
+      
       setName(""); setPrice(""); setOldPrice(""); setDescription(""); setShortDescription(""); setSeoTitle(""); setSeoDescription(""); setMainCategory("");
       setSubCategory(""); setStock(1); setColors([]); setSizes([]);
       setIsTopTrend(false); setIsBuy2Get1(false); setAgeGroups([]);
       setImagesPreview([]); setImageFiles([]);
 
-      // ✅ Securely route back to products overview pane after timeout
+      
       setTimeout(() => {
         navigate("/admin/products");
       }, 2000);
@@ -144,7 +143,7 @@ const NewProduct = () => {
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Premium Dashboard Header */}
+       
         <header className="mb-6 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Create New Product</h1>
@@ -153,10 +152,10 @@ const NewProduct = () => {
         
         <ToastContainer />
 
-        {/* ✅ Form structure configured for seamless md and lg dual-column split setups */}
+        
         <form onSubmit={submitHandler} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           
-          {/* Left Column - Core Details (7 Columns on md and up) */}
+         
           <div className="md:col-span-7 space-y-5 w-full">
             <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
               
@@ -259,7 +258,7 @@ const NewProduct = () => {
                 </div>
               </div>
 
-              {/* Age Groups — available for any product, any category */}
+             
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-2.5 block tracking-wider">Age Groups </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">

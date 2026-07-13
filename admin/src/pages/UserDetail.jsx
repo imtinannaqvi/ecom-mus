@@ -61,7 +61,6 @@ const UserDetail = () => {
           <FiArrowLeft size={13} /> Back to Customers
         </button>
 
-        {/* Profile Card */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-[#635BFF] flex items-center justify-center font-bold text-xl shadow-sm shrink-0">
@@ -81,7 +80,7 @@ const UserDetail = () => {
           </div>
         </div>
 
-        {/* Saved Addresses */}
+     
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
           <div className="p-5 border-b border-gray-50 flex items-center gap-2">
             <FiMapPin className="text-[#635BFF]" size={16} />

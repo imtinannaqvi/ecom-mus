@@ -12,7 +12,7 @@ import Api from "../api/api";
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading handler state
+  const [loading, setLoading] = useState(true); 
 
   const getOrder = async () => {
     try {
@@ -39,17 +39,17 @@ const OrderList = () => {
   useEffect(() => {
     let result = orders;
 
-    // Search by Order ID or User Name Layer
+   
     if (searchTerm) {
       result = result.filter(
         (order) =>
           order._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          // ✅ FIX: Accessing object's name safely using optional chaining
+          
           order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by Status
+   
     if (statusFilter !== "All") {
       result = result.filter((order) => order.orderStatus === statusFilter);
     }
@@ -57,7 +57,7 @@ const OrderList = () => {
     setFilteredOrders(result);
   }, [searchTerm, statusFilter, orders]);
 
-  // Premium Custom Dynamic Badges Mapping
+
   const getStatusConfig = (status) => {
     switch (status) {
       case "Processing":
@@ -83,7 +83,7 @@ const OrderList = () => {
     }
   };
 
-  // Helper function to count tabs items dynamically
+ 
   const getCount = (status) => {
     if (status === "All") return orders.length;
     return orders.filter((o) => o.orderStatus === status).length;
@@ -98,7 +98,7 @@ const OrderList = () => {
         })
       : "N/A";
 
-  // Safe UI layout for data synchronization loading
+ 
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]">
@@ -111,7 +111,7 @@ const OrderList = () => {
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto min-w-0">
 
-        {/* Modern Unified Header Layout */}
+       
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold italic tracking-tight text-[#1E1B4B]">
@@ -119,7 +119,7 @@ const OrderList = () => {
             </h1>
           </div>
 
-          {/* Premium Rounded Search Bar */}
+         
           <div className="relative w-full sm:w-72 md:w-80 shrink-0">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
             <input
@@ -131,7 +131,7 @@ const OrderList = () => {
           </div>
         </header>
 
-        {/* Clean Pill Layout Tabs Control Bar */}
+       
         <div className="overflow-x-auto no-scrollbar mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="flex gap-1 bg-slate-200/50 p-1 rounded-xl w-max border border-gray-100 shadow-inner">
             {["All", "Processing", "Shipped", "Delivered"].map((status) => {
@@ -160,7 +160,7 @@ const OrderList = () => {
           </div>
         </div>
 
-        {/* ── MOBILE + TABLET: card list (below lg) ── */}
+      
         <div className="lg:hidden space-y-3">
           {filteredOrders.map((order) => {
             const badge = getStatusConfig(order.orderStatus);
@@ -169,7 +169,7 @@ const OrderList = () => {
                 key={order._id}
                 className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3"
               >
-                {/* Top row: reference + status */}
+               
                 <div className="flex items-start justify-between gap-3">
                   <span className="font-mono font-bold text-[#635BFF] text-xs tracking-wide truncate">
                     #{order._id?.substring(0, 8).toUpperCase()}...
@@ -182,7 +182,7 @@ const OrderList = () => {
                   </span>
                 </div>
 
-                {/* Customer */}
+               
                 <div className="min-w-0">
                   <p className="text-sm text-gray-700 font-semibold truncate">
                     {order.user?.name || "Guest User"}
@@ -192,7 +192,7 @@ const OrderList = () => {
                   </p>
                 </div>
 
-                {/* Meta row: date + amount */}
+               
                 <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-50">
                   <div className="min-w-0">
                     <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</p>
@@ -208,7 +208,7 @@ const OrderList = () => {
                   </div>
                 </div>
 
-                {/* Action */}
+              
                 <Link
                   to={`/admin/order/${order._id}`}
                   className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-200 hover:border-[#1E1B4B] rounded-lg text-gray-600 hover:text-[#1E1B4B] text-xs font-bold transition-colors bg-white shadow-sm"
@@ -231,7 +231,7 @@ const OrderList = () => {
           )}
         </div>
 
-        {/* ── DESKTOP: full table (lg and up) ── */}
+      
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse">
@@ -251,12 +251,12 @@ const OrderList = () => {
 
                   return (
                     <tr key={order._id} className="hover:bg-slate-50/50 transition-all group">
-                      {/* Order Code Reference */}
+                   
                       <td className="p-4 pl-6 font-mono font-bold text-[#635BFF] tracking-wide whitespace-nowrap">
                         #{order._id?.substring(0, 8).toUpperCase()}...
                       </td>
 
-                      {/* Customer Name and Sub-Email Payload */}
+                      
                       <td className="p-4 max-w-[220px]">
                         <div className="flex flex-col min-w-0">
                           <span className="text-gray-700 font-semibold truncate">
@@ -268,17 +268,17 @@ const OrderList = () => {
                         </div>
                       </td>
 
-                      {/* Formatted Creation Date */}
+                    
                       <td className="p-4 text-gray-400 font-normal whitespace-nowrap">
                         {formatDate(order.createdAt)}
                       </td>
 
-                      {/* Gross Pricing Counter */}
+                    
                       <td className="p-4 text-[#1E1B4B] font-bold text-sm whitespace-nowrap">
                         Rs. {order.totalPrice?.toLocaleString() || "0"}
                       </td>
 
-                      {/* Dynamic Tracking Status Badge */}
+                     
                       <td className="p-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${badge.style}`}
@@ -288,7 +288,7 @@ const OrderList = () => {
                         </span>
                       </td>
 
-                      {/* Navigation Detail Trigger Link */}
+                   
                       <td className="p-4 pr-6 text-right whitespace-nowrap">
                         <Link
                           to={`/admin/order/${order._id}`}
@@ -305,7 +305,7 @@ const OrderList = () => {
             </table>
           </div>
 
-          {/* Fallback Screen Context Empty Matrix Grid */}
+        
           {filteredOrders.length === 0 && (
             <div className="py-20 flex flex-col items-center justify-center text-center text-gray-400">
               <div className="p-3 bg-slate-50 border border-gray-100 text-gray-300 rounded-xl mb-3">

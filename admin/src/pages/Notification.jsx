@@ -13,7 +13,7 @@ import Api from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Converts an ISO timestamp into a short "x mins/hours/days ago" label.
+
 const timeAgo = (dateString) => {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -51,16 +51,29 @@ const Notification = () => {
     try {
       await Api.patch("/notifications/mark-all-read");
       setNotifications((prev) => prev.map((n) => ({ ...n, isUnread: false })));
+      toast.success("All notifications marked as read!", {
+      position: "top-right",
+      autoClose: 2500,
+      theme: "colored",
+    });
     } catch (err) {
       toast.error("Failed to mark all as read");
     }
   };
 
   const clearAllHandler = async () => {
-    if (!window.confirm("Are you sure you want to clear all notifications logs?")) return;
     try {
       await Api.delete("/notifications/clear-all");
       setNotifications([]);
+      toast.success("Notifications cleared successfully!", {
+      position: "top-right",
+      autoClose: 2500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
     } catch (err) {
       toast.error("Failed to clear notifications");
     }
@@ -106,8 +119,16 @@ const Notification = () => {
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-12">
       <div className="max-w-4xl mx-auto min-w-0">
 
-        <ToastContainer />
-
+<ToastContainer
+  position="top-right"
+  autoClose={2500}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  pauseOnHover
+  draggable
+  theme="colored"
+/>
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

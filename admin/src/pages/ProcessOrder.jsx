@@ -6,13 +6,13 @@ import {
 } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Api, { BACKEND_URL } from '../api/api'; // Aapka setup kiya hua Axios instance
+import Api, { BACKEND_URL } from '../api/api'; 
 
 const ProcessOrder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Core Functional States
+ 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -20,11 +20,11 @@ const ProcessOrder = () => {
 
 
 
-  // 🔌 Operation 1: Fetch Order Details Workflow Node
+ 
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
-      // Apne backend route ke mutabik url set kiya hai
+     
       const res = await Api.get(`/admin/get-order-by-id/${id}`);
       if (res.data.success) {
         setOrder(res.data.order);
@@ -42,7 +42,7 @@ const ProcessOrder = () => {
     if (id) fetchOrderDetails();
   }, [id]);
 
-  // ⚡ Operation 2: Shift / Update Status Mechanics
+  
   const handleStatusUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -79,7 +79,7 @@ const ProcessOrder = () => {
     }
   };
 
-  // Status Style Manager Engine
+  
   const getStatusBadgeStyle = (node) => {
     switch (node) {
       case "Processing": return "bg-amber-50 text-amber-700 border-amber-200/60";
@@ -92,7 +92,7 @@ const ProcessOrder = () => {
 
   if (loading) {
     return (
-      // NEW
+     
 <div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
     );
   }

@@ -20,7 +20,7 @@ const STATUS_COLORS = {
   Cancelled: "#EF4444",
 };
 
-// Same palette as the Dashboard chart so both pages read as one system
+
 const CHART_COLORS = ["#F59E0B", "#635BFF"];
 
 const getProductImage = (img) => {
@@ -28,7 +28,7 @@ const getProductImage = (img) => {
   return img.startsWith("http") ? img : `${BACKEND_URL}${img}`;
 };
 
-// ── Chart summary counter (top-right of the chart card) ──────
+
 const ChartStat = ({ icon, label, value, color }) => (
   <div className="flex flex-col items-center sm:items-end">
     <span className="text-xl font-bold tracking-tight" style={{ color }}>
@@ -104,8 +104,7 @@ function Report() {
     }))
     .sort((a, b) => b.value - a.value);
 
-  // ── Reference-style chart: smooth spline areas, soft gradient fills,
-  // light dashed grid, crosshair, bottom-centered legend, clean tooltip.
+  
   const chartOptions = {
     chart: {
       type: "area",

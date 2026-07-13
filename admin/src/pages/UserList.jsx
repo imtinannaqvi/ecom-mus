@@ -51,7 +51,6 @@ const UserList = () => {
     }
   };
 
-  // Avatar Color Generator (Premium look ke liye soft professional colors)
   const getAvatarStyle = (name) => {
     const colors = [
       "bg-indigo-50 text-[#635BFF]",
@@ -96,7 +95,7 @@ const UserList = () => {
 
         <ToastContainer />
 
-        {/* Modern Unified Header Layout */}
+       
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -109,7 +108,7 @@ const UserList = () => {
             </div>
           </div>
 
-          {/* Premium Search input structure wrapper */}
+          
           <div className="relative w-full sm:w-72 md:w-80 shrink-0">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
             <input
@@ -122,7 +121,7 @@ const UserList = () => {
           </div>
         </header>
 
-        {/* ── MOBILE + TABLET: card list (below lg) ── */}
+        
         <div className="lg:hidden">
           {loading ? (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
@@ -181,7 +180,7 @@ const UserList = () => {
           )}
         </div>
 
-        {/* ── DESKTOP: full table (lg and up) ── */}
+        
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse">
@@ -216,19 +215,19 @@ const UserList = () => {
                         </div>
                       </td>
 
-                      {/* Email Identity */}
+                    
                       <td className="p-4 max-w-[280px]">
                         <span className="block text-gray-500 font-normal select-all truncate">
                           {user.email}
                         </span>
                       </td>
 
-                      {/* Account Class Privilege Status Tag */}
+                      
                       <td className="p-4 whitespace-nowrap">
                         <VerifiedBadge isVerified={user.isVerified} />
                       </td>
 
-                      {/* Action Trigger control links */}
+                     
                       <td className="p-4 pr-6 whitespace-nowrap">
                         <div className="flex items-center justify-center gap-2">
                           <Link
@@ -251,7 +250,7 @@ const UserList = () => {
                     </tr>
                   ))
                 ) : (
-                  /* Fallback Screen Context Empty Data View grid representation */
+                  
                   <tr>
                     <td colSpan="4">
                       <EmptyState />

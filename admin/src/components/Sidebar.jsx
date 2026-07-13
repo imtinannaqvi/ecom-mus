@@ -11,130 +11,192 @@ import {
   LuChevronUp,
   LuChevronDown
 } from 'react-icons/lu';
-import { FiMoreVertical, FiTag } from 'react-icons/fi';
-import { FiMessageSquare } from "react-icons/fi";
+import { FiMoreVertical, FiTag, FiMessageSquare } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen = true, onToggle }) => {
   const [isProductsOpen, setIsProductsOpen] = useState(true);
   const location = useLocation();
 
   const logoText = "Maurish";
-  const isProductsActive = location.pathname.includes('/admin/products') || location.pathname.includes('/admin/product/new');
+  const isProductsActive =
+    location.pathname.includes('/admin/products') ||
+    location.pathname.includes('/admin/product/new') ||
+    location.pathname.includes('/admin/category');
+
+  // Close the drawer on mobile after navigating; on desktop the sidebar stays put.
+  const closeOnMobile = () => {
+    if (window.innerWidth < 768) onToggle();
+  };
+
+  // Shared classes for every top-level nav link. When the sidebar is collapsed
+  // on desktop the icons center themselves and the labels are removed.
+  const linkClass = ({ isActive }) => `
+    flex items-center gap-4 py-3 rounded-xl transition-all duration-150
+    ${isOpen ? "px-3" : "px-3 md:px-0 md:justify-center"}
+    ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}
+  `;
+
+  // Label text — hidden entirely once the desktop rail is collapsed.
+  const labelClass = `text-[15px] whitespace-nowrap ${isOpen ? "" : "md:hidden"}`;
+
+  const navItems = [
+    { to: "/admin/dashboard",    icon: <LuLayoutDashboard className="text-xl shrink-0" />, label: "Dashboard" },
+    { to: "/admin/orders",       icon: <LuTag className="text-xl rotate-90 shrink-0" />,   label: "Sales" },
+    { to: "/admin/users",        icon: <LuUsers className="text-xl shrink-0" />,           label: "Customers" },
+    { to: "/admin/report",       icon: <LuTrendingUp className="text-xl shrink-0" />,      label: "Report" },
+    { to: "/admin/notification", icon: <LuBell className="text-xl shrink-0" />,            label: "Notifications" },
+    { to: "/admin/coupons",      icon: <FiTag className="text-xl shrink-0" />,             label: "Coupons" },
+    { to: "/admin/reviews",      icon: <FiMessageSquare className="text-xl shrink-0" />,   label: "Reviews" },
+    { to: "/admin/setting",      icon: <LuSettings className="text-xl shrink-0" />,        label: "Setting" },
+  ];
 
   return (
     <>
-      {/* Mobile Backdrop Overlay - dims screen and closes sidebar when clicking outside */}
+      {/* Mobile Backdrop Overlay — dims screen and closes sidebar when clicking outside */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden transition-opacity"
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={onToggle}
         />
       )}
 
-      {/* Sidebar Container */}
-      <div className={`w-64 h-screen bg-white border-r border-gray-100 text-[#5D6B82] p-6 fixed left-0 top-0 flex flex-col font-sans select-none z-50 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+      {/*
+        Sidebar container.
+        - Mobile (<md): a drawer. Slides fully off-screen when closed.
+        - Desktop (md+): always on screen, but COLLAPSES from a 64-wide panel
+          to a 20-wide icon rail so the page content can expand into the space.
+      */}
+      <aside
+        className={`
+          h-screen bg-white border-r border-gray-100 text-[#5D6B82] py-6
+          fixed left-0 top-0 flex flex-col font-sans select-none z-50
+          transition-all duration-300 ease-in-out
+          ${isOpen
+            ? "w-64 px-6 translate-x-0"
+            : "w-64 px-6 -translate-x-full md:translate-x-0 md:w-20 md:px-3"
+          }
+        `}
+      >
 
-        {/* Logo */}
-        <div className="mb-8 px-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF]">
+        {/* Logo row */}
+        <div className={`mb-8 flex items-center gap-2 ${isOpen ? "px-2 justify-between" : "px-2 justify-between md:px-0 md:justify-center"}`}>
+          <div className="flex items-center gap-2 min-w-0">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF] shrink-0">
               <path d="M12 20C14.2091 20 16 18.2091 16 16C16 13.7909 14.2091 12 12 12C9.79086 12 8 13.7909 8 16C8 18.2091 9.79086 20 12 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M20 20C22.2091 20 24 18.2091 24 16C24 13.7909 22.2091 12 20 12C17.7909 12 16 13.7909 16 16C16 18.2091 17.7909 20 20 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-2xl font-bold text-[#1E1B4B] tracking-tight">{logoText}</span>
+            <span className={`text-2xl font-bold text-[#1E1B4B] tracking-tight truncate ${isOpen ? "" : "md:hidden"}`}>
+              {logoText}
+            </span>
           </div>
-          <button type="button" onClick={onToggle}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition">
+
+          {/* Toggle — hidden on desktop when collapsed (the rail has its own button below) */}
+          <button
+            type="button"
+            onClick={onToggle}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className={`w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition shrink-0 ${isOpen ? "" : "md:hidden"}`}
+          >
             <FiMoreVertical size={16} />
           </button>
         </div>
 
+        {/* Expand button — only visible on the collapsed desktop rail */}
+        {!isOpen && (
+          <button
+            type="button"
+            onClick={onToggle}
+            title="Expand sidebar"
+            className="hidden md:flex w-full h-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition mb-2"
+          >
+            <FiMoreVertical size={16} />
+          </button>
+        )}
+
         {/* Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto no-scrollbar">
+        <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden no-scrollbar">
 
-          <NavLink to="/admin/dashboard"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuLayoutDashboard className="text-xl" />
-            <span className="text-[15px]">Dashboard</span>
+          {/* Dashboard */}
+          <NavLink
+            to={navItems[0].to}
+            onClick={closeOnMobile}
+            title={navItems[0].label}
+            className={linkClass}
+          >
+            {navItems[0].icon}
+            <span className={labelClass}>{navItems[0].label}</span>
           </NavLink>
 
-          {/* Products Dropdown */}
-          <div>
-            <button onClick={() => setIsProductsOpen(!isProductsOpen)}
-              className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-150 ${isProductsActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-              <div className="flex items-center gap-4">
-                <LuPackage className="text-xl" />
-                <span className="text-[15px]">Products</span>
-              </div>
-              {isProductsOpen ? <LuChevronUp className="text-lg" /> : <LuChevronDown className="text-lg" />}
-            </button>
+          {/* Products — a dropdown when expanded, a single icon when collapsed */}
+          {isOpen ? (
+            <div>
+              <button
+                onClick={() => setIsProductsOpen(!isProductsOpen)}
+                className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-150 ${
+                  isProductsActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <LuPackage className="text-xl shrink-0" />
+                  <span className="text-[15px] whitespace-nowrap">Products</span>
+                </div>
+                {isProductsOpen ? <LuChevronUp className="text-lg" /> : <LuChevronDown className="text-lg" />}
+              </button>
 
-            {isProductsOpen && (
-              <div className="mt-1 space-y-1">
-                <NavLink to="/admin/products"
-                  onClick={() => window.innerWidth < 768 && onToggle()}
-                  className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-                  Product List
-                </NavLink>
-                <NavLink to="/admin/category"
-                  onClick={() => window.innerWidth < 768 && onToggle()}
-                  className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-                  Category List
-                </NavLink>
-              </div>
-            )}
-          </div>
+              {isProductsOpen && (
+                <div className="mt-1 space-y-1">
+                  <NavLink
+                    to="/admin/products"
+                    onClick={closeOnMobile}
+                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                      isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+                    }`}
+                  >
+                    Product List
+                  </NavLink>
+                  <NavLink
+                    to="/admin/category"
+                    onClick={closeOnMobile}
+                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                      isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+                    }`}
+                  >
+                    Category List
+                  </NavLink>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Collapsed rail: Products becomes one icon linking to the list */
+            <NavLink
+              to="/admin/products"
+              onClick={closeOnMobile}
+              title="Products"
+              className={`flex items-center gap-4 py-3 rounded-xl transition-all duration-150 px-3 md:px-0 md:justify-center ${
+                isProductsActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+              }`}
+            >
+              <LuPackage className="text-xl shrink-0" />
+              <span className="text-[15px] whitespace-nowrap md:hidden">Products</span>
+            </NavLink>
+          )}
 
-          <NavLink to="/admin/orders"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuTag className="text-xl rotate-90" />
-            <span className="text-[15px]">Sales</span>
-          </NavLink>
-
-          <NavLink to="/admin/users"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuUsers className="text-xl" />
-            <span className="text-[15px]">Customers</span>
-          </NavLink>
-
-          <NavLink to="/admin/report"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuTrendingUp className="text-xl" />
-            <span className="text-[15px]">Report</span>
-          </NavLink>
-
-          <NavLink to="/admin/notification"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuBell className="text-xl" />
-            <span className="text-[15px]">Notifications</span>
-          </NavLink>
-
-          <NavLink to="/admin/coupons"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <FiTag className="text-xl" />
-            <span className="text-[15px]">Coupons</span>
-          </NavLink>
-          <NavLink to="/admin/reviews" className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-  <FiMessageSquare className="text-xl" />
-  <span className="text-[15px]">Reviews</span>
-</NavLink>
-
-          <NavLink to="/admin/setting"
-            onClick={() => window.innerWidth < 768 && onToggle()}
-            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}`}>
-            <LuSettings className="text-xl" />
-            <span className="text-[15px]">Setting</span>
-          </NavLink>
-
+          {/* Remaining nav items */}
+          {navItems.slice(1).map(({ to, icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={closeOnMobile}
+              title={label}
+              className={linkClass}
+            >
+              {icon}
+              <span className={labelClass}>{label}</span>
+            </NavLink>
+          ))}
 
         </nav>
-      </div>
+      </aside>
     </>
   );
 };
