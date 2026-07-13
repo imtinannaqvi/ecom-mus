@@ -41,7 +41,9 @@ function HeroBanner({ subCategories, mainCategory }) {
   const goNext = () => setSlide((prev) => (prev === 0 ? 1 : 0));
 
   return (
-    <section className="relative w-full mt-2 md:mt-5 h-[500px] md:h-[600px] overflow-hidden bg-black">
+    // Shorter on mobile (380px) so a wide banner isn't forced into an extreme
+    // portrait crop; full height kept on desktop.
+    <section className="relative w-full mt-2 md:mt-5 h-[380px] md:h-[600px] overflow-hidden bg-black">
 
       {/* Navigation Arrows */}
       <div className="absolute inset-y-0 left-2 md:left-5 flex items-center z-50">
@@ -86,10 +88,16 @@ function HeroBanner({ subCategories, mainCategory }) {
               transition={{ duration: 0.6 }}
               className="absolute inset-0 w-full h-full"
             >
+              {/*
+                On mobile a wide banner cropped with object-cover zooms in hard
+                and cuts off the subject's head. object-contain shows the whole
+                image (the black section background fills any gap); desktop keeps
+                the original full-bleed object-cover look.
+              */}
               <img
                 src="/images/banner.png"
                 alt="Promotional banner"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain object-center md:object-cover"
                 onError={(e) => {
                   e.target.style.display = "none";
                 }}
