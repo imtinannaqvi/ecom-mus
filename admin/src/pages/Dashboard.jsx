@@ -163,8 +163,7 @@ const Dashboard = () => {
   const statusEntries = Object.entries(statusBreakdown);
   const totalStatusCount = statusEntries.reduce((sum, [, v]) => sum + v, 0);
 
-  // ApexCharts config: smooth curved area for revenue + slim column for orders,
-  // gradient fill and soft animation give it a "live flow" feel.
+  
   const chartOptions = {
     chart: {
       toolbar: { show: false },
@@ -204,16 +203,8 @@ const Dashboard = () => {
       <ToastContainer />
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
-        <h1 className="text-xl font-bold text-[#1E1B4B]">Maurish Overview</h1>
-        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          Live
-          {lastUpdated && <span className="ml-1">&middot; updated {timeAgo(lastUpdated)}</span>}
-          <FiRefreshCw className={`ml-1 ${refreshing ? "animate-spin" : ""}`} size={12} />
-        </div>
+        <h1 className="text-xl font-bold text-[#1E1B4B] italic">Maurish Overview</h1>
+      
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">

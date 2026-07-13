@@ -67,8 +67,6 @@ const Setting = () => {
       });
       toast.success("System configurations updated successfully!");
 
-      // Reset the form back to blank — only what was just typed gets saved
-      // to the database; the form itself doesn't keep showing it afterward.
       setFormData(emptyFormData);
       setSocialLinks(emptySocialLinks);
       setLogoFile(null);
@@ -85,10 +83,8 @@ const Setting = () => {
       <div className="max-w-4xl mx-auto min-w-0">
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">System Settings</h1>
-            <p className="text-xs md:text-sm text-gray-400 mt-0.5">
-              Control center. Calibrate core platform parameters, checkout values, and branding.
-            </p>
+            <h1 className="text-2xl md:text-2xl font-bold tracking-tight italic text-[#1E1B4B]">System Settings</h1>
+           
           </div>
           <button
             type="submit"
@@ -113,7 +109,6 @@ const Setting = () => {
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Store Identity & Branding</h3>
-                <p className="text-[10px] md:text-xs text-gray-400">Shown in the header, footer, and browser tab across the storefront</p>
               </div>
             </div>
             <div className="p-6 md:p-8 space-y-5">
@@ -145,14 +140,14 @@ const Setting = () => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">
-                  Platform Description <span className="normal-case font-medium text-gray-400">(shown in the footer)</span>
+                  Platform Description <span className="normal-case font-medium text-gray-400"></span>
                 </label>
                 <textarea
                   rows="3"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-medium text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition resize-none"
-                  placeholder="A short tagline or description of your store, shown in the site footer."
+                  placeholder="Add here"
                 />
               </div>
 
@@ -185,7 +180,6 @@ const Setting = () => {
             </div>
           </div>
 
-          {/* SECTION 2: REGIONAL & CURRENCY */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
             <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-amber-50 text-amber-700 shrink-0">
@@ -193,7 +187,6 @@ const Setting = () => {
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Regional & Finances</h3>
-                <p className="text-[10px] md:text-xs text-gray-400">Applied live at checkout — tax, delivery charge, and free shipping threshold</p>
               </div>
             </div>
             <div className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
@@ -238,7 +231,7 @@ const Setting = () => {
                   value={formData.freeShippingThreshold}
                   onChange={handleInputChange}
                   className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
-                  placeholder="Order total above which shipping is free"
+                  placeholder="Add Amount"
                 />
               </div>
             </div>
@@ -252,7 +245,6 @@ const Setting = () => {
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-xs md:text-sm uppercase tracking-wider text-[#1E1B4B]">Social Media Links</h3>
-                <p className="text-[10px] md:text-xs text-gray-400">Shown as clickable icons in the footer — leave blank to hide any of them</p>
               </div>
             </div>
             <div className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">

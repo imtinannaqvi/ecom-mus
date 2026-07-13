@@ -71,7 +71,6 @@ const ProductList = () => {
     }
   };
 
-  // ✅ Derived filtered data logic preserved
   const filteredProducts = allProducts.filter((product) => {
     const matchesSearch = searchTerm
       ? product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -84,7 +83,6 @@ const ProductList = () => {
 
   const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
-  // Checkbox handlers for UI consistency
   const handleSelectAll = () => {
     const nextState = !selectAll;
     setSelectAll(nextState);
@@ -99,28 +97,25 @@ const ProductList = () => {
     setSelectedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Helper dynamic class mapping for exact status pill designs from screenshot
   const getStatusStyles = (status) => {
     const normalize = status?.toLowerCase() || "active";
     if (normalize.includes("sched")) {
-      return "bg-[#E0F2FE] text-[#0369A1]"; // Light Blue for Scheduled
+      return "bg-[#E0F2FE] text-[#0369A1]"; 
     }
     if (normalize.includes("draft")) {
-      return "bg-[#FFEDD5] text-[#C2410C]"; // Soft Orange for Draft
+      return "bg-[#FFEDD5] text-[#C2410C]"; 
     }
-    return "bg-[#DCFCE7] text-[#15803D]"; // Mint Green for Active
+    return "bg-[#DCFCE7] text-[#15803D]"; 
   };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-white min-h-screen font-sans">
       <ToastContainer />
       
-      {/* Top Header Controls — Responsive adaptation for md and lg screen layouts */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-xl md:text-2xl font-bold text-[#1E1B4B] shrink-0">Products list</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-[#1E1B4B] italic shrink-0">Products list</h1>
         
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Custom Integrated Search bar — Adaptive expansion across md/lg viewports */}
           <div className="relative flex-1 min-w-[160px] sm:w-64 md:w-72 lg:w-80">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input

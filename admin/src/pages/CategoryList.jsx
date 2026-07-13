@@ -119,8 +119,7 @@ const CategoryList = () => {
 
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E1B4B]">Manage Categories</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Overview of your store's structure.</p>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight italic text-[#1E1B4B]">Manage Categories</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
             <button
