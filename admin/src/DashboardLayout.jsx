@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { FiMenu } from 'react-icons/fi';
 import Sidebar from './components/Sidebar';
 import { useAdmin } from './context/AdminContext';
 
 function DashboardLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Default: open on desktop (md+), closed (overlay) on mobile.
+  // Default: open on desktop (md+), closed (overlay drawer) on mobile.
   const [sidebarOpen, setSidebarOpen] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 768 : true
   );
@@ -37,9 +38,8 @@ function DashboardLayout() {
 
       {/*
         Content padding must match the sidebar's ACTUAL width at each state:
-          - expanded  → sidebar is 16rem (w-64)  → pl-64
-          - collapsed → sidebar is 5rem  (w-20)  → pl-20   ← was pl-0, which let
-            the content slide underneath the icon rail and get clipped.
+          - expanded  → sidebar is 16rem (w-64) → pl-64
+          - collapsed → sidebar is 5rem  (w-20) → pl-20
         On mobile the sidebar is an overlay drawer, so no padding at any state.
       */}
       <main
@@ -47,9 +47,26 @@ function DashboardLayout() {
           sidebarOpen ? "md:pl-64" : "md:pl-20"
         }`}
       >
-        <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-4 sm:px-8 justify-between">
-          <div className="text-sm font-medium text-gray-400 truncate">
-            Admin Panel / Control Desk
+        <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-4 sm:px-8 justify-between gap-3">
+
+          <div className="flex items-center gap-3 min-w-0">
+            {/*
+              Mobile-only hamburger. Below md the sidebar is a drawer that slides
+              fully off-screen, so this is the ONLY way back in. Hidden at md+
+              because the collapsed icon rail has its own expand button.
+            */}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+              className="md:hidden w-9 h-9 shrink-0 flex items-center justify-center rounded-xl border border-gray-100 text-gray-500 hover:text-[#1E1B4B] hover:bg-gray-50 transition"
+            >
+              <FiMenu size={18} />
+            </button>
+
+            <div className="text-sm font-medium text-gray-400 truncate">
+              Admin Panel / Control Desk
+            </div>
           </div>
 
           <div className="relative shrink-0" ref={menuRef}>
