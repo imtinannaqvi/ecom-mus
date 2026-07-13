@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   FiSliders,
   FiGlobe,
@@ -14,9 +14,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Setting = () => {
   const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(true);
 
-  const [formData, setFormData] = useState({
+  const emptyFormData = {
     storeName: "",
     supportEmail: "",
     currency: "PKR",
@@ -24,52 +23,18 @@ const Setting = () => {
     deliveryCharge: "",
     freeShippingThreshold: "",
     description: "",
-  });
-
-  const [socialLinks, setSocialLinks] = useState({
+  };
+  const emptySocialLinks = {
     facebook: "",
     instagram: "",
     twitter: "",
     youtube: "",
-  });
+  };
 
+  const [formData, setFormData] = useState(emptyFormData);
+  const [socialLinks, setSocialLinks] = useState(emptySocialLinks);
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        setFetchLoading(true);
-        const { data } = await Api.get("/settings");
-        if (data.success) {
-          const s = data.settings;
-          setFormData({
-            storeName: s.storeName || "",
-            supportEmail: s.supportEmail || "",
-            currency: s.currency || "PKR",
-            taxRate: s.taxRate ?? "",
-            deliveryCharge: s.deliveryCharge ?? "",
-            freeShippingThreshold: s.freeShippingThreshold ?? "",
-            description: s.description || "",
-          });
-          setSocialLinks({
-            facebook: s.socialLinks?.facebook || "",
-            instagram: s.socialLinks?.instagram || "",
-            twitter: s.socialLinks?.twitter || "",
-            youtube: s.socialLinks?.youtube || "",
-          });
-          if (s.logo) {
-            setLogoPreview(s.logo.startsWith("http") ? s.logo : `${BACKEND_URL}${s.logo}`);
-          }
-        }
-      } catch (err) {
-        toast.error("Failed to load settings: " + (err.response?.data?.message || err.message));
-      } finally {
-        setFetchLoading(false);
-      }
-    };
-    fetchSettings();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -101,20 +66,19 @@ const Setting = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("System configurations updated successfully!");
+
+      // Reset the form back to blank — only what was just typed gets saved
+      // to the database; the form itself doesn't keep showing it afterward.
+      setFormData(emptyFormData);
+      setSocialLinks(emptySocialLinks);
+      setLogoFile(null);
+      setLogoPreview("");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to save settings");
     } finally {
       setLoading(false);
     }
   };
-
-  if (fetchLoading) {
-    return (
-      <div className="bg-[#F8FAFC] min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8 lg:p-12">

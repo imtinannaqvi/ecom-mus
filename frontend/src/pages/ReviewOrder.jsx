@@ -34,12 +34,37 @@ const ReviewOrder = () => {
   }, []);
 
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = item.productId?.price || 0;
-    return sum + price * item.quantity;
-  }, 0);
+  const price = item.productId?.price || 0;
+  return sum + price * item.quantity;
+}, 0);
 
-  const discountAmount = appliedCoupon?.discountAmount || 0;
-  const grandTotal = Math.max(subtotal - discountAmount, 0);
+const discountAmount = appliedCoupon?.discountAmount || 0;
+const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
+
+// Real store settings — tax, delivery charge, and free shipping threshold,
+// pulled from admin's Settings page instead of being hardcoded.
+const [storeSettings, setStoreSettings] = useState(null);
+
+useEffect(() => {
+  const fetchSettings = async () => {
+    try {
+      const { data } = await Api.get("/settings");
+      if (data.success) setStoreSettings(data.settings);
+    } catch (err) {
+      console.error("Failed to load store settings", err);
+    }
+  };
+  fetchSettings();
+}, []);
+
+const taxRate = storeSettings?.taxRate || 0;
+const taxAmount = Math.round(discountedSubtotal * (taxRate / 100));
+
+const qualifiesForFreeShipping =
+  storeSettings?.freeShippingThreshold > 0 && discountedSubtotal >= storeSettings.freeShippingThreshold;
+const deliveryChargeApplied = qualifiesForFreeShipping ? 0 : (storeSettings?.deliveryCharge || 0);
+
+const grandTotal = discountedSubtotal + taxAmount + deliveryChargeApplied;
 
   // Re-check the coupon whenever the cart total changes, so the discount
   // shown always matches the current subtotal (e.g. if items were removed).
@@ -124,8 +149,8 @@ const ReviewOrder = () => {
       })),
       shippingAddress: selectedAddress._id,
       paymentMethod: paymentMethod || 'COD',
-      totalPrice: subtotal, // backend re-validates the coupon and computes the final total itself
-      deliveryCharge: 0,
+     totalPrice: grandTotal, 
+deliveryCharge: deliveryChargeApplied,
       couponCode: appliedCoupon?.code || undefined,
     };
 
@@ -346,16 +371,22 @@ const ReviewOrder = () => {
               </div>
             )}
 
-            <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
-              <span className="text-sm font-medium text-gray-500 tracking-tight">Delivery Charge</span>
-              <span className="text-sm font-bold uppercase">Free</span>
-            </div>
-
-            <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
-              <span className="text-xl font-extrabold">Grand Total</span>
-              <span className="text-xl font-extrabold tracking-tighter">₹{grandTotal}</span>
-            </div>
-
+           {taxAmount > 0 && (
+  <div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
+    <span className="text-sm font-medium text-gray-500 tracking-tight">Tax ({taxRate}%)</span>
+    <span className="text-sm font-bold">₹{taxAmount}</span>
+  </div>
+)}
+<div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
+  <span className="text-sm font-medium text-gray-500 tracking-tight">Delivery Charge</span>
+  <span className="text-sm font-bold uppercase">
+    {deliveryChargeApplied === 0 ? "Free" : `₹${deliveryChargeApplied}`}
+  </span>
+</div>
+<div className="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
+  <span className="text-xl font-extrabold">Grand Total</span>
+  <span className="text-xl font-extrabold tracking-tighter">₹{grandTotal}</span>
+</div>
             <div className="flex items-start gap-3 mb-8">
               <input
                 type="checkbox"

@@ -223,43 +223,45 @@ const Footer = () => {
       <div className="bg-black text-white pt-16 pb-8 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10 border-b border-gray-800 pb-12">
           {/* Company logo and contact information section */}
-          <div className="col-span-1">
-            {siteSettings?.logo ? (
-              <img
-                src={siteSettings.logo.startsWith("http") ? siteSettings.logo : `${BACKEND_URL}${siteSettings.logo}`}
-                alt={siteSettings.storeName || "Store logo"}
-                className="max-h-12 object-contain"
-              />
-            ) : (
-              <img src="/images/footer-logo.png" alt="" />
-            )}
-            <div className="space-y-4 text-sm text-gray-400">
-              {siteSettings?.description && (
-                <p className="text-xs text-gray-400 leading-relaxed mt-3">
-                  {siteSettings.description}
-                </p>
-              )}
-              <p className="flex items-center mt-4 gap-2">
-                <Mail size={16} /> {siteSettings?.supportEmail || "help@maurish.com"}
-              </p>
-              <div>
-                <p className="flex items-center gap-2 text-white font-bold text-lg">
-                  <Phone size={18} /> 1-888-92-8044
-                </p>
-                <p className="text-xs ml-7">Working 8:00 - 22:00</p>
-              </div>
-              <div>
-                <p className="flex items-center gap-2 text-white font-bold text-lg">
-                  <Phone size={18} /> 1-888-923-8055
-                </p>
-                <p className="text-xs ml-7">24/7 Support Center</p>
-              </div>
-              <p className="text-[10px] pt-4">
-                © 2025, <span className="text-white">{siteSettings?.storeName || "maurish"}</span> - A
-                Ecommerce platform. All rights reserved
-              </p>
-            </div>
-          </div>
+        <div className="col-span-1">
+  {siteSettings?.logo ? (
+    <div className="inline-block bg-white rounded-xl p-3 shadow-sm">
+      <img
+        src={siteSettings.logo.startsWith("http") ? siteSettings.logo : `${BACKEND_URL}${siteSettings.logo}`}
+        alt={siteSettings.storeName || "Store logo"}
+        className="max-h-10 object-contain"
+      />
+    </div>
+  ) : (
+    <img src="/images/footer-logo.png" alt="" />
+  )}
+  <div className="space-y-4 text-sm text-gray-400">
+    {siteSettings?.description && (
+      <p className="text-xs text-gray-400 leading-relaxed mt-3">
+        {siteSettings.description}
+      </p>
+    )}
+    <p className="flex items-center mt-4 gap-2">
+      <Mail size={16} /> {siteSettings?.supportEmail || "help@maurish.com"}
+    </p>
+    <div>
+      <p className="flex items-center gap-2 text-white font-bold text-lg">
+        <Phone size={18} /> 1-888-92-8044
+      </p>
+      <p className="text-xs ml-7">Working 8:00 - 22:00</p>
+    </div>
+    <div>
+      <p className="flex items-center gap-2 text-white font-bold text-lg">
+        <Phone size={18} /> 1-888-923-8055
+      </p>
+      <p className="text-xs ml-7">24/7 Support Center</p>
+    </div>
+    <p className="text-[10px] pt-4">
+      © 2025, <span className="text-white">{siteSettings?.storeName || "maurish"}</span> - A
+      Ecommerce platform. All rights reserved
+    </p>
+  </div>
+</div>
 
           {/* Company navigation and mobile app download links */}
           <div>
