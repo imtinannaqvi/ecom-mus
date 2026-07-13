@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiMoreHorizontal, FiTrendingUp } from 'react-icons/fi';
+import { FiMoreHorizontal, FiTrendingUp, FiDollarSign, FiShoppingBag } from 'react-icons/fi';
 import {
   ResponsiveContainer,
   RadialBarChart,
@@ -20,10 +20,25 @@ const STATUS_COLORS = {
   Cancelled: "#EF4444",
 };
 
+// Same palette as the Dashboard chart so both pages read as one system
+const CHART_COLORS = ["#F59E0B", "#635BFF"];
+
 const getProductImage = (img) => {
   if (!img) return "https://placehold.co/40x40/e2e8f0/64748b?text=Item";
   return img.startsWith("http") ? img : `${BACKEND_URL}${img}`;
 };
+
+// ── Chart summary counter (top-right of the chart card) ──────
+const ChartStat = ({ icon, label, value, color }) => (
+  <div className="flex flex-col items-center sm:items-end">
+    <span className="text-xl font-bold tracking-tight" style={{ color }}>
+      {value}
+    </span>
+    <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1 whitespace-nowrap">
+      {icon} {label}
+    </span>
+  </div>
+);
 
 function Report() {
   const [stats, setStats] = useState(null);
@@ -46,7 +61,9 @@ function Report() {
 
   if (loading) {
     return (
-      <div className="flex justify-center"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
+      <div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]">
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" />
+      </div>
     );
   }
 
@@ -87,30 +104,86 @@ function Report() {
     }))
     .sort((a, b) => b.value - a.value);
 
-  // ApexCharts: bar for revenue, smooth spline line for orders — distinct
-  // styling from the Dashboard's combo chart (solid columns, no gradient area).
+  // ── Reference-style chart: smooth spline areas, soft gradient fills,
+  // light dashed grid, crosshair, bottom-centered legend, clean tooltip.
   const chartOptions = {
-    chart: { toolbar: { show: false }, animations: { easing: "easeinout", speed: 700 }, fontFamily: "inherit" },
-    stroke: { curve: "smooth", width: [0, 3] },
-    colors: ["#635BFF", "#F59E0B"],
+    chart: {
+      type: "area",
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      animations: { easing: "easeinout", speed: 700 },
+      fontFamily: "inherit",
+    },
+    stroke: { curve: "smooth", width: 2.5 },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.28,
+        opacityTo: 0.02,
+        stops: [0, 95, 100],
+      },
+    },
+    colors: CHART_COLORS,
     dataLabels: { enabled: false },
-    xaxis: { categories: monthLabels, axisBorder: { show: false }, axisTicks: { show: false } },
+    markers: { size: 0, hover: { size: 5 } },
+    xaxis: {
+      categories: monthLabels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: { colors: "#94A3B8", fontSize: "11px", fontWeight: 500 } },
+      crosshairs: {
+        show: true,
+        stroke: { color: "#CBD5E1", width: 1, dashArray: 0 },
+      },
+      tooltip: { enabled: false },
+    },
     yaxis: [
-      { labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
-      { opposite: true, labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+      {
+        labels: {
+          style: { colors: "#CBD5E1", fontSize: "11px" },
+          formatter: (val) => Math.round(val),
+        },
+      },
+      {
+        opposite: true,
+        labels: {
+          style: { colors: "#CBD5E1", fontSize: "11px" },
+          formatter: (val) => Math.round(val),
+        },
+      },
     ],
-    grid: { borderColor: "#F1F5F9", strokeDashArray: 4 },
-    legend: { show: false },
-    plotOptions: { bar: { columnWidth: "45%", borderRadius: 6 } },
+    grid: {
+      borderColor: "#F1F5F9",
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      padding: { left: 8, right: 8 },
+    },
+    legend: {
+      show: true,
+      position: "bottom",
+      horizontalAlign: "center",
+      markers: { radius: 12, width: 8, height: 8 },
+      itemMargin: { horizontal: 10 },
+      fontSize: "12px",
+      fontWeight: 500,
+      labels: { colors: "#64748B" },
+    },
     tooltip: {
       shared: true,
-      y: { formatter: (val, { seriesIndex }) => seriesIndex === 0 ? `Rs. ${val.toLocaleString()}` : `${val} orders` },
+      intersect: false,
+      theme: "light",
+      style: { fontSize: "12px" },
+      y: {
+        formatter: (val, { seriesIndex }) =>
+          seriesIndex === 0 ? `Rs. ${val?.toLocaleString()}` : `${val}`,
+      },
     },
   };
 
   const chartSeries = [
-    { name: "Revenue", type: "column", data: revenueSeries },
-    { name: "Orders", type: "line", data: orderSeries },
+    { name: "Revenue", data: revenueSeries },
+    { name: "Orders", data: orderSeries },
   ];
 
   return (
@@ -176,17 +249,31 @@ function Report() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
         <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-8 flex flex-col min-w-0">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
-            <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue vs Orders</h3>
-            <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500 shrink-0">
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#635BFF]"></span> Revenue</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span> Orders</span>
+          {/* Reference-styled header: title + subtitle left, summary counters right */}
+          <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-2">
+            <div>
+              <h3 className="font-bold text-base text-[#1E1B4B]">Monthly Revenue vs Orders</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Revenue and orders placed per month</p>
+            </div>
+            <div className="flex items-center gap-5 sm:gap-6 shrink-0">
+              <ChartStat
+                icon={<FiDollarSign size={11} />}
+                label="revenue"
+                value={`Rs. ${totalRevenue.toLocaleString()}`}
+                color={CHART_COLORS[0]}
+              />
+              <ChartStat
+                icon={<FiShoppingBag size={11} />}
+                label="orders"
+                value={totalOrders.toLocaleString()}
+                color={CHART_COLORS[1]}
+              />
             </div>
           </div>
 
           {monthLabels.length > 0 ? (
             <div className="w-full min-w-0">
-              <Chart options={chartOptions} series={chartSeries} type="line" height={290} />
+              <Chart options={chartOptions} series={chartSeries} type="area" height={300} />
             </div>
           ) : (
             <div className="h-72 flex items-center justify-center text-xs text-gray-400 font-medium">No sales recorded yet</div>

@@ -17,6 +17,9 @@ const STATUS_COLORS = {
   Shipped: "#635BFF", Delivered: "#10B981", Cancelled: "#EF4444",
 };
 
+// Chart palette — matches the soft amber / indigo / emerald reference look
+const CHART_COLORS = ["#F59E0B", "#635BFF"];
+
 const timeAgo = (dateString) => {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -87,6 +90,18 @@ const KpiCard = ({ icon, iconColor, label, value, prefix = "", change, sub }) =>
   );
 };
 
+// ── Chart summary counter (top-right of the chart card) ──────
+const ChartStat = ({ icon, label, value, color }) => (
+  <div className="flex flex-col items-center sm:items-end">
+    <span className="text-xl font-bold tracking-tight" style={{ color }}>
+      {value}
+    </span>
+    <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1 whitespace-nowrap">
+      {icon} {label}
+    </span>
+  </div>
+);
+
 // ── Main Component ────────────────────────────────────────────
 const Dashboard = () => {
   const [stats,         setStats]         = useState(null);
@@ -144,32 +159,86 @@ const Dashboard = () => {
   const statusEntries = Object.entries(statusBreakdown);
   const totalStatusCount = statusEntries.reduce((s, [, v]) => s + v, 0);
 
+  // ── Reference-style chart: smooth spline areas, soft gradient fills,
+  // light dashed grid, crosshair, bottom-centered legend, clean tooltip.
   const chartOptions = {
-    chart: { toolbar: { show: false }, animations: { easing: "easeinout", speed: 600 }, fontFamily: "inherit" },
-    stroke: { curve: "smooth", width: [0, 3] },
-    fill: {
-      type: ["gradient", "solid"],
-      gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 90, 100] },
+    chart: {
+      type: "area",
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      animations: { easing: "easeinout", speed: 700 },
+      fontFamily: "inherit",
     },
-    colors: ["#0EA5E9", "#635BFF"],
+    stroke: { curve: "smooth", width: 2.5 },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.28,
+        opacityTo: 0.02,
+        stops: [0, 95, 100],
+      },
+    },
+    colors: CHART_COLORS,
     dataLabels: { enabled: false },
-    xaxis: { categories: monthLabels, axisBorder: { show: false }, axisTicks: { show: false } },
+    markers: { size: 0, hover: { size: 5 } },
+    xaxis: {
+      categories: monthLabels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: { colors: "#94A3B8", fontSize: "11px", fontWeight: 500 } },
+      crosshairs: {
+        show: true,
+        stroke: { color: "#CBD5E1", width: 1, dashArray: 0 },
+      },
+      tooltip: { enabled: false },
+    },
     yaxis: [
-      { labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
-      { opposite: true, labels: { style: { colors: "#94A3B8", fontSize: "11px" } } },
+      {
+        labels: {
+          style: { colors: "#CBD5E1", fontSize: "11px" },
+          formatter: (val) => Math.round(val),
+        },
+      },
+      {
+        opposite: true,
+        labels: {
+          style: { colors: "#CBD5E1", fontSize: "11px" },
+          formatter: (val) => Math.round(val),
+        },
+      },
     ],
-    grid: { borderColor: "#F1F5F9", strokeDashArray: 4 },
-    legend: { show: false },
+    grid: {
+      borderColor: "#F1F5F9",
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      padding: { left: 8, right: 8 },
+    },
+    legend: {
+      show: true,
+      position: "bottom",
+      horizontalAlign: "center",
+      markers: { radius: 12, width: 8, height: 8 },
+      itemMargin: { horizontal: 10 },
+      fontSize: "12px",
+      fontWeight: 500,
+      labels: { colors: "#64748B" },
+    },
     tooltip: {
       shared: true,
-      y: { formatter: (val, { seriesIndex }) => seriesIndex === 1 ? `Rs. ${val.toLocaleString()}` : `${val} orders` },
+      intersect: false,
+      theme: "light",
+      style: { fontSize: "12px" },
+      y: {
+        formatter: (val, { seriesIndex }) =>
+          seriesIndex === 0 ? `Rs. ${val?.toLocaleString()}` : `${val}`,
+      },
     },
-    plotOptions: { bar: { columnWidth: "35%", borderRadius: 4 } },
   };
 
   const chartSeries = [
-    { name: "Orders",  type: "column", data: orderSeries   },
-    { name: "Revenue", type: "area",   data: revenueSeries },
+    { name: "Revenue", data: revenueSeries },
+    { name: "Orders",  data: orderSeries   },
   ];
 
   return (
@@ -198,22 +267,32 @@ const Dashboard = () => {
         {/* Left — chart + pipeline */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
 
-          {/* Sales Chart */}
+          {/* Sales Chart — reference-styled header with summary counters */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-              <h3 className="font-bold text-base text-[#1E1B4B]">Sales Performance</h3>
-              <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#635BFF]" /> Revenue
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#0EA5E9]" /> Orders
-                </span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-2">
+              <div>
+                <h3 className="font-bold text-base text-[#1E1B4B]">Sales Performance</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Revenue and orders per month</p>
+              </div>
+              <div className="flex items-center gap-5 sm:gap-6 shrink-0">
+                <ChartStat
+                  icon={<FiDollarSign size={11} />}
+                  label="revenue"
+                  value={`Rs. ${totalRevenue.toLocaleString()}`}
+                  color={CHART_COLORS[0]}
+                />
+                <ChartStat
+                  icon={<FiShoppingBag size={11} />}
+                  label="orders"
+                  value={totalOrders.toLocaleString()}
+                  color={CHART_COLORS[1]}
+                />
               </div>
             </div>
+
             {monthLabels.length > 0 ? (
               <div className="w-full overflow-hidden">
-                <Chart options={chartOptions} series={chartSeries} type="line" height={240} />
+                <Chart options={chartOptions} series={chartSeries} type="area" height={280} />
               </div>
             ) : (
               <div className="h-56 flex items-center justify-center text-xs text-gray-400 font-medium">

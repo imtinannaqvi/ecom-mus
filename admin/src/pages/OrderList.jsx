@@ -6,7 +6,6 @@ import {
   FiClock,
   FiSearch,
   FiInbox,
-  FiRefreshCw
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Api from "../api/api";
@@ -90,27 +89,38 @@ const OrderList = () => {
     return orders.filter((o) => o.orderStatus === status).length;
   };
 
+  const formatDate = (dateStr) =>
+    dateStr
+      ? new Date(dateStr).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "N/A";
+
   // Safe UI layout for data synchronization loading
   if (loading) {
     return (
-      // NEW — replace whatever text/div is shown while loading with:
-<div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" /></div>
+      <div className="min-h-screen flex justify-center items-center bg-[#F8FAFC]">
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#635BFF] rounded-full animate-spin" />
+      </div>
     );
   }
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto min-w-0">
-        
+
         {/* Modern Unified Header Layout */}
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold italic tracking-tight text-[#1E1B4B]">Maurish Orders</h1>
-            
+            <h1 className="text-xl sm:text-2xl font-bold italic tracking-tight text-[#1E1B4B]">
+              Maurish Orders
+            </h1>
           </div>
 
           {/* Premium Rounded Search Bar */}
-          <div className="relative w-full sm:w-80 shrink-0">
+          <div className="relative w-full sm:w-72 md:w-80 shrink-0">
             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
             <input
               type="text"
@@ -130,7 +140,7 @@ const OrderList = () => {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold tracking-wide flex items-center gap-2 transition-all whitespace-nowrap ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold tracking-wide flex items-center gap-1.5 sm:gap-2 transition-all whitespace-nowrap ${
                     isActive
                       ? "bg-white text-[#1E1B4B] shadow-sm border border-slate-100"
                       : "text-gray-500 hover:text-gray-800"
@@ -150,10 +160,81 @@ const OrderList = () => {
           </div>
         </div>
 
-        {/* Orders Data Table Sheet Container */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
+        {/* ── MOBILE + TABLET: card list (below lg) ── */}
+        <div className="lg:hidden space-y-3">
+          {filteredOrders.map((order) => {
+            const badge = getStatusConfig(order.orderStatus);
+            return (
+              <div
+                key={order._id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3"
+              >
+                {/* Top row: reference + status */}
+                <div className="flex items-start justify-between gap-3">
+                  <span className="font-mono font-bold text-[#635BFF] text-xs tracking-wide truncate">
+                    #{order._id?.substring(0, 8).toUpperCase()}...
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shrink-0 ${badge.style}`}
+                  >
+                    {badge.icon}
+                    {order.orderStatus || "Processing"}
+                  </span>
+                </div>
+
+                {/* Customer */}
+                <div className="min-w-0">
+                  <p className="text-sm text-gray-700 font-semibold truncate">
+                    {order.user?.name || "Guest User"}
+                  </p>
+                  <p className="text-[11px] text-gray-400 font-normal truncate">
+                    {order.user?.email || "No email profile"}
+                  </p>
+                </div>
+
+                {/* Meta row: date + amount */}
+                <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-50">
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</p>
+                    <p className="text-[11px] text-gray-500 font-medium truncate">
+                      {formatDate(order.createdAt)}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Amount</p>
+                    <p className="text-sm font-bold text-[#1E1B4B]">
+                      Rs. {order.totalPrice?.toLocaleString() || "0"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action */}
+                <Link
+                  to={`/admin/order/${order._id}`}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-200 hover:border-[#1E1B4B] rounded-lg text-gray-600 hover:text-[#1E1B4B] text-xs font-bold transition-colors bg-white shadow-sm"
+                >
+                  <FiEye size={13} />
+                  <span>Review</span>
+                </Link>
+              </div>
+            );
+          })}
+
+          {filteredOrders.length === 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 flex flex-col items-center justify-center text-center text-gray-400">
+              <div className="p-3 bg-slate-50 border border-gray-100 text-gray-300 rounded-xl mb-3">
+                <FiInbox size={22} />
+              </div>
+              <p className="text-xs font-semibold text-gray-500">No records dispatch found</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">Try altering keywords or active status nodes</p>
+            </div>
+          )}
+        </div>
+
+        {/* ── DESKTOP: full table (lg and up) ── */}
+        <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-w-0">
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-[750px] md:min-w-0">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th className="p-4 pl-6 whitespace-nowrap">Order Reference</th>
@@ -174,31 +255,29 @@ const OrderList = () => {
                       <td className="p-4 pl-6 font-mono font-bold text-[#635BFF] tracking-wide whitespace-nowrap">
                         #{order._id?.substring(0, 8).toUpperCase()}...
                       </td>
-                      
+
                       {/* Customer Name and Sub-Email Payload */}
-                      <td className="p-4 min-w-[150px]">
-                        <div className="flex flex-col">
-                          {/* ✅ FIX: Render name property safely */}
-                          <span className="text-gray-700 font-semibold truncate">{order.user?.name || "Guest User"}</span>
-                          {/* Optional details addition */}
-                          <span className="text-[10px] text-gray-400 font-normal mt-0.5 truncate">{order.user?.email || "No email profile"}</span>
+                      <td className="p-4 max-w-[220px]">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-gray-700 font-semibold truncate">
+                            {order.user?.name || "Guest User"}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-normal mt-0.5 truncate">
+                            {order.user?.email || "No email profile"}
+                          </span>
                         </div>
                       </td>
-                      
+
                       {/* Formatted Creation Date */}
                       <td className="p-4 text-gray-400 font-normal whitespace-nowrap">
-                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric"
-                        }) : "N/A"}
+                        {formatDate(order.createdAt)}
                       </td>
-                      
+
                       {/* Gross Pricing Counter */}
                       <td className="p-4 text-[#1E1B4B] font-bold text-sm whitespace-nowrap">
                         Rs. {order.totalPrice?.toLocaleString() || "0"}
                       </td>
-                      
+
                       {/* Dynamic Tracking Status Badge */}
                       <td className="p-4 whitespace-nowrap">
                         <span
@@ -208,7 +287,7 @@ const OrderList = () => {
                           {order.orderStatus || "Processing"}
                         </span>
                       </td>
-                      
+
                       {/* Navigation Detail Trigger Link */}
                       <td className="p-4 pr-6 text-right whitespace-nowrap">
                         <Link
