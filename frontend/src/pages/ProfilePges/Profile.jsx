@@ -15,7 +15,7 @@ import { IoPersonCircleOutline } from "react-icons/io5";
 
 function Profile() {
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile toggle ke liye
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const{user} = useContext(AppContext)
 
  

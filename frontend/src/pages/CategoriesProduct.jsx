@@ -63,9 +63,7 @@ const slugify = (name) => (name || "")
   .replace(/\//g, "-")
   .replace(/\s+/g, "-");
 
-// A single collapsible filter section — name + chevron, only one open at a
-// time across the whole drawer (accordion), so the drawer stays compact and
-// doesn't require scrolling to see every filter type.
+
 const FilterSection = ({ id, title, openSection, setOpenSection, children }) => {
   const isOpen = openSection === id;
   return (
@@ -123,11 +121,7 @@ const CategoriesProduct = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Content is only "ready" once BOTH the products fetch and the category
-  // structure fetch have finished. Rendering before both are done is what
-  // caused the "2 items then all items" flash — the parallelogram strip and
-  // the grid were computed from half-loaded matching data, then recomputed
-  // once the second fetch landed.
+
   const isReady = !loading && !categoriesLoading;
 
   const matchedMainCat = useMemo(
@@ -147,12 +141,7 @@ const CategoriesProduct = () => {
     if (matchedGroup) {
       return (matchedGroup.items || []).map((item) => item.name.toLowerCase());
     }
-    // Look up the real item across every group in this main category whose
-    // slug matches the URL — do NOT try to reverse-guess the name from the
-    // slug, since that breaks for any item name that already contains its
-    // own hyphen (e.g. "T-Shirts" slugifies to "t-shirts", and blindly
-    // replacing every hyphen with a space would turn it into "t shirts",
-    // which no longer matches the real name).
+    
     let foundItem = null;
     matchedMainCat?.subCategories?.forEach((group) => {
       group.items?.forEach((item) => {

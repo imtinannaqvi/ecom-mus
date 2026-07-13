@@ -41,8 +41,7 @@ const ReviewOrder = () => {
 const discountAmount = appliedCoupon?.discountAmount || 0;
 const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
 
-// Real store settings — tax, delivery charge, and free shipping threshold,
-// pulled from admin's Settings page instead of being hardcoded.
+
 const [storeSettings, setStoreSettings] = useState(null);
 
 useEffect(() => {
@@ -66,8 +65,7 @@ const deliveryChargeApplied = qualifiesForFreeShipping ? 0 : (storeSettings?.del
 
 const grandTotal = discountedSubtotal + taxAmount + deliveryChargeApplied;
 
-  // Re-check the coupon whenever the cart total changes, so the discount
-  // shown always matches the current subtotal (e.g. if items were removed).
+
   useEffect(() => {
     if (appliedCoupon) {
       handleApplyCoupon(appliedCoupon.code, true);
@@ -119,10 +117,9 @@ const grandTotal = discountedSubtotal + taxAmount + deliveryChargeApplied;
     }
   };
 
-  // --- Complete Order Logic ---
+
   const completeOrder = async () => {
-    // 0. Require login only at the point of actually placing the order.
-    // Guests can freely view/manage their bag up to this point.
+   
     if (!user) {
       toast.error("Please log in or sign up to complete your order.");
       return navigate('/login');

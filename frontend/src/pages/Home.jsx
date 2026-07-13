@@ -19,9 +19,7 @@ function Home() {
   const loadPageData = async () => {
     setLoading(true);
     try {
-      // Fire BOTH requests at the same time instead of waiting for one,
-      // then the other. This roughly halves the delay before product
-      // images can start downloading.
+     
       const [catRes, productData] = await Promise.all([
         fetchMainCategory(),
         fetchProducts({ mainCategory }),

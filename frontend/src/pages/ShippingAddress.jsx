@@ -5,6 +5,8 @@ import Footer from '../components/Footer';
 import API from '../api/api';
 import { AppContext } from "../context/AppContextProvider";
 import { CartContext } from "../context/CartContext"; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function ShippingAddress() {
   // Context se values nikalna
@@ -48,15 +50,22 @@ function ShippingAddress() {
   };
 
   const handleNext = () => {
-    if (!selectedAddress) {
-      alert("Please select a delivery address");
-      return;
-    }
-    navigate('/payment');
-  };
+  if (!selectedAddress) {
+    toast.warning("Please select a delivery address");
+    return;
+  }
+
+  navigate("/payment");
+};
 
 if (loading || cartLoading) return <div className="flex justify-center p-20"><div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" /></div>;
   return (
+    <>
+     <ToastContainer
+    position="top-right"
+    autoClose={3000}
+    hideProgressBar={false}
+  />
     <main>
       <Header />
       <div className="min-h-screen bg-gray-50 p-4 md:p-10 text-gray-800">
@@ -198,6 +207,8 @@ if (loading || cartLoading) return <div className="flex justify-center p-20"><di
       </div>
       <Footer />
     </main>
+    </>
+    
   );
 }
 

@@ -143,8 +143,7 @@ const ApplePayIcon = () => (
   </svg>
 );
 
-// Builds the exact same URL-safe slug used elsewhere (Header, TopCategories),
-// so footer links always land on a real, matching item page.
+
 const toSlug = (name) => (name || "").toLowerCase().replace(/\s+/g, "-");
 
 const Footer = () => {
@@ -163,8 +162,7 @@ const Footer = () => {
     };
     loadCategories();
 
-    // Real store branding — logo, description, social links, currently
-    // hardcoded below as a fallback if settings haven't been fetched yet.
+    
     const loadSettings = async () => {
       try {
         const { data } = await Api.get("/settings");
@@ -174,12 +172,12 @@ const Footer = () => {
       }
     };
     loadSettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   return (
     <footer className="w-full font-sans text-gray-300">
-      {/* Promotional section with feature highlights like returns, shipping, etc */}
+
       <div className="bg-[#f3f4f6] py-12 px-4 border-b border-gray-200">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center text-black">
           {[

@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { FiMoreVertical } from 'react-icons/fi';
 import Sidebar from './components/Sidebar';
 import { useAdmin } from './context/AdminContext';
 
 function DashboardLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+
   // Default: open on desktop (md+), closed (overlay) on mobile.
   const [sidebarOpen, setSidebarOpen] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 768 : true
   );
+
   const menuRef = useRef(null);
   const { admin, logout } = useAdmin();
   const navigate = useNavigate();
@@ -34,26 +35,18 @@ function DashboardLayout() {
     <div className="flex bg-[#F8FAFC] min-h-screen">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
 
-      {/* Floating reopen button — only needed when collapsed, on any screen size */}
-      {!sidebarOpen && (
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="fixed left-3 top-3 z-[60] w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 shadow-md text-gray-500 hover:text-[#1E1B4B] hover:bg-gray-50 transition"
-          title="Expand sidebar"
-        >
-          <FiMoreVertical size={18} />
-        </button>
-      )}
-
-      {/* Padding only applies at md+ — on mobile the sidebar is an overlay,
-          so content must always stay full-width regardless of sidebarOpen */}
+      {/*
+        Content padding must match the sidebar's ACTUAL width at each state:
+          - expanded  → sidebar is 16rem (w-64)  → pl-64
+          - collapsed → sidebar is 5rem  (w-20)  → pl-20   ← was pl-0, which let
+            the content slide underneath the icon rail and get clipped.
+        On mobile the sidebar is an overlay drawer, so no padding at any state.
+      */}
       <main
-        className={`flex-1 min-h-screen flex flex-col transition-[padding] duration-300 ease-in-out ${
-          sidebarOpen ? "md:pl-64" : "md:pl-0"
+        className={`flex-1 min-w-0 min-h-screen flex flex-col transition-[padding] duration-300 ease-in-out ${
+          sidebarOpen ? "md:pl-64" : "md:pl-20"
         }`}
       >
-
         <header className="w-full h-16 bg-white border-b border-gray-100 sticky top-0 z-10 flex items-center px-4 sm:px-8 justify-between">
           <div className="text-sm font-medium text-gray-400 truncate">
             Admin Panel / Control Desk
@@ -85,10 +78,9 @@ function DashboardLayout() {
           </div>
         </header>
 
-        <div className="flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
           <Outlet />
         </div>
-
       </main>
     </div>
   );

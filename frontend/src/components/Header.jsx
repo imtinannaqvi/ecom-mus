@@ -12,18 +12,16 @@ import { CartContext } from "../context/CartContext";
 import { AppContext } from "../context/AppContextProvider";
 import useProduct from "../hooks/productService";
 import API, { BACKEND_URL } from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Builds a URL-safe slug from a category/item name. Handles slashes (e.g.
-// "Pants / Trousers") as well as spaces — a raw "/" would otherwise be read
-// by the router as an extra path segment and break the route entirely.
+
 const slugify = (name) => (name || "")
   .toLowerCase()
   .replace(/\//g, "-")
   .replace(/\s+/g, "-");
 
-// --- MEGA MENU COMPONENT ---
-// mainCat.subCategories = menu groups (e.g. "Top Wear"), each with its own
-// items[] (e.g. "Classic Fit T-Shirts") — a real two-level hierarchy.
+
 const MegaMenu = ({ mainCat, closeMenu }) => {
   if (!mainCat || !mainCat.subCategories) return null;
 
@@ -104,7 +102,6 @@ function Header() {
     };
     loadNavData();
 
-    // Fetch the full product catalog once, used for client-side search.
     const loadAllProducts = async () => {
       try {
         const res = await API.get("/product/all");
@@ -116,7 +113,6 @@ function Header() {
     loadAllProducts();
   }, []);
 
-  // Live search results: filter by category scope + text match on name or subCategory.
   const searchResults = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return [];
@@ -136,11 +132,19 @@ function Header() {
     setSearchQuery("");
   };
 
-  const handleRemove = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      await removeFromCart(id);
-    }
-  };
+ const handleRemove = async (id) => {
+  try {
+    await removeFromCart(id);
+
+    toast.success("Item removed from cart!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+
+  } catch (err) {
+    toast.error("Failed to remove item.");
+  }
+};
 
   const handleLogout = async () => {
     try {
@@ -155,6 +159,14 @@ function Header() {
   };
 
   return (
+     <>
+       <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+    />
     <header
       className="w-full font-[Inter] shadow-sm bg-white relative z-[100]"
       onMouseLeave={() => setActiveMenu(null)}
@@ -452,6 +464,8 @@ function Header() {
         </div>
       )}
     </header>
+     </>
+    
   );
 }
 

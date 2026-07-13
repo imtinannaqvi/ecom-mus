@@ -61,9 +61,7 @@ const OTPVerification = () => {
       // Backend se jo error message aayega wo yahan set hoga
       setError(err.response?.data?.message || "Ghalat OTP! Dobara koshish karein.");
       
-      // Ghalat OTP par boxes laal karne ke liye otp clear kar sakte hain (Optional)
-      // setOtp(["", "", "", "", "", ""]);
-      // inputRefs[0].current.focus();
+     
     }
   };
 

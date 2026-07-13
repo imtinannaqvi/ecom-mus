@@ -14,12 +14,10 @@ function AddPayment() {
     return sum + (price * item.quantity);
   }, 0);
 
-  // Handle Order Placement (COD Logic)
   const handlePlaceOrder = () => {
-    // Payment method context ya localStorage mein save karna
     localStorage.setItem('selectedPaymentMethod', 'COD');
     
-    // Agle page (Review) par bhej do
+   
     navigate('/shopping-bag'); 
   };
 

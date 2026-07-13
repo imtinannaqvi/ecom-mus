@@ -5,6 +5,8 @@ import { IoClose } from "react-icons/io5";
 import { FiChevronDown } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import API from '../../api/api';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Address() {
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -53,38 +55,32 @@ function Address() {
       if (editId) {
         // Update Logic
         const res = await API.put(`/address/update/${editId}`, formData);
-        if (res.data.success) alert("Address Updated!");
+        if (res.data.success) toast.success("Address added successfully");;
       } else {
         // Add Logic
         const res = await API.post('/address/add', formData);
-        if (res.data.success) alert("Address Added!");
+        if (res.data.success) toast.success("Address updated successfully");;
       }
       setShowAddressForm(false);
       setEditId(null);
       resetForm();
       fetchAddresses(); // Refresh list
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong");
-    }
+toast.error(err.response?.data?.message || "Something went wrong");    }
   };
 
 const handleDelete = async (id) => {
-  // User se confirmation lena achi practice hai
-  if (window.confirm("Are you sure you want to delete this address?")) {
-    try {
-      const res = await API.delete(`/address/delete/${id}`);
-      
-      // Axios response data check
-      if (res.data.success) {
-        alert('Address is deleted successfully');
-        fetchAddresses(); // List refresh karne ke liye
-      }
+  try {
+    const res = await API.delete(`/address/delete/${id}`);
+
+    if (res.data.success) {
+      toast.success("Address deleted successfully");
+      fetchAddresses();
     }
-    catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      console.log("Delete Error:", msg);
-      alert(msg);
-    }
+  } catch (err) {
+    const msg = err.response?.data?.message || err.message;
+    console.log("Delete Error:", msg);
+    toast.error(msg);
   }
 };
 

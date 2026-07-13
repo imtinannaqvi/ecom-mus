@@ -9,6 +9,8 @@ import { IoCameraOutline } from "react-icons/io5";
 import { FaWhatsapp, FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6"; // Filled star ke liye
 import useProduct from "../../hooks/productService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function ProductReviews() {
   const { id } = useParams(); // Order ya Product ID
@@ -28,7 +30,7 @@ function ProductReviews() {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       if (selectedFile.size > 5 * 1024 * 1024) {
-        alert("File size should be less than 5MB");
+        toast.success("File size should be less than 5MB");
         return;
       }
       setFile(selectedFile);
@@ -56,7 +58,7 @@ function ProductReviews() {
         setShowModal(true);
       }
     } catch (err) {
-      alert(err.message || "Something went wrong");
+toast.error(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

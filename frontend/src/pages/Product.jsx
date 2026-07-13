@@ -170,8 +170,7 @@ export const NewArrivals = ({ products }) => {
   return <ProductSliderSection title="NEW ARRIVALS" products={products} />;
 };
 
-// 5. MAIN PRODUCT PAGE — buckets real products into real sections instead
-// of showing the same full list four times.
+
 function Product({ category, products }) {
   if (!products || products.length === 0) {
     return (

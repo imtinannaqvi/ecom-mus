@@ -93,16 +93,12 @@ function SingleProduct() {
   const { addToCart } = useContext(CartContext);
 
   const handleAddToCart = async () => {
-    // Check karein agar size select nahi kiya (agar product mein sizes hain)
     if (hasSizing && !selectedSize) {
       alert("Please select a size first!");
       return;
     }
 
-    // 1. Data prepare karein (exact wahi format jo backend maang raha hai)
-    // "product" (the full product object) is included so the guest cart
-    // (localStorage, no backend populate) can display name/image/price
-    // immediately without an extra API call.
+   
     const payload = {
       productId: product._id,
       quantity: quantity,

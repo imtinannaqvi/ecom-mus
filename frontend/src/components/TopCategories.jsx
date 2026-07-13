@@ -3,8 +3,7 @@ import Button from './Button';
 import { Link } from 'react-router-dom'
 import { BACKEND_URL } from "../api/api";
 
-// Same slug format used everywhere else (Header, CategoriesProduct) so links
-// always land on a matching page.
+
 const slugify = (name) => (name || "")
   .toLowerCase()
   .replace(/\//g, "-")
@@ -19,8 +18,7 @@ function TopCategories({ mainCategory, subCategories }) {
         {subCategories.map((group) => (
           <div key={group._id} className="flex flex-col">
 
-            {/* Group tile — the whole image is clickable again, taking the
-                shopper straight to this group's aggregated products page. */}
+            
             <Link
               to={`/shop/${mainCategory}/${slugify(group.name)}`}
               className="relative h-60 md:h-80 rounded-lg overflow-hidden group"
@@ -44,8 +42,7 @@ function TopCategories({ mainCategory, subCategories }) {
               </div>
             </Link>
 
-            {/* Item list — the actual specific items inside this group,
-                each linking directly to that exact item's products */}
+            
             {group.items && group.items.length > 0 ? (
               <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
                 {group.items.slice(0, 6).map((item) => (

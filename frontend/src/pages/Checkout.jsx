@@ -33,7 +33,7 @@ const Checkout = () => {
   // --- STATE MANAGEMENT ---
   const [step, setStep] = useState("address"); 
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("cod"); // 'cod', 'card', 'netbanking'
+  const [paymentMethod, setPaymentMethod] = useState("cod"); 
   const [addresses, setAddresses] = useState([
     {
       id: 1,
