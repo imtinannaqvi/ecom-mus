@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContextProvider";
 import { BACKEND_URL } from "../api/api";
 
-// Drop your own banner image at this path (frontend/public/images/hero-banner.jpg)
-// to change what shows on the first slide — no code change needed.
+
 const BANNER_IMAGE_PATH = "/images/hero-banner.jpg";
 
 const AUTO_ROTATE_MS = 5000;
@@ -14,10 +13,9 @@ const AUTO_ROTATE_MS = 5000;
 function HeroBanner({ subCategories, mainCategory }) {
   const { products } = useContext(AppContext);
   const [isMobile, setIsMobile] = useState(false);
-  const [slide, setSlide] = useState(0); // 0 = image banner, 1 = categories grid
+  const [slide, setSlide] = useState(0);
 
-  // Are the categories actually loaded yet? Used to avoid rendering a
-  // half-empty grid and to hold off the auto-rotate until data is ready.
+  
   const hasCategories = Array.isArray(subCategories) && subCategories.length > 0;
 
   useEffect(() => {
@@ -27,10 +25,9 @@ function HeroBanner({ subCategories, mainCategory }) {
     return () => window.removeEventListener("resize", checkRes);
   }, []);
 
-  // Auto-rotate between the two slides every few seconds — but only once the
-  // category data has arrived, so it can't flip to a half-built grid.
+  
   useEffect(() => {
-    if (!hasCategories) return; // wait for data before rotating
+    if (!hasCategories) return; 
     const interval = setInterval(() => {
       setSlide((prev) => (prev === 0 ? 1 : 0));
     }, AUTO_ROTATE_MS);
@@ -41,11 +38,8 @@ function HeroBanner({ subCategories, mainCategory }) {
   const goNext = () => setSlide((prev) => (prev === 0 ? 1 : 0));
 
   return (
-    // Shorter on mobile (380px) so a wide banner isn't forced into an extreme
-    // portrait crop; full height kept on desktop.
-    <section className="relative w-full mt-2 md:mt-5 h-[380px] md:h-[600px] overflow-hidden bg-black">
-
-      {/* Navigation Arrows */}
+    
+<section className="relative w-full mt-2 md:mt-5 h-auto md:h-[600px] overflow-hidden bg-black">
       <div className="absolute inset-y-0 left-2 md:left-5 flex items-center z-50">
         <button
           onClick={goPrev}
@@ -63,7 +57,6 @@ function HeroBanner({ subCategories, mainCategory }) {
         </button>
       </div>
 
-      {/* Slide Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-50">
         {[0, 1].map((i) => (
           <button
@@ -76,43 +69,31 @@ function HeroBanner({ subCategories, mainCategory }) {
         ))}
       </div>
 
-      <div className="relative w-full h-full">
-        <AnimatePresence initial={false} mode="wait">
+<div className="relative w-full h-auto md:h-full">
+          <AnimatePresence initial={false} mode="wait">
           {slide === 0 ? (
-            // ---- SLIDE 1: Static Banner Image ----
-            <motion.div
-              key="banner-image"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
-              className="absolute inset-0 w-full h-full"
-            >
-              {/*
-                On mobile a wide banner cropped with object-cover zooms in hard
-                and cuts off the subject's head. object-contain shows the whole
-                image (the black section background fills any gap); desktop keeps
-                the original full-bleed object-cover look.
-              */}
-              <img
-                src="/images/banner.png"
-                alt="Promotional banner"
-                className="w-full h-full object-contain object-center md:object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
-              />
-            </motion.div>
+           <motion.div
+  key="banner-image"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.6 }}
+  className="relative md:absolute md:inset-0 w-full h-auto md:h-full"
+>
+  <img
+    src="/images/banner.png"
+    alt="Promotional banner"
+    className="w-full h-auto md:h-full object-contain md:object-cover block"
+  />
+</motion.div>
           ) : hasCategories ? (
-            // ---- SLIDE 2: Category Slanted Grid (only once data is ready) ----
             <motion.div
               key="banner-slanted"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="absolute inset-0 flex flex-col md:flex-row w-full h-full bg-white overflow-hidden"
-            >
+className="relative md:absolute md:inset-0 flex flex-col md:flex-row w-full h-[500px] md:h-full bg-white overflow-hidden"            >
               {subCategories.map((cat, index) => (
                 <Link
                   to={`/shop/${mainCategory}/${cat.name}`}
@@ -135,7 +116,6 @@ function HeroBanner({ subCategories, mainCategory }) {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
 
-                  {/* Semi-transparent overlay with category text label */}
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all flex items-end md:items-end justify-center pb-8 ">
                     <h2
                       className="text-white text-2xl md:text-4xl font-black uppercase tracking-tighter"
@@ -153,15 +133,13 @@ function HeroBanner({ subCategories, mainCategory }) {
               ))}
             </motion.div>
           ) : (
-            // ---- Placeholder while categories load — no partial grid flash ----
             <motion.div
               key="banner-loading"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="absolute inset-0 w-full h-full bg-gray-100 animate-pulse"
-            />
+className="relative md:absolute md:inset-0 w-full h-[500px] md:h-full bg-gray-100 animate-pulse"            />
           )}
         </AnimatePresence>
       </div>
@@ -170,25 +148,22 @@ function HeroBanner({ subCategories, mainCategory }) {
 }
 
 /**
- * Generates responsive clip-path values for slanted grid layout
- * Creates different clipping patterns based on item position and device type
- * @param {number} index - Current product index in the array
- * @param {number} total - Total number of products in the grid
- * @param {boolean} isMobile - Flag indicating if viewport is mobile-sized
- * @returns {string} CSS clip-path polygon value
+ 
+ * @param {number} index 
+ * @param {number} total 
+ * @param {boolean} isMobile
+ * @returns {string}
  */
 function getClipPath(index, total, isMobile) {
-  const slant = 12; // Slant percentage
+  const slant = 12;
 
   if (isMobile) {
-    // Vertical Slant for Mobile
     if (index === 0)
       return `polygon(0% 0%, 100% 0%, 100% ${100 - slant}%, 0% 100%)`;
     if (index === total - 1)
       return `polygon(0% ${slant}%, 100% 0%, 100% 100%, 0% 100%)`;
     return `polygon(0% ${slant}%, 100% 0%, 100% ${100 - slant}%, 0% 100%)`;
   } else {
-    // Horizontal Slant for Desktop
     if (index === 0)
       return `polygon(0% 0%, 100% 0%, ${100 - slant}% 100%, 0% 100%)`;
     if (index === total - 1)
