@@ -185,6 +185,52 @@ const NewProduct = () => {
                 />
               </div>
 
+              {/*
+                PRICE / OLD PRICE / STOCK
+                These inputs were missing entirely — the state and the formData
+                appends existed, but there was no way to actually enter them, so
+                every product was published with an empty price and stock.
+              */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Price</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                    placeholder="Amount"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Old Price</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                    placeholder="Optional"
+                    value={oldPrice}
+                    onChange={(e) => setOldPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Stock Unit</label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
+                    placeholder="Qty"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-50">
                 <label className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl cursor-pointer">
                   <span className="text-xs font-bold text-gray-600"> Top Trending</span>
