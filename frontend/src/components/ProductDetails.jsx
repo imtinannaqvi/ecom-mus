@@ -18,7 +18,7 @@ const ProductDetails = ({
   selectedSize,
   setSelectedSize,
   selectedColor,
-  setSelectedColor, // Ensure this is passed from parent
+  setSelectedColor, 
   hasSizing,
   setSizeGuideOpen,
   quantity,
@@ -29,14 +29,11 @@ const ProductDetails = ({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Product name, description, price */}
       <div className="space-y-2">
         <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">
           {product.name}
         </h1>
-        <p className="text-gray-500 text-sm md:text-base line-clamp-2">
-          {product.description}
-        </p>
+        
         <div className="flex items-center gap-4 mt-2">
           <span className="text-3xl font-bold">${product.price}</span>
           {product.oldPrice && (
@@ -47,7 +44,6 @@ const ProductDetails = ({
           </span>
         </div>
 
-        {/* Short Description — set from admin, shows right under the price */}
         {product.shortDescription && (
           <p className="text-gray-600 text-sm md:text-base mt-1">
             {product.shortDescription}
@@ -55,7 +51,6 @@ const ProductDetails = ({
         )}
       </div>
 
-      {/* 1. COLOR SELECTOR (Visual Circles) */}
       {product.colors && product.colors.length > 0 && (
         <div className="space-y-3 pt-2">
           <div className="flex justify-between items-center">
@@ -70,7 +65,7 @@ const ProductDetails = ({
                 className={`w-8 h-8 rounded-full border-2 transition-all ${
                   selectedColor === color ? "border-black scale-110" : "border-transparent"
                 }`}
-                style={{ backgroundColor: color.toLowerCase() }} // Backend se color name/hex code yahan apply hoga
+                style={{ backgroundColor: color.toLowerCase() }} 
               >
                 <span className="sr-only">{color}</span>
               </button>
@@ -79,7 +74,6 @@ const ProductDetails = ({
         </div>
       )}
 
-      {/* 2. SIZE SELECTOR & SIZE CHART */}
       {hasSizing && (
         <div className="space-y-4 pt-4 border-t border-dashed">
           <div className="flex justify-between items-center">

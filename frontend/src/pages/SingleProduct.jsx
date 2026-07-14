@@ -13,6 +13,48 @@ import API from '../api/api'
 import { getCartApi } from '../services/cartServices'
 import { CartContext } from "../context/CartContext";
 import { BACKEND_URL } from "../api/api";
+
+/*
+  Size chart data. SizeChartOverlay expects `sizeGuide`, `productType` and
+  `guideLabel` — none of which were being passed before, which is why the
+  overlay crashed on `sizeGuide.title` and nothing appeared on screen.
+
+  Swap these measurements for your real ones whenever you have them.
+*/
+const SIZE_GUIDES = {
+  jeans: {
+    title: "Jeans Size Guide",
+    note: "Measure around your natural waist, keeping the tape comfortably loose. For the inseam, measure from the crotch seam down to the ankle.",
+    headers: ["Size", "Waist (in)", "Hip (in)", "Inseam (in)"],
+    sizes: [
+      { size: "S",   waist: "28-30", hip: "34-36", inseam: "30" },
+      { size: "M",   waist: "31-33", hip: "37-39", inseam: "31" },
+      { size: "L",   waist: "34-36", hip: "40-42", inseam: "32" },
+      { size: "XL",  waist: "37-39", hip: "43-45", inseam: "32" },
+      { size: "XXL", waist: "40-42", hip: "46-48", inseam: "33" },
+    ],
+  },
+  top: {
+    title: "Top Wear Size Guide",
+    note: "Measure across the chest, one inch below the armholes, with your arms relaxed. Length is taken from the highest shoulder point down to the hem.",
+    headers: ["Size", "Chest (in)", "Length (in)", "Shoulder (in)"],
+    sizes: [
+      { size: "S",   chest: "36-38", length: "27", shoulder: "17" },
+      { size: "M",   chest: "39-41", length: "28", shoulder: "18" },
+      { size: "L",   chest: "42-44", length: "29", shoulder: "19" },
+      { size: "XL",  chest: "45-47", length: "30", shoulder: "20" },
+      { size: "XXL", chest: "48-50", length: "31", shoulder: "21" },
+    ],
+  },
+};
+
+// Decide which chart to show from the product's subCategory.
+const resolveProductType = (product) => {
+  const sub = (product?.subCategory || "").toLowerCase();
+  const bottomKeywords = ["jean", "pant", "trouser", "track", "jogger", "bottom", "pajama"];
+  return bottomKeywords.some((k) => sub.includes(k)) ? "jeans" : "top";
+};
+
 function SingleProduct() {
   const { id } = useParams();
   // Context se products nikal rahe hain
@@ -74,20 +116,20 @@ function SingleProduct() {
     window.scrollTo(0, 0);
   }, [id, products]); // Products array change hone par re-run hoga
 
- useEffect(() => {
-  if (!product) return;
+  useEffect(() => {
+    if (!product) return;
 
-  document.title = product.seoTitle || product.name || "Maurish";
+    document.title = product.seoTitle || product.name || "Maurish";
 
-  const description = product.seoDescription || product.shortDescription || product.description || "";
-  let metaDesc = document.querySelector('meta[name="description"]');
-  if (!metaDesc) {
-    metaDesc = document.createElement("meta");
-    metaDesc.setAttribute("name", "description");
-    document.head.appendChild(metaDesc);
-  }
-  metaDesc.setAttribute("content", description.slice(0, 160));
-}, [product]);
+    const description = product.seoDescription || product.shortDescription || product.description || "";
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", description.slice(0, 160));
+  }, [product]);
 
 
   const { addToCart } = useContext(CartContext);
@@ -98,7 +140,7 @@ function SingleProduct() {
       return;
     }
 
-   
+
     const payload = {
       productId: product._id,
       quantity: quantity,
@@ -119,7 +161,7 @@ function SingleProduct() {
     }
   };
 
-if (loading || !product) {
+  if (loading || !product) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
@@ -133,6 +175,14 @@ if (loading || !product) {
     product.sizes.length > 0 &&
     product.sizes[0] !== "Free" &&
     product.sizes[0] !== "Standard";
+
+  // ── Size guide props for the overlay ──────────────────────────
+  const productType = resolveProductType(product);
+  const sizeGuide = SIZE_GUIDES[productType] || SIZE_GUIDES.top;
+  const guideLabel =
+    productType === "jeans"
+      ? ["Waist", "Hip", "Thigh", "Inseam"]
+      : ["Chest", "Shoulder", "Length"];
 
   // Image Processing Logic (Same as before)
   const processImages = (imgs) => {
@@ -211,10 +261,13 @@ if (loading || !product) {
           </section>
         </div>
 
+       
         {sizeGuideOpen && (
           <SizeChartOverlay
+            sizeGuide={sizeGuide}
+            productType={productType}
+            guideLabel={guideLabel}
             setSizeGuideOpen={setSizeGuideOpen}
-            product={product}
           />
         )}
       </main>
