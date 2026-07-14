@@ -198,7 +198,6 @@ const Setting = () => {
                   onChange={handleInputChange}
                   className="w-full px-3.5 py-2.5 md:py-3 border border-gray-200 rounded-xl bg-white text-xs md:text-sm font-semibold text-gray-700 focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition"
                 >
-                  <option value="PKR">PKR — Pakistani Rupee (Rs.)</option>
                   <option value="USD">USD — US Dollar ($)</option>
                   <option value="INR">INR — Indian Rupee (₹)</option>
                 </select>

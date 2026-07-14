@@ -26,6 +26,7 @@ import NewCategoryItem from "./pages/NewCategoryItem";
 import Reviews from "./pages/Reviews";
 import UserDetail from './pages/UserDetail'
 // Baki pages bhi import karein...
+import ContactSubmissions from "./pages/ContactSubmit";
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
   <Route path="category/item/new" element={<NewCategoryItem />} />
   <Route path="reviews" element={<Reviews />} />
   <Route path="users/:id" element={<UserDetail />} />
+  <Route path="contact" element={<ContactSubmissions />} />
 
 </Route>
         </Route>

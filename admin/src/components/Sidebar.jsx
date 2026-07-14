@@ -11,7 +11,7 @@ import {
   LuChevronUp,
   LuChevronDown
 } from 'react-icons/lu';
-import { FiMoreVertical, FiTag, FiMessageSquare } from 'react-icons/fi';
+import { FiMoreVertical, FiTag, FiMessageSquare, FiMail } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen = true, onToggle }) => {
   const [isProductsOpen, setIsProductsOpen] = useState(true);
@@ -23,22 +23,23 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
     location.pathname.includes('/admin/product/new') ||
     location.pathname.includes('/admin/category');
 
-  // Close the drawer on mobile after navigating; on desktop the sidebar stays put.
   const closeOnMobile = () => {
     if (window.innerWidth < 768) onToggle();
   };
 
-  // Shared classes for every top-level nav link. When the sidebar is collapsed
-  // on desktop the icons center themselves and the labels are removed.
+  // py-2.5 (was py-3) — across 10 items this reclaims enough vertical space
+  // to stop the nav overflowing and showing a scrollbar.
   const linkClass = ({ isActive }) => `
-    flex items-center gap-4 py-3 rounded-xl transition-all duration-150
+    flex items-center gap-4 py-2.5 rounded-xl transition-all duration-150
     ${isOpen ? "px-3" : "px-3 md:px-0 md:justify-center"}
     ${isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"}
   `;
 
-  // Label text — hidden entirely once the desktop rail is collapsed.
   const labelClass = `text-[15px] whitespace-nowrap ${isOpen ? "" : "md:hidden"}`;
 
+  // Contact now lives IN this array (it was hardcoded below before, which meant
+  // it never got the collapsed icon-rail treatment and its label would still
+  // render at 80px width, breaking the layout).
   const navItems = [
     { to: "/admin/dashboard",    icon: <LuLayoutDashboard className="text-xl shrink-0" />, label: "Dashboard" },
     { to: "/admin/orders",       icon: <LuTag className="text-xl rotate-90 shrink-0" />,   label: "Sales" },
@@ -47,6 +48,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
     { to: "/admin/notification", icon: <LuBell className="text-xl shrink-0" />,            label: "Notifications" },
     { to: "/admin/coupons",      icon: <FiTag className="text-xl shrink-0" />,             label: "Coupons" },
     { to: "/admin/reviews",      icon: <FiMessageSquare className="text-xl shrink-0" />,   label: "Reviews" },
+    { to: "/admin/contact",      icon: <FiMail className="text-xl shrink-0" />,            label: "Contact" },
     { to: "/admin/setting",      icon: <LuSettings className="text-xl shrink-0" />,        label: "Setting" },
   ];
 
@@ -60,15 +62,9 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
         />
       )}
 
-      {/*
-        Sidebar container.
-        - Mobile (<md): a drawer. Slides fully off-screen when closed.
-        - Desktop (md+): always on screen, but COLLAPSES from a 64-wide panel
-          to a 20-wide icon rail so the page content can expand into the space.
-      */}
       <aside
         className={`
-          h-screen bg-white border-r border-gray-100 text-[#5D6B82] py-6
+          h-screen bg-white border-r border-gray-100 text-[#5D6B82] py-5
           fixed left-0 top-0 flex flex-col font-sans select-none z-50
           transition-all duration-300 ease-in-out
           ${isOpen
@@ -78,8 +74,8 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
         `}
       >
 
-        {/* Logo row */}
-        <div className={`mb-8 flex items-center gap-2 ${isOpen ? "px-2 justify-between" : "px-2 justify-between md:px-0 md:justify-center"}`}>
+        {/* Logo row — mb-6 (was mb-8) to reclaim vertical space */}
+        <div className={`mb-6 flex items-center gap-2 shrink-0 ${isOpen ? "px-2 justify-between" : "px-2 justify-between md:px-0 md:justify-center"}`}>
           <div className="flex items-center gap-2 min-w-0">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF] shrink-0">
               <path d="M12 20C14.2091 20 16 18.2091 16 16C16 13.7909 14.2091 12 12 12C9.79086 12 8 13.7909 8 16C8 18.2091 9.79086 20 12 20Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -90,7 +86,6 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             </span>
           </div>
 
-          {/* Toggle — hidden on desktop when collapsed (the rail has its own button below) */}
           <button
             type="button"
             onClick={onToggle}
@@ -101,20 +96,19 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
           </button>
         </div>
 
-        {/* Expand button — only visible on the collapsed desktop rail */}
         {!isOpen && (
           <button
             type="button"
             onClick={onToggle}
             title="Expand sidebar"
-            className="hidden md:flex w-full h-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition mb-2"
+            className="hidden md:flex w-full h-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 hover:text-[#1E1B4B] transition mb-2 shrink-0"
           >
             <FiMoreVertical size={16} />
           </button>
         )}
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden no-scrollbar">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden no-scrollbar">
 
           {/* Dashboard */}
           <NavLink
@@ -127,12 +121,12 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             <span className={labelClass}>{navItems[0].label}</span>
           </NavLink>
 
-          {/* Products — a dropdown when expanded, a single icon when collapsed */}
+          {/* Products — accordion when expanded, single icon when collapsed */}
           {isOpen ? (
             <div>
               <button
                 onClick={() => setIsProductsOpen(!isProductsOpen)}
-                className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 ${
                   isProductsActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
                 }`}
               >
@@ -144,11 +138,11 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
               </button>
 
               {isProductsOpen && (
-                <div className="mt-1 space-y-1">
+                <div className="mt-0.5 space-y-0.5">
                   <NavLink
                     to="/admin/products"
                     onClick={closeOnMobile}
-                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-150 ${
                       isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"
                     }`}
                   >
@@ -157,7 +151,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
                   <NavLink
                     to="/admin/category"
                     onClick={closeOnMobile}
-                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-150 ${
+                    className={({ isActive }) => `flex items-center pl-12 pr-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-150 ${
                       isActive ? "bg-[#F5F3FF] text-[#635BFF]" : "text-[#5D6B82] hover:text-[#1E1B4B]"
                     }`}
                   >
@@ -167,12 +161,11 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
               )}
             </div>
           ) : (
-            /* Collapsed rail: Products becomes one icon linking to the list */
             <NavLink
               to="/admin/products"
               onClick={closeOnMobile}
               title="Products"
-              className={`flex items-center gap-4 py-3 rounded-xl transition-all duration-150 px-3 md:px-0 md:justify-center ${
+              className={`flex items-center gap-4 py-2.5 rounded-xl transition-all duration-150 px-3 md:px-0 md:justify-center ${
                 isProductsActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
               }`}
             >
@@ -181,7 +174,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             </NavLink>
           )}
 
-          {/* Remaining nav items */}
+          {/* Everything else — Contact included, so it collapses correctly */}
           {navItems.slice(1).map(({ to, icon, label }) => (
             <NavLink
               key={to}

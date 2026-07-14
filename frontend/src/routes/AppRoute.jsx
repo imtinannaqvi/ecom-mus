@@ -28,7 +28,10 @@ import LandinPage from "../pages/LandinPage";
 import ProtectedRoute from "./ProtectedRoute";
 import ShippingAddress from "../pages/ShippingAddress";
 import AddPayment from "../pages/AddPayment";
-
+import Aboutus from '../pages/AboutUs'
+import ContactUs from "../pages/ContactUs";
+import Term from "../pages/Term";
+import Privacy from "../pages/Privacy";
 function AppRoute() {
   return (
     <Routes>
@@ -43,6 +46,10 @@ function AppRoute() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<OTPVerification />} />
+      <Route path="/about-us" element={<Aboutus/>} />
+      <Route path="/contact-us" element={<ContactUs/>} />
+      <Route path="/term-condition" element={<Term/>} />
+      <Route path="/privacy" element={<Privacy/>} />
 
      
       <Route path="/shopping-bag" element={<ShoppingBag />} />

@@ -265,10 +265,22 @@ const Footer = () => {
           <div>
             <h4 className="font-bold mb-6 text-sm">COMPANY</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li>About Us</li>
+              <li>
+                <Link to='/about-us' className="hover:text-white transition-colors">
+                About Us
+                </Link>
+              </li>
               <li>We Are Hiring</li>
-              <li>Privacy Policy</li>
-              <li>Terms & Conditions</li>
+              <li>
+                <Link to={"/privacy"} className="hover:text-white transition-colors">
+                 Privacy Policy
+                </Link>
+               </li>
+              <li>
+                <Link to={"/term-condition"} className="hover:text-white transition-colors">
+                Terms & Conditions
+                </Link>
+              </li>
             </ul>
             <h4 className="font-bold mt-8 mb-4 text-sm">Download App</h4>
             <div className="flex w-60 gap-2">
@@ -305,16 +317,31 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Customer support contact and assistance options */}
-          <div>
-            <h4 className="font-bold mb-6 text-sm">CUSTOMER SERVICE</h4>
-            <ul className="space-y-3 text-sm text-gray-400">
-              <li>Contact Us</li>
-              <li>Track Order</li>
-              <li>Return Order</li>
-              <li>Cancel Order</li>
-            </ul>
-          </div>
+        <div>
+  <h4 className="font-bold mb-6 text-sm">CUSTOMER SERVICE</h4>
+  <ul className="space-y-3 text-sm text-gray-400">
+    <li>
+      <Link to="/contact-us" className="hover:text-white transition-colors">
+        Contact Us
+      </Link>
+    </li>
+    <li>
+      <Link to="/profile/orders" className="hover:text-white transition-colors">
+        Track Order
+      </Link>
+    </li>
+    <li>
+      <Link to="/profile/orders" className="hover:text-white transition-colors">
+        Return Order
+      </Link>
+    </li>
+    <li>
+      <Link to="/profile/orders" className="hover:text-white transition-colors">
+        Cancel Order
+      </Link>
+    </li>
+  </ul>
+</div>
 
           {/* Social media connections and payment method icons */}
           <div>
