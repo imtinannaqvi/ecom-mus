@@ -52,7 +52,7 @@ function Hiring() {
           <div className="space-y-12">
             {Object.entries(groupedJobs).map(([category, categoryJobs]) => (
               <div key={category}>
-                <h2 className="text-lg font-bold uppercase tracking-widest text-gray-400 mb-4 border-b pb-2">
+                <h2 className="text-lg font-bold uppercase tracking-widest text-black mb-4 border-b pb-2">
                   {category}
                 </h2>
                 <div className="space-y-3">
@@ -64,7 +64,7 @@ function Hiring() {
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
-                          <h3 className="font-bold text-base group-hover:underline">{job.title}</h3>
+                          <h3 className="font-bold text-base ">{job.title}</h3>
                           <div className="flex items-center gap-4 text-xs text-gray-500 mt-1.5">
                             <span className="flex items-center gap-1"><FiMapPin size={12} /> {job.location}</span>
                             <span className="flex items-center gap-1"><FiClock size={12} /> {job.type}</span>
