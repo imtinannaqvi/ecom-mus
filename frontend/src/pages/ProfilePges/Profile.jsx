@@ -39,7 +39,7 @@ function Profile() {
     {
       title: "Settings",
       links: [
-        { name: "Country", path: "/profile/country", icon: <GrLanguage />, extra: "Pakistan" },
+        { name: "Country", path: "/profile/country", icon: <GrLanguage />, extra: "india" },
         { name: "Language", path: "/profile/language", icon: <LiaLanguageSolid />, extra: "English" },
         { name: "Security", path: "/profile/security", icon: <FaLock /> },
         { name: "Notification", path: "/profile/notifications", icon: <MdNotificationsNone /> },

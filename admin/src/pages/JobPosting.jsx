@@ -134,7 +134,7 @@ const JobPosting = () => {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50/60 border border-gray-200 rounded-xl focus:border-[#635BFF] focus:bg-white outline-none text-sm font-medium transition-all"
-                  placeholder="e.g. Lahore, Pakistan / Remote"
+                  placeholder="add location"
                 />
               </div>
               <div>
