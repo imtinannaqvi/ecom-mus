@@ -36,7 +36,7 @@ function Hiring() {
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-16">
         <div className="text-center mb-14">
-          <h1 className="text-3xl md:text-4xl font-bold uppercase tracking-tight">We Are Hiring</h1>
+          <h1 className="text-3xl md:text-4xl font-bold italic">We Are Hiring</h1>
           <p className="text-gray-500 mt-3 max-w-lg mx-auto">
             Join our team. Explore open positions below and apply directly online.
           </p>

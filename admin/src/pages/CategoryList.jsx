@@ -237,11 +237,9 @@ const CategoryList = () => {
 
                 <div className="p-5 border-b border-gray-50 bg-slate-50/50 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2 rounded-xl bg-indigo-50 text-[#635BFF] shrink-0">
-                      <FiFolder className="text-base" />
-                    </div>
+                    
                     <div className="min-w-0">
-                      <h3 className="font-bold text-sm text-[#1E1B4B] truncate" title={category.name}>
+                      <h3 className="font-bold text-md text-[#1E1B4B] truncate" title={category.name}>
                         {category.name}
                       </h3>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">

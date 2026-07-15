@@ -99,12 +99,12 @@ function JobDetail() {
 
         <div className="mt-8 space-y-6">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Description</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-black mb-2">Description</h2>
             <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{job.description}</p>
           </div>
           {job.requirements && (
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Requirements</h2>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-black mb-2">Requirements</h2>
               <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{job.requirements}</p>
             </div>
           )}
@@ -121,11 +121,11 @@ function JobDetail() {
             </div>
           ) : (
             <>
-              <h2 className="text-lg font-bold uppercase tracking-tight mb-6">Apply for this Position</h2>
+              <h2 className="text-lg font-bold  mb-6">Apply for this Position</h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 block mb-2">Full Name</label>
+                    <label className="text-md font-bold  text-black block mb-2">Full Name</label>
                     <input
                       type="text"
                       value={form.name}
@@ -135,7 +135,7 @@ function JobDetail() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 block mb-2">Email</label>
+                    <label className="text-md font-bold  text-black block mb-2">Email</label>
                     <input
                       type="email"
                       value={form.email}
@@ -146,7 +146,7 @@ function JobDetail() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-400 block mb-2">Phone</label>
+                  <label className="text-md font-bold  text-black block mb-2">Phone</label>
                   <input
                     type="tel"
                     value={form.phone}
@@ -157,13 +157,13 @@ function JobDetail() {
                 </div>
                
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-400 block mb-2">
-                    Resume <span className="normal-case font-medium text-gray-400">(PDF, DOC, or DOCX)</span>
+                  <label className="text-md font-bold  text-black block mb-2">
+                    Resume <span className="normal-case font-light text-gray-400">(PDF, DOC, or DOCX)</span>
                   </label>
                   <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-6 cursor-pointer hover:border-black transition">
                     <FiUpload className="text-gray-400" />
                     <span className="text-sm text-gray-500">
-                      {resumeFile ? resumeFile.name : "Click to upload your resume"}
+                      {resumeFile ? resumeFile.name : "Click to upload"}
                     </span>
                     <input
                       type="file"
