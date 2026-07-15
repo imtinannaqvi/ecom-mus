@@ -39,6 +39,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
   
   const navItems = [
     { to: "/admin/dashboard",    icon: <LuLayoutDashboard className="text-xl shrink-0" />, label: "Dashboard" },
+    { to: "/admin/hiring",       icon: <FiBriefcase className="text-xl shrink-0" />,        label: "Hiring Process" },
     { to: "/admin/orders",       icon: <LuTag className="text-xl rotate-90 shrink-0" />,   label: "Sales" },
     { to: "/admin/users",        icon: <LuUsers className="text-xl shrink-0" />,           label: "Customers" },
     { to: "/admin/report",       icon: <LuTrendingUp className="text-xl shrink-0" />,      label: "Report" },
@@ -116,17 +117,16 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             <span className={labelClass}>{navItems[0].label}</span>
           </NavLink>
 
+          {/* Hiring Process — now follows the same collapse/expand pattern as every other item */}
           <NavLink
-  to="/admin/hiring"
-  className={({ isActive }) =>
-    `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
-      isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
-    }`
-  }
->
-  <FiBriefcase className="text-xl" />
-  <span className="text-[15px]">Hiring Process</span>
-</NavLink>
+            to={navItems[1].to}
+            onClick={closeOnMobile}
+            title={navItems[1].label}
+            className={linkClass}
+          >
+            {navItems[1].icon}
+            <span className={labelClass}>{navItems[1].label}</span>
+          </NavLink>
 
           {isOpen ? (
             <div>
@@ -180,7 +180,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             </NavLink>
           )}
 
-          {navItems.slice(1).map(({ to, icon, label }) => (
+          {navItems.slice(2).map(({ to, icon, label }) => (
             <NavLink
               key={to}
               to={to}

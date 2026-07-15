@@ -116,7 +116,7 @@ const Coupons = () => {
           <button
             type="button"
             onClick={() => setShowForm((prev) => !prev)}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1E1B4B] hover:bg-[#2e2a70] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] shrink-0 w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#635BFF] hover:bg-[#5149E4] text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-md active:scale-[0.98] shrink-0 w-full sm:w-auto"
           >
             {showForm ? <FiX size={16} /> : <FiPlus size={16} />}
             {showForm ? "Cancel" : "New Coupon"}
@@ -230,13 +230,15 @@ const Coupons = () => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full h-12 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
-            >
-              {submitting ? "CREATING..." : "CREATE COUPON"}
-            </button>
+           <div className="flex justify-center mt-6">
+  <button
+    type="submit"
+    disabled={submitting}
+    className="w-48 h-14 rounded-xl font-bold text-xs tracking-widest bg-[#635BFF] hover:bg-[#5149E4] text-white transition-all active:scale-[0.99] disabled:opacity-50 shadow-md"
+  >
+    {submitting ? "CREATING..." : "Create Coupon"}
+  </button>
+</div>
           </form>
         )}
 

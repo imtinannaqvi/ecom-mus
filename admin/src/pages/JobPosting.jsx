@@ -92,8 +92,7 @@ const JobPosting = () => {
 
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1E1B4B]">We Are Hiring</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Post job openings and review applicants. Click a job to view its applicants.</p>
+            <h1 className="text-2xl font-bold italic text-[#1E1B4B]">We Are Hiring</h1>
           </div>
           <button
             type="button"
@@ -108,7 +107,7 @@ const JobPosting = () => {
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Job Title</label>
+                <label className="text-[15px] font-bold text-black mb-1.5 block ">Job Title</label>
                 <input
                   type="text"
                   value={form.title}
@@ -118,7 +117,7 @@ const JobPosting = () => {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Category</label>
+                <label className="text-[15px] font-bold text-black mb-1.5 block ">Category</label>
                 <input
                   type="text"
                   value={form.category}
@@ -128,7 +127,7 @@ const JobPosting = () => {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Location</label>
+                <label className="text-[15px] font-bold text-black mb-1.5 block ">Location</label>
                 <input
                   type="text"
                   value={form.location}
@@ -138,7 +137,7 @@ const JobPosting = () => {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Job Type</label>
+                <label className="text-[15px] font-bold text-black mb-1.5 block ">Job Type</label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -151,7 +150,7 @@ const JobPosting = () => {
               </div>
             </div>
             <div>
-              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Description</label>
+              <label className="text-[15px] font-bold text-black mb-1.5 block ">Description</label>
               <textarea
                 rows="4"
                 value={form.description}
@@ -161,7 +160,7 @@ const JobPosting = () => {
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block tracking-wider">Requirements</label>
+              <label className="text-[15px] font-bold text-black mb-1.5 block ">Requirements</label>
               <textarea
                 rows="4"
                 value={form.requirements}
@@ -170,13 +169,16 @@ const JobPosting = () => {
                 placeholder="Skills, experience, qualifications..."
               />
             </div>
-            <button
+            <div className=" flex justify-center mt-6">
+             <button
               type="submit"
               disabled={submitting}
-              className="w-full h-11 bg-[#1E1B4B] text-white rounded-xl font-bold text-xs tracking-widest hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50"
+              className="w-42 h-11 bg-[#1E1B4B] text-white rounded-xl font-medium text-lg  hover:bg-[#2e2a70] transition-all active:scale-[0.99] disabled:opacity-50"
             >
-              {submitting ? "POSTING..." : "POST JOB"}
+              {submitting ? "POSTING..." : "Post Job"}
             </button>
+            </div>
+           
           </form>
         )}
 
