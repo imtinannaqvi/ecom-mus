@@ -6,22 +6,24 @@
 }
 
 @theme {
-  /* Tailwind ki default font family ko override karein */
   --font-inter: 'inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Global Styles */
+
+html {
+  overflow-anchor: none;
+}
+
 @layer base {
   body {
     @apply bg-[#ffffff] font-inter;
-    /* Agar aapne exact #ffff likha hai (jo ki shortcut hai #ffffff ka) */
   }
 }
 
 @layer utilities {
   .text-stroke-fix {
-    color: white; /* Inner Color */
-    -webkit-text-stroke: 4px black; /* Stroke Width & Color */
-    paint-order: stroke fill; /* Yeh overlapping fix karega */
+    color: white;
+    -webkit-text-stroke: 4px black; 
+    paint-order: stroke fill; 
   }
 }
