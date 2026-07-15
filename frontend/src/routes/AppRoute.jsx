@@ -32,10 +32,11 @@ import Aboutus from '../pages/AboutUs'
 import ContactUs from "../pages/ContactUs";
 import Term from "../pages/Term";
 import Privacy from "../pages/Privacy";
+import Hiring from "../pages/Hiring";
+import JobDetail from "../pages/JobDetail";
 function AppRoute() {
   return (
     <Routes>
-      {/* --- Public Routes --- */}
       <Route path="/" element={<LandinPage />} />
       <Route path="/shop/:mainCategory" element={<Home />} />
       <Route
@@ -50,18 +51,18 @@ function AppRoute() {
       <Route path="/contact-us" element={<ContactUs/>} />
       <Route path="/term-condition" element={<Term/>} />
       <Route path="/privacy" element={<Privacy/>} />
+      <Route path="/careers" element={<Hiring/>} />
+      <Route path="/careers/:id" element={<JobDetail/>} />
 
      
       <Route path="/shopping-bag" element={<ShoppingBag />} />
 
-      {/* --- Protected Routes (Login Required) --- */}
       <Route element={<ProtectedRoute />}>
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/address" element={<ShippingAddress />} />
         <Route path="/payment" element={<AddPayment />} />
         <Route path="/payment-successfull" element={<PaymentSuccessfull />} />
 
-        {/* Profile and its nested routes */}
         <Route path="/profile" element={<Profile />}>
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrdersDetail />} />

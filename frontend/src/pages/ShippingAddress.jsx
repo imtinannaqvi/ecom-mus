@@ -61,11 +61,7 @@ function ShippingAddress() {
 if (loading || cartLoading) return <div className="flex justify-center p-20"><div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" /></div>;
   return (
     <>
-     <ToastContainer
-    position="top-right"
-    autoClose={3000}
-    hideProgressBar={false}
-  />
+    
     <main>
       <Header />
       <div className="min-h-screen bg-gray-50 p-4 md:p-10 text-gray-800">

@@ -65,7 +65,6 @@ const NewCategory = () => {
           </div>
         </header>
 
-        <ToastContainer />
 
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
 

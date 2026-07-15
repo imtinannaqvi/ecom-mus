@@ -64,7 +64,6 @@ const NewMainCategory = () => {
         
         </header>
 
-        <ToastContainer />
 
         <form 
           onSubmit={handleSubmit} 

@@ -179,7 +179,6 @@ deliveryCharge: deliveryChargeApplied,
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
-      <ToastContainer position="top-right" autoClose={2500} />
 
       <div className="px-6 md:px-12 py-4 text-[11px] text-gray-400">
         Cart / <span className="text-black font-bold">Info</span> / Shipping / Payment

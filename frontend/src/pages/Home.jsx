@@ -60,7 +60,7 @@ function Home() {
       ) : (
         <Product
           category={mainCategory}
-          products={products} // Yahan products state pass ki
+          products={products} 
         />
       )}
 

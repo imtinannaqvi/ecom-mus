@@ -109,7 +109,6 @@ const ProductList = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-white min-h-screen font-sans">
-      <ToastContainer />
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-xl md:text-2xl font-bold text-[#1E1B4B] italic shrink-0">Products list</h1>

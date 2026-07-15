@@ -75,9 +75,7 @@ function LandinPage() {
       <section className="w-full py-5 px-4 min-h-screen flex flex-wrap items-stretch justify-between gap-4">
         {items.map((item, idx) => {
           return (
-            // Whole tile is now the clickable link — image, overlay, and
-            // "Buy Now" all navigate together, matching how category tiles
-            // work everywhere else on the site.
+            
             <Link
               to={`/shop/${item.name}`}
               key={idx}
@@ -90,7 +88,6 @@ function LandinPage() {
                 onError={(e) => { e.target.src = "/images/no-image.png"; }}
               />
 
-              {/* Overlay Content */}
               <div className="w-full flex items-center gap-4 flex-col justify-center bottom-0 h-[30%] bg-black/60 absolute backdrop-blur-sm">
                 <h1 className="text-xl uppercase font-bold text-white text-center px-2">
                   {item.name}
@@ -105,7 +102,6 @@ function LandinPage() {
       </section>
       <footer className="w-full lg:p-10 p-5  bg-black">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10 border-b border-gray-800 pb-12">
-          {/* Brand Info */}
           <div className="col-span-1">
             <img src="/images/footer-logo.png" alt="" />
             <div className="space-y-4 text-sm text-gray-400">
@@ -131,14 +127,28 @@ function LandinPage() {
             </div>
           </div>
 
-          {/* Company Links */}
           <div>
             <h4 className="font-bold mb-6 text-sm">COMPANY</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li>About Us</li>
-              <li>We Are Hiring</li>
-              <li>Privacy Policy</li>
-              <li>Terms & Conditions</li>
+              <li>
+              <Link to={"/about-us"} className="hover:text-white transition-colors">
+              About Us
+              </Link>
+                </li>
+<li>
+                <Link to={"/careers"} className="hover:text-white transition-colors">
+                We Are Hiring
+                </Link>
+                </li>              <li>
+                <Link to={"/privacy"} className="hover:text-white transition-colors">
+                Privacy Policy
+                </Link>
+                </li>
+              <li>
+                <Link to={"/term-condition"} className="hover:text-white transition-colors">
+                Terms & Conditions
+                </Link>
+                </li>
             </ul>
             <h4 className="font-bold mt-8 mb-4 text-sm">Download App</h4>
             <div className="flex w-60 gap-2">
@@ -179,11 +189,27 @@ function LandinPage() {
           <div>
             <h4 className="font-bold mb-6 text-sm">CUSTOMER SERVICE</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li>Contact Us</li>
-              <li>Track Order</li>
-              <li>Return Order</li>
-              <li>Cancel Order</li>
-            </ul>
+                <li>
+                  <Link to="/contact-us" className="hover:text-white transition-colors">
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/profile/orders" className="hover:text-white transition-colors">
+                    Track Order
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/profile/orders" className="hover:text-white transition-colors">
+                    Return Order
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/profile/orders" className="hover:text-white transition-colors">
+                    Cancel Order
+                  </Link>
+                </li>
+              </ul>
           </div>
 
           {/* Socials & Payments */}

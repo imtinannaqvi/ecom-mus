@@ -160,13 +160,7 @@ function Header() {
 
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-      />
+     
       <header
         className="w-full font-[Inter] shadow-sm bg-white relative z-[100]"
         onMouseLeave={() => setActiveMenu(null)}

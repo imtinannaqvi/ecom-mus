@@ -70,7 +70,6 @@ function Report() {
   if (!stats) {
     return (
       <div className="p-6 bg-[#F8FAFC] min-h-screen flex items-center justify-center font-sans text-gray-400 font-semibold text-sm">
-        <ToastContainer />
         Unable to load report data.
       </div>
     );
@@ -187,7 +186,6 @@ function Report() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
-      <ToastContainer />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-6">
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col justify-between">

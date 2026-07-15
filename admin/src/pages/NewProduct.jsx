@@ -150,7 +150,6 @@ const NewProduct = () => {
           </div>
         </header>
         
-        <ToastContainer />
 
         
         <form onSubmit={submitHandler} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">

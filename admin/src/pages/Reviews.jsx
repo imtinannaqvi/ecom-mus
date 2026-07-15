@@ -71,7 +71,6 @@ const handleDelete = async (review) => {
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-5xl mx-auto">
-        <ToastContainer />
 
         <header className="mb-6">
           <div className="flex items-center gap-2">

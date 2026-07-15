@@ -44,7 +44,6 @@ function Notifications() {
 
   return (
     <section className="w-full flex flex-col h-full bg-white">
-      <ToastContainer />
       {notifications.length > 0 ? (
         notifications.map((item) => (
           <div

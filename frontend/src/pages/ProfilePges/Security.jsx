@@ -43,7 +43,6 @@ function Security() {
 
   return (
     <section className="w-full h-full p-4 md:p-8 flex flex-col items-center">
-      <ToastContainer />
       <div className="w-full max-w-2xl flex flex-col gap-10">
         
         <form onSubmit={handleChangePassword} className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">

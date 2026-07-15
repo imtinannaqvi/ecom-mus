@@ -196,7 +196,6 @@ function Product({ category, products }) {
 
   return (
     <div className="max-w-[1440px] mx-auto overflow-x-hidden">
-      <ToastContainer />
       <ProductSliderSection title="NEW ARRIVALS" products={newArrivals} />
       <ProductSliderSection title="TOP TRENDING" products={topTrending} />
       <ProductSliderSection title="TOP DISCOUNT" products={topDiscount} />

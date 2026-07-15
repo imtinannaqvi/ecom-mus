@@ -97,7 +97,6 @@ const Setting = () => {
           </button>
         </header>
 
-        <ToastContainer />
 
         <form id="admin-settings-form" onSubmit={handleSaveSettings} className="space-y-6">
 

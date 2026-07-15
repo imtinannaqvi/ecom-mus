@@ -27,6 +27,7 @@ import Reviews from "./pages/Reviews";
 import UserDetail from './pages/UserDetail'
 // Baki pages bhi import karein...
 import ContactSubmissions from "./pages/ContactSubmit";
+import JobPosting from "./pages/JobPosting";
 
 function App() {
   return (
@@ -61,7 +62,7 @@ function App() {
   <Route path="reviews" element={<Reviews />} />
   <Route path="users/:id" element={<UserDetail />} />
   <Route path="contact" element={<ContactSubmissions />} />
-
+<Route path="hiring" element={<JobPosting/>} />
 </Route>
         </Route>
       </Routes>

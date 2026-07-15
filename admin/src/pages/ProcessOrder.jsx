@@ -112,7 +112,6 @@ const ProcessOrder = () => {
   return (
     <div className="p-4 sm:p-6 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         
         {/* Navigation Control Top Header */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

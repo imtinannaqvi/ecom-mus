@@ -67,7 +67,6 @@ const ContactSubmissions = () => {
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-5xl mx-auto min-w-0">
-        <ToastContainer />
 
         <header className="mb-6">
           <div className="flex items-center gap-2 flex-wrap">

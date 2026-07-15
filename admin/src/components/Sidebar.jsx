@@ -9,9 +9,9 @@ import {
   LuBell,
   LuSettings,
   LuChevronUp,
-  LuChevronDown
+  LuChevronDown,
 } from 'react-icons/lu';
-import { FiMoreVertical, FiTag, FiMessageSquare, FiMail } from 'react-icons/fi';
+import { FiMoreVertical, FiTag, FiMessageSquare, FiMail, FiBriefcase  } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen = true, onToggle }) => {
   const [isProductsOpen, setIsProductsOpen] = useState(true);
@@ -27,8 +27,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
     if (window.innerWidth < 768) onToggle();
   };
 
-  // py-2.5 (was py-3) — across 10 items this reclaims enough vertical space
-  // to stop the nav overflowing and showing a scrollbar.
+
   const linkClass = ({ isActive }) => `
     flex items-center gap-4 py-2.5 rounded-xl transition-all duration-150
     ${isOpen ? "px-3" : "px-3 md:px-0 md:justify-center"}
@@ -37,9 +36,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
 
   const labelClass = `text-[15px] whitespace-nowrap ${isOpen ? "" : "md:hidden"}`;
 
-  // Contact now lives IN this array (it was hardcoded below before, which meant
-  // it never got the collapsed icon-rail treatment and its label would still
-  // render at 80px width, breaking the layout).
+  
   const navItems = [
     { to: "/admin/dashboard",    icon: <LuLayoutDashboard className="text-xl shrink-0" />, label: "Dashboard" },
     { to: "/admin/orders",       icon: <LuTag className="text-xl rotate-90 shrink-0" />,   label: "Sales" },
@@ -54,7 +51,6 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
 
   return (
     <>
-      {/* Mobile Backdrop Overlay — dims screen and closes sidebar when clicking outside */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden transition-opacity"
@@ -74,7 +70,6 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
         `}
       >
 
-        {/* Logo row — mb-6 (was mb-8) to reclaim vertical space */}
         <div className={`mb-6 flex items-center gap-2 shrink-0 ${isOpen ? "px-2 justify-between" : "px-2 justify-between md:px-0 md:justify-center"}`}>
           <div className="flex items-center gap-2 min-w-0">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#635BFF] shrink-0">
@@ -121,7 +116,18 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             <span className={labelClass}>{navItems[0].label}</span>
           </NavLink>
 
-          {/* Products — accordion when expanded, single icon when collapsed */}
+          <NavLink
+  to="/admin/hiring"
+  className={({ isActive }) =>
+    `flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 ${
+      isActive ? "text-[#635BFF] font-semibold" : "text-[#5D6B82] hover:text-[#1E1B4B]"
+    }`
+  }
+>
+  <FiBriefcase className="text-xl" />
+  <span className="text-[15px]">Hiring Process</span>
+</NavLink>
+
           {isOpen ? (
             <div>
               <button
@@ -174,7 +180,6 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
             </NavLink>
           )}
 
-          {/* Everything else — Contact included, so it collapses correctly */}
           {navItems.slice(1).map(({ to, icon, label }) => (
             <NavLink
               key={to}

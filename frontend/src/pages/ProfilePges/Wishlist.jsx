@@ -59,7 +59,6 @@ function Wishlist() {
   if (items.length === 0) {
     return (
       <div className="w-full text-center py-20">
-        <ToastContainer />
         <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">
           Your wishlist is empty
         </p>
@@ -72,7 +71,6 @@ function Wishlist() {
 
   return (
     <div className="w-full flex flex-wrap gap-y-8 gap-x-[2%] items-start justify-start">
-      <ToastContainer />
       {items.map((item) => (
         <div
           key={item._id}

@@ -270,7 +270,11 @@ const Footer = () => {
                 About Us
                 </Link>
               </li>
-              <li>We Are Hiring</li>
+              <li>
+                <Link to={"/careers"} className="hover:text-white transition-colors">
+                We Are Hiring
+                </Link>
+                </li>
               <li>
                 <Link to={"/privacy"} className="hover:text-white transition-colors">
                  Privacy Policy
@@ -343,7 +347,6 @@ const Footer = () => {
   </ul>
 </div>
 
-          {/* Social media connections and payment method icons */}
           <div>
             <h4 className="font-bold mb-6 text-sm">CONNECT WITH US</h4>
             <div className="space-y-3 text-sm text-gray-400 mb-6">
@@ -400,7 +403,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Email subscription form for newsletter and promotions */}
           <div>
             <h4 className="font-bold mb-6 text-sm uppercase">
               Keep up to date
@@ -444,8 +446,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Sitemap — dynamically built from real categories/subcategories,
-            so it never drifts out of sync with what's actually in the store. */}
+        
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 py-12 text-gray-400 text-[13px]">
 
           {categories.map((cat) => (
@@ -478,7 +479,6 @@ const Footer = () => {
             </div>
           ))}
 
-          {/* Quick links and company information */}
           <div className="space-y-2">
             <h4 className="text-white font-bold mb-4 border-b border-gray-800 pb-2 uppercase">
               Help & Info
@@ -543,7 +543,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Prominent display of return policy for customer assurance */}
           <div className="flex flex-col items-end">
             <div className="flex items-center gap-2 text-white font-bold">
               <Truck size={20} />

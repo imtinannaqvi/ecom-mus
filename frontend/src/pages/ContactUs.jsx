@@ -43,7 +43,6 @@ function ContactUs() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
-      <ToastContainer position="top-right" autoClose={1000} />
 
       <div className="max-w-6xl mx-auto px-6 md:px-12 py-16">
         <div className="text-center mb-14">

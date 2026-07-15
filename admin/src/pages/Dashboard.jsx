@@ -6,8 +6,7 @@ import {
 } from 'react-icons/fi';
 import Chart from 'react-apexcharts';
 import Api from "../api/api";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const REFRESH_INTERVAL_MS = 30000;
@@ -17,7 +16,7 @@ const STATUS_COLORS = {
   Shipped: "#635BFF", Delivered: "#10B981", Cancelled: "#EF4444",
 };
 
-// Chart palette — matches the soft amber / indigo / emerald reference look
+// Chart palette — matches the soft amber / indigo reference look
 const CHART_COLORS = ["#F59E0B", "#635BFF"];
 
 const timeAgo = (dateString) => {
@@ -141,7 +140,7 @@ const Dashboard = () => {
 
   if (!stats) return (
     <div className="p-6 bg-[#F8FAFC] min-h-screen flex items-center justify-center text-gray-400 text-sm font-semibold">
-      <ToastContainer /> Unable to load dashboard data.
+      Unable to load dashboard data.
     </div>
   );
 
@@ -159,8 +158,6 @@ const Dashboard = () => {
   const statusEntries = Object.entries(statusBreakdown);
   const totalStatusCount = statusEntries.reduce((s, [, v]) => s + v, 0);
 
-  // ── Reference-style chart: smooth spline areas, soft gradient fills,
-  // light dashed grid, crosshair, bottom-centered legend, clean tooltip.
   const chartOptions = {
     chart: {
       type: "area",
@@ -243,7 +240,6 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B]">
-      <ToastContainer />
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-6">
@@ -267,7 +263,7 @@ const Dashboard = () => {
         {/* Left — chart + pipeline */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
 
-          {/* Sales Chart — reference-styled header with summary counters */}
+          {/* Sales Chart */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-2">
               <div>
@@ -408,4 +404,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Dashboard;Get-ChildItem -Recurse -Include *.jsx -Path .\frontend\src | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-String -Pattern '<ToastContainer' | Select-Object Path

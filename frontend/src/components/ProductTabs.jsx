@@ -95,7 +95,6 @@ function ProductTabs({ activeTab, setActiveTab, product, onProductUpdate }) {
 
   return (
     <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-      <ToastContainer />
 
       {/* Tab Buttons */}
       <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4">

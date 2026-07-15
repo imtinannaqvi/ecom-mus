@@ -93,7 +93,6 @@ const UserList = () => {
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto min-w-0">
 
-        <ToastContainer />
 
        
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

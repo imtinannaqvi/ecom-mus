@@ -51,7 +51,6 @@ const UserDetail = () => {
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-sans text-[#1E293B] p-4 sm:p-6 md:p-8">
-      <ToastContainer />
       <div className="max-w-4xl mx-auto">
 
         <button
